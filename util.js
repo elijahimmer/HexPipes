@@ -43,3 +43,7 @@ function databaseDisconnected() {
     dbDiv.classList.remove("db-connected");
     dbDiv.classList.add("db-disconnected");
 };
+
+function assert(ok, msg) {
+    if (!ok) console.error(msg);
+}

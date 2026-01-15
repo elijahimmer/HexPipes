@@ -58,17 +58,31 @@
         </div>
 
         <div id="options">
-            <input type="checkbox" id="red" checked />
+            <input type="checkbox" id="cell-draw-red" checked />
             <label for="red">Draw Red</label><br />
 
-            <input type="checkbox" id="green" checked />
+            <input type="checkbox" id="cell-draw-green" checked />
             <label for="green">Draw Green</label><br />
 
-            <input type="checkbox" id="blue" checked />
+            <input type="checkbox" id="cell-draw-blue" checked />
             <label for="blue">Draw Blue</label><br />
 
-            <input type="checkbox" id="flow" checked />
-            <label for="flow">Show Flow</label><br />
+            <label for="organism-display">Display Organism:</label>
+            <select id="organism-display">
+                <option value="none" selected>None</option>
+                <option value="grey" selected>Grey</option>
+                <option value="energy">Energy</option>
+            </select> <br />
+
+            <label for="organism-pipes">Display Organism Pipes:</label>
+            <select id="organism-pipes">
+                <option value="none" selected>None</option>
+                <option value="color" selected>Color</option>
+                <option value="flow">Flow</option>
+            </select> <br />
+
+            <input type="checkbox" id="organism-energy" checked />
+            <label for="organism-energy">Display Organism Energy (red empty, blue full)</label><br />
 
             <input type="checkbox" id="endpoints" checked />
             <label for="endpoints">Show Endpoints</label><br />

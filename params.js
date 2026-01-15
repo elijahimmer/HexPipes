@@ -5,7 +5,7 @@ var PARAMETERS = {
     db: "HexPipes",
     collection: "test",
     ip: 'https://73.19.38.112:8888',
-    
+
     // Canvas parameters
     canvasWidth: 1600,
     canvasHeight: 1000,
@@ -16,16 +16,16 @@ var PARAMETERS = {
     gridRadius: 25,          // Radius of hex grid (10 = 271 cells)
     cellSize: 12,            // Size of each hex cell in pixels
     addOrganismsOnTick: 200, // Tick that new organisms are added
-    
+
     numOrganisms: 30,       // Initial number of organisms
     k_diffusion: 0.15,       // Diffusion rate (must be < 1/6 ≈ 0.167 for stability)
-    
+
     // Pipe flow parameters
-    k_pipe: 0.75,             // Pipe flow rate 
+    k_pipe: 0.75,             // Pipe flow rate
     loss_rate: 0.05,         // Fraction of flow converted to energy (0.1-0.3)
     resourceDecay: 0,    // Fraction of cell resource lost per tick
     energyDecay: 0.01,      // Fraction of organism energy lost per tick
-    
+
     // Evolution parameters
     reproductionThreshold: 100,  // Energy needed to reproduce
     mutationRate: 0.05,          // chance per endpoint/configuration
@@ -55,7 +55,7 @@ function loadParameters() {
     PARAMETERS.cellSize = parseInt(document.getElementById("cellSize").value);
 
     // Could calculate dependent parameters here if needed
-    
+
 
     console.log("Parameters loaded:", PARAMETERS);
 }

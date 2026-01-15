@@ -10,7 +10,7 @@ class Organism {
 
         this.energy = 0;
     }
-    
+
     placeInGrid(q, r) {
         this.q = q;
         this.r = r;
@@ -32,28 +32,28 @@ class Organism {
             this.sideToPipe[pipe.outputSide] = pipe;
         }
     }
-    
+
     /**
      * Get the grid cell that this pipe's input pulls from
      */
     getInputCell(pipe) {
         return this.getNeighborOnSide(this.q, this.r, pipe.inputSide);
     }
-    
+
     /**
      * Get the grid cell that this pipe's output pushes to
      */
     getOutputCell(pipe) {
         return this.getNeighborOnSide(this.q, this.r, pipe.outputSide);
     }
-    
+
     /**
      * Calculate energy factor for a pipe (color distance / 3)
      */
     getEnergyFactor(pipe) {
         return this.calculateColorDistance(pipe.inputColor, pipe.outputColor) / 3;
     }
-    
+
     /**
      * Generate random pipe configuration
      */
@@ -69,14 +69,14 @@ class Organism {
             const side2 = sides.splice(index2, 1)[0];
             pairing.push([side1, side2]);
         }
-        
+
         const colors = ['R', 'Y', 'G', 'C', 'B', 'M'];
-        
+
         // For each pair of sides, create a simple pipe
-        for (let [side1, side2] of pairing) {            
+        for (let [side1, side2] of pairing) {
             const inputColor = colors[randomInt(colors.length)];
             const outputColor = colors[randomInt(colors.length)];
-            
+
             pipes.push({
                 inputSide: side1,
                 inputColor: inputColor,
@@ -91,7 +91,7 @@ class Organism {
         return pipes;
         // console.log("Generated organism with pipes:", this.pipes);
     }
-    
+
     /**
      * Get the neighbor cell on a given side of a hex cell
      */
@@ -99,20 +99,20 @@ class Organism {
         const dir = this.grid.directions[side];
         return this.grid.getCell(q + dir.q, r + dir.r);
     }
-  
+
     /**
      * Main update function
      */
     update() {
         this.processPipes();
     }
-    
+
     /**
      * Deep copy pipes - simple structure is trivial to copy
      */
     copyPipes(targetOrganism) {
         const copiedPipes = [];
-        
+
         for (const pipe of targetOrganism.pipes) {
             copiedPipes.push({
                 inputSide: pipe.inputSide,
@@ -124,10 +124,10 @@ class Organism {
                 flow: 0
             });
         }
-        
+
         return copiedPipes;
     }
-    
+
     /**
      * Try to reproduce if energy threshold is met
      * Returns new organism or null
@@ -137,79 +137,79 @@ class Organism {
         if (this.energy < PARAMETERS.reproductionThreshold) {
             return null;
         }
-                
-        // create a mutated offspring  
+
+        // create a mutated offspring
         const offspring = new Organism(this.grid, this);
         const range = Math.min(5, Math.max(2, Math.floor(this.energy / PARAMETERS.reproductionThreshold)));
 
         // Find legal placement within range
         const candidates = this.grid.getCellsInRange(this.q, this.r, range);
         const legalCells = candidates.filter(c => this.grid.isLegalPlacement(c.q, c.r));
-        
+
         // PRIORITY 1: Free spaces (no touching)
         if (legalCells.length > 0) {
             // Pick random legal cell
             const bestCell = legalCells[randomInt(legalCells.length)];
             offspring.placeInGrid(bestCell.q, bestCell.r);
-            
+
             // Deduct reproduction cost
             this.energy -= PARAMETERS.reproductionThreshold;
-            
+
             // console.log(`🧬 Organism reproduced at (${bestCell.q}, ${bestCell.r}), parent energy: ${this.energy.toFixed(2)}`);
-            
+
             return offspring;
         }
-        
+
         // PRIORITY 2: Check for merge opportunities (adjacent placement)
-       
+
         const mergeCandidates = candidates.filter(c => this.grid.isLegalAdjacentPlacement(c.q, c.r, offspring));
 
         if (mergeCandidates.length > 0) {
             // Pick random legal cell
             const bestCell = mergeCandidates[randomInt(mergeCandidates.length)];
             offspring.placeInGrid(bestCell.q, bestCell.r);
-            
+
             // Deduct reproduction cost
             this.energy -= PARAMETERS.reproductionThreshold;
-            
+
             // console.log(`🧬 Organism reproduced by merging at (${bestCell.q}, ${bestCell.r}), parent energy: ${this.energy.toFixed(2)}`);
-            
+
             return offspring;
         }
-        
+
         // No reproduction possible
         return null;
     }
-    
+
     /**
      * Apply mutations to offspring
      * IMPORTANT: Don't mutate colors on endpoints connected to other organisms
      */
     mutate() {
         const colors = ['R', 'Y', 'G', 'C', 'B', 'M'];
-        
+
         // Mutate endpoint colors and connectors
         for (const pipe of this.pipes) {
             const inputCell = this.getInputCell(pipe);
             const outputCell = this.getOutputCell(pipe);
-            
+
             if (Math.random() < PARAMETERS.mutationRate) {
                 pipe.inputColor = colors[randomInt(colors.length)];
             }
-            
+
             if (Math.random() < PARAMETERS.mutationRate) {
-                pipe.outputColor = colors[randomInt(colors.length)]; 
+                pipe.outputColor = colors[randomInt(colors.length)];
             }
 
             if (Math.random() < PARAMETERS.mutationRate) {
                 pipe.inputConnect = !pipe.inputConnect;
             }
-            
+
             if (Math.random() < PARAMETERS.mutationRate) {
                 pipe.outputConnect = !pipe.outputConnect;
             }
         }
-        
+
         if (Math.random() < PARAMETERS.mutationRate) {
             if (this.pipes.length >= 2) {
                 const pipe1Idx = randomInt(this.pipes.length);
@@ -217,10 +217,10 @@ class Organism {
                 do {
                     pipe2Idx = randomInt(this.pipes.length);
                 } while (pipe2Idx === pipe1Idx);
-                
+
                 const pipe1 = this.pipes[pipe1Idx];
                 const pipe2 = this.pipes[pipe2Idx];
-                
+
                 // Randomly choose to swap inputs or outputs
                 const swapType = randomInt(4);
                 if (swapType === 0) {
@@ -238,13 +238,13 @@ class Organism {
                 }
             }
         }
-        
+
         // Mutate rotation
         if (Math.random() < PARAMETERS.mutationRate) {
             // Rotate by ±1 or ±2 positions (60° or 120°)
             const rotations = [-2, -1, 1, 2];
             const rotation = rotations[randomInt(rotations.length)];
-            
+
             // Rotate all pipes
             for (const pipe of this.pipes) {
                 pipe.inputSide = (pipe.inputSide + rotation + 6) % 6;
@@ -252,7 +252,7 @@ class Organism {
             }
         }
     }
-    
+
     /**
      * Get RGB color for a color name
      */
@@ -267,9 +267,9 @@ class Organism {
         };
         return colorMap[colorName];
     }
-    
+
     organismID() {
-        const pipeCodes = this.pipes.map(pipe => 
+        const pipeCodes = this.pipes.map(pipe =>
             `${pipe.inputSide}${pipe.inputColor}${pipe.outputSide}${pipe.outputColor}`
         ).sort((a, b) => a.localeCompare(b)).join('-');
         return pipeCodes;
@@ -294,10 +294,32 @@ class Organism {
     draw(ctx) {
         const center = this.grid.hexToPixel(this.q, this.r);
         const size = this.grid.cellSize;
-        const flow = document.getElementById('flow').checked;
-        
-        // Draw each pipe
-        this.drawPipesAtPoint(ctx, center, size, this.pipes, flow);
+        const display = document.getElementById('organism-display').value;
+        const pipe_show = document.getElementById('organism-pipes').value;
+
+        const gridCell = this.grid.getCell(this.q, this.r);
+        if (display === "none") {
+            // don't display them
+            gridCell.R = 0;
+            gridCell.G = 0;
+            gridCell.B = 0;
+        } else if (display === "grey") {
+            // reset color of cell
+            gridCell.R = 0x90;
+            gridCell.G = 0x8c;
+            gridCell.B = 0xaa;
+        } else if (display === "energy") {
+            const proportion = (this.energy / 100) * 255;
+            gridCell.R = 255 - proportion;
+            gridCell.G = 0;
+            gridCell.B = proportion;
+        } else console.error(`Unknown 'organism-display' value ${display}`);
+
+         if (pipe_show === "none") {
+            // do nothing
+        } else if (pipe_show === "color" || pipe_show === "flow") {
+            this.drawPipesAtPoint(ctx, center, size, this.pipes, pipe_show === "flow");
+        } else console.error(`Unknown 'organism-pipes' value ${pipe_show}`);
 
         // Draw side numbers for debugging
         // this.drawSideNumbers(ctx);
@@ -322,26 +344,26 @@ class Organism {
             y: center.y + edgeDistance * Math.sin(angle)
         };
     }
-    
+
     /**
      * Draw a single pipe with curved line
      */
     drawPipe(ctx, center, size, pipe, flow) {
         const startPoint = this.getSidePoint(center, size, pipe.inputSide);
         const endPoint = this.getSidePoint(center, size, pipe.outputSide);
-        
+
         const inputColor = this.getColorRGB(pipe.inputColor);
         const outputColor = this.getColorRGB(pipe.outputColor);
-        
+
         // Check if this is a straight-through pipe (opposite sides)
         const oppositeSides = [
             [0, 3], [1, 4], [2, 5]
         ];
-        const isStraight = oppositeSides.some(([a, b]) => 
+        const isStraight = oppositeSides.some(([a, b]) =>
             (pipe.inputSide === a && pipe.outputSide === b) ||
             (pipe.inputSide === b && pipe.outputSide === a)
         );
-        
+
         if (isStraight) {
             // Draw straight line through center
             this.drawGradientLine(ctx, startPoint, endPoint, inputColor, outputColor, pipe.flow, flow);
@@ -349,17 +371,17 @@ class Organism {
             // Draw curved line that doesn't go through center
             this.drawCurvedPipe(ctx, center, startPoint, endPoint, inputColor, outputColor, pipe.flow, flow);
         }
-        
+
         // Draw direction indicators at the pipe endpoints (input/output)
         if (document.getElementById('endpoints').checked) {
                     this.drawDirectionIndicators(ctx, pipe, center, size, inputColor, outputColor);
         }
     }
-    
+
     drawSideNumbers(ctx) {
         const center = this.grid.hexToPixel(this.q, this.r);
         const size = this.grid.cellSize;
-        
+
         for (let side = 0; side < 6; side++) {
             const neighbor = this.getNeighborOnSide(this.q, this.r, side);
             this.grid.drawNumInHex(ctx, neighbor, side);
@@ -380,11 +402,11 @@ class Organism {
     drawDirectionIndicators(ctx, pipe, center, size, inputColor, outputColor) {
         const startPoint = this.getSidePoint(center, size, pipe.inputSide);
         const endPoint = this.getSidePoint(center, size, pipe.outputSide);
-        
+
         // Get cell references using helper methods
         const inputCell = this.getInputCell(pipe);
         const outputCell = this.getOutputCell(pipe);
-        
+
         // Only draw input indicator if inputCell is external (no organism)
         if (inputCell && !inputCell.organism) {
             ctx.fillStyle = rgb(inputColor.R, inputColor.G, inputColor.B);
@@ -395,23 +417,23 @@ class Organism {
             ctx.lineWidth = 1;
             ctx.stroke();
         }
-        
+
         // Only draw output indicator if outputCell is external (no organism)
         if (outputCell && !outputCell.organism) {
             const arrowSize = PARAMETERS.arrowLength;
             const angle = Math.PI / 3 * pipe.outputSide + Math.PI / 6;
-            
+
             // Arrow points outward from hex
             const tipX = endPoint.x + Math.cos(angle) * arrowSize;
             const tipY = endPoint.y + Math.sin(angle) * arrowSize;
-            
+
             // Two base points perpendicular to arrow direction
             const perpAngle = angle + Math.PI / 2;
             const baseX1 = endPoint.x + Math.cos(perpAngle) * arrowSize * 0.4;
             const baseY1 = endPoint.y + Math.sin(perpAngle) * arrowSize * 0.4;
             const baseX2 = endPoint.x - Math.cos(perpAngle) * arrowSize * 0.4;
             const baseY2 = endPoint.y - Math.sin(perpAngle) * arrowSize * 0.4;
-            
+
             ctx.fillStyle = rgb(outputColor.R, outputColor.G, outputColor.B);
             ctx.beginPath();
             ctx.moveTo(tipX, tipY);
@@ -424,7 +446,7 @@ class Organism {
             ctx.stroke();
         }
     }
-    
+
     /**
      * Draw straight line with gradient
      */
@@ -433,21 +455,21 @@ class Organism {
         gradient.addColorStop(0, rgb(startColor.R, startColor.G, startColor.B));
         gradient.addColorStop(0.5, 'rgb(128, 128, 128)'); // Gray in middle
         gradient.addColorStop(1, rgb(outputColor.R, outputColor.G, outputColor.B));
-        
+
         if(showFlow) {
             // Modulate color brightness by flow amount (0 to 1)
             const flowFactor = Math.floor(flow/(255*PARAMETERS.k_pipe)*255); // Scale flow for visibility
             ctx.strokeStyle = rgb(0, flowFactor, 0); // Greenish tint for flow
         } else {
             ctx.strokeStyle = gradient;
-        }   
+        }
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(start.x, start.y);
         ctx.lineTo(end.x, end.y);
         ctx.stroke();
     }
-    
+
     /**
      * Draw curved pipe using quadratic bezier
      */
@@ -455,26 +477,26 @@ class Organism {
         // Control point is perpendicular to midpoint, offset toward center
         const midX = (start.x + end.x) / 2;
         const midY = (start.y + end.y) / 2;
-        
+
         // Vector from center to midpoint
         const toMidX = midX - center.x;
         const toMidY = midY - center.y;
         const dist = Math.sqrt(toMidX * toMidX + toMidY * toMidY);
-        
+
         // Control point pushed toward center (subtract instead of add)
         const controlX = midX - (toMidX / dist) * this.grid.cellSize * 0.5;
         const controlY = midY - (toMidY / dist) * this.grid.cellSize * 0.5;
-        
+
         // Draw curve with color endpoints and gray middle
         // We'll approximate gradient with multiple line segments
         const segments = 20;
         for (let i = 0; i < segments; i++) {
             const t1 = i / segments;
             const t2 = (i + 1) / segments;
-            
+
             const p1 = this.bezierPoint(start, {x: controlX, y: controlY}, end, t1);
             const p2 = this.bezierPoint(start, {x: controlX, y: controlY}, end, t2);
-            
+
             // Interpolate color
             const color = this.interpolateColor(startColor, outputColor, t1);
 
@@ -492,7 +514,7 @@ class Organism {
             ctx.stroke();
         }
     }
-    
+
     /**
      * Calculate point on quadratic bezier curve
      */
@@ -501,7 +523,7 @@ class Organism {
         const y = (1-t)*(1-t)*start.y + 2*(1-t)*t*control.y + t*t*end.y;
         return {x, y};
     }
-    
+
     /**
      * Interpolate between two colors with gray in middle
      */
