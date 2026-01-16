@@ -11,7 +11,7 @@ if (window.io !== undefined) {
 	socket.on("connect", function () {
 		databaseConnected();
 	});
-	
+
 	socket.on("disconnect", function () {
 		databaseDisconnected();
 	});
@@ -21,7 +21,7 @@ if (window.io !== undefined) {
 
 function reset() {
     loadParameters();
-    gameEngine.entities = [];	
+    gameEngine.entities = [];
     gameEngine.graphs = [];
 
     gameEngine.addEntity(new HexGrid()); // Using HexGrid instead of Tumbler

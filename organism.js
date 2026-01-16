@@ -1,3 +1,15 @@
+const GREY = {
+    R: 128,
+    G: 128,
+    B: 128,
+};
+const BLACK = {
+    R: 0,
+    G: 0,
+    B: 0,
+};
+var pipe_mid_color = GREY;
+
 class Organism {
     constructor(grid, organism) {
         this.grid = grid;
@@ -303,16 +315,19 @@ class Organism {
             gridCell.R = 0;
             gridCell.G = 0;
             gridCell.B = 0;
+            pipe_mid_color = GREY;
         } else if (display === "grey") {
             // reset color of cell
             gridCell.R = 0x90;
             gridCell.G = 0x8c;
             gridCell.B = 0xaa;
+            pipe_mid_color = BLACK;
         } else if (display === "energy") {
-            const proportion = (this.energy / 100) * 255;
+            const proportion = Math.floor((this.energy / 100) * 255);
             gridCell.R = 255 - proportion;
             gridCell.G = 0;
             gridCell.B = proportion;
+            pipe_mid_color = GREY;
         } else console.error(`Unknown 'organism-display' value ${display}`);
 
          if (pipe_show === "none") {
@@ -453,7 +468,7 @@ class Organism {
     drawGradientLine(ctx, start, end, startColor, outputColor, flow, showFlow) {
         const gradient = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
         gradient.addColorStop(0, rgb(startColor.R, startColor.G, startColor.B));
-        gradient.addColorStop(0.5, 'rgb(128, 128, 128)'); // Gray in middle
+        gradient.addColorStop(0.5, rgb(pipe_mid_color.R, pipe_mid_color.G, pipe_mid_color.B));
         gradient.addColorStop(1, rgb(outputColor.R, outputColor.G, outputColor.B));
 
         if(showFlow) {
@@ -524,6 +539,7 @@ class Organism {
         return {x, y};
     }
 
+
     /**
      * Interpolate between two colors with gray in middle
      */
@@ -533,17 +549,17 @@ class Organism {
             // Interpolate from color1 to gray
             const s = t * 2; // 0 to 1
             return {
-                R: color1.R * (1 - s) + 128 * s,
-                G: color1.G * (1 - s) + 128 * s,
-                B: color1.B * (1 - s) + 128 * s
+                R: color1.R * (1 - s) + pipe_mid_color.R * s,
+                G: color1.G * (1 - s) + pipe_mid_color.G * s,
+                B: color1.B * (1 - s) + pipe_mid_color.B * s
             };
         } else {
             // Interpolate from gray to color2
             const s = (t - 0.5) * 2; // 0 to 1
             return {
-                R: 128 * (1 - s) + color2.R * s,
-                G: 128 * (1 - s) + color2.G * s,
-                B: 128 * (1 - s) + color2.B * s
+                R: pipe_mid_color.R * (1 - s) + color2.R * s,
+                G: pipe_mid_color.G * (1 - s) + color2.G * s,
+                B: pipe_mid_color.B * (1 - s) + color2.B * s
             };
         }
     }
