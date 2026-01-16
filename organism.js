@@ -1,7 +1,7 @@
 const GREY = {
-    R: 128,
-    G: 128,
-    B: 128,
+    R: 0x90,
+    G: 0x8c,
+    B: 0xaa,
 };
 const BLACK = {
     R: 0,
@@ -308,6 +308,7 @@ class Organism {
         const size = this.grid.cellSize;
         const display = document.getElementById('organism-display').value;
         const pipe_show = document.getElementById('organism-pipes').value;
+        const endpoints = document.getElementById('endpoints').checked;
 
         const gridCell = this.grid.getCell(this.q, this.r);
         if (display === "none") {
@@ -336,11 +337,16 @@ class Organism {
             this.drawPipesAtPoint(ctx, center, size, this.pipes, pipe_show === "flow");
         } else console.error(`Unknown 'organism-pipes' value ${pipe_show}`);
 
-        // Draw side numbers for debugging
-        // this.drawSideNumbers(ctx);
+        if (endpoints) {
+            for (const pipe of this.pipes) {
+                const inputColor = this.getColorRGB(pipe.inputColor);
+                const outputColor = this.getColorRGB(pipe.outputColor);
+                this.drawDirectionIndicators(ctx, pipe, center, size, inputColor, outputColor);
+            }
+        }
     }
 
-    drawPipesAtPoint (ctx, center, size, pipes, flow) {
+    drawPipesAtPoint(ctx, center, size, pipes, flow) {
         for (const pipe of pipes) {
             this.drawPipe(ctx, center, size, pipe, flow);
         }
@@ -388,9 +394,6 @@ class Organism {
         }
 
         // Draw direction indicators at the pipe endpoints (input/output)
-        if (document.getElementById('endpoints').checked) {
-                    this.drawDirectionIndicators(ctx, pipe, center, size, inputColor, outputColor);
-        }
     }
 
     drawSideNumbers(ctx) {
