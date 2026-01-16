@@ -488,6 +488,7 @@ class HexGrid {
         }
     }
 
+    // TODO(Elijah): The pipes are made here
     traceForward(organism, pipe) {
         const chain = [{organism: organism, pipe: pipe}];
         let current = {organism: organism, pipe: pipe};

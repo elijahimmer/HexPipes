@@ -1,3 +1,16 @@
+const TEXT_COLOR_DARK_BACKGROUND = "#000000";
+const TEXT_COLOR_LIGHT_BACKGROUND = "#e0def4";
+
+var TEXT_COLOR = TEXT_COLOR_LIGHT_BACKGROUND;
+
+if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    // dark mode
+    TEXT_COLOR = TEXT_COLOR_DARK_BACKGROUND;
+}
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+    TEXT_COLOR = event.matches ? TEXT_COLOR_DARK_BACKGROUND : TEXT_COLOR_LIGHT_BACKGROUND;
+});
+
 var PARAMETERS = {
     // Framework parameters
     updatesPerDraw: 1,
@@ -17,24 +30,24 @@ var PARAMETERS = {
     cellSize: 12,            // Size of each hex cell in pixels
     addOrganismsOnTick: 200, // Tick that new organisms are added
 
-    numOrganisms: 30,       // Initial number of organisms
+    numOrganisms: 30,        // Initial number of organisms
     k_diffusion: 0.15,       // Diffusion rate (must be < 1/6 ≈ 0.167 for stability)
 
     // Pipe flow parameters
     k_pipe: 0.75,             // Pipe flow rate
-    loss_rate: 0.05,         // Fraction of flow converted to energy (0.1-0.3)
-    resourceDecay: 0,    // Fraction of cell resource lost per tick
-    energyDecay: 0.01,      // Fraction of organism energy lost per tick
+    loss_rate: 0.05,          // Fraction of flow converted to energy (0.1-0.3)
+    resourceDecay: 0,         // Fraction of cell resource lost per tick
+    energyDecay: 0.01,        // Fraction of organism energy lost per tick
 
     // Evolution parameters
-    reproductionThreshold: 100,  // Energy needed to reproduce
-    mutationRate: 0.05,          // chance per endpoint/configuration
+    reproductionThreshold: 100,   // Energy needed to reproduce
+    mutationRate: 0.05,           // chance per endpoint/configuration
     deathRate: 0.005,             // death chance per tick (lightning bolt)
-    starvationRate: 0.5,        // death chance per tick if low energy
-    starvationThreshold: 0.01,   // fraction of reproductionThreshold considered "low energy"
+    starvationRate: 0.5,          // death chance per tick if low energy
+    starvationThreshold: 0.01,    // fraction of reproductionThreshold considered "low energy"
 
     arrowLength: 6,          // Length of flow direction arrows
-    circleRadius: 3,       // Radius of flow direction circle
+    circleRadius: 3,         // Radius of flow direction circle
 
     graphWidth: 600,
     graphHeight: 120,
