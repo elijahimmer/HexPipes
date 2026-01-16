@@ -31,11 +31,11 @@ class Histogram {
                 this.fill(this.data[i + start][j] / maxVal, i, 19 - j);
             }
         }
-        this.ctx.fillStyle = "#000000";
+        this.ctx.fillStyle = TEXT_COLOR;
         this.ctx.textAlign = "center";
         this.ctx.fillText(this.label, this.x + this.width / 2, this.y + this.height + 10);
 
-        this.ctx.strokeStyle = "#000000";
+        this.ctx.strokeStyle = TEXT_COLOR;
         this.ctx.lineWidth = 1;
         this.ctx.strokeRect(this.x, this.y, this.width, this.height);
     }

@@ -431,7 +431,7 @@ class Organism {
             ctx.beginPath();
             ctx.arc(startPoint.x, startPoint.y, PARAMETERS.circleRadius, 0, Math.PI * 2);
             ctx.fill();
-            ctx.strokeStyle = '#000000';
+            ctx.strokeStyle = TEXT_COLOR;
             ctx.lineWidth = 1;
             ctx.stroke();
         }
@@ -459,7 +459,7 @@ class Organism {
             ctx.lineTo(baseX2, baseY2);
             ctx.closePath();
             ctx.fill();
-            ctx.strokeStyle = '#000000';
+            ctx.strokeStyle = TEXT_COLOR;
             ctx.lineWidth = 1;
             ctx.stroke();
         }

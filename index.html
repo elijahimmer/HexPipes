@@ -7,11 +7,11 @@
     <link rel="stylesheet" type="text/css" href="./style.css">
     </link>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.1/socket.io.js"></script>
+    <script type="text/javascript" src="./util.js"></script>
     <script type="text/javascript" src="./assetmanager.js"></script>
     <script type="text/javascript" src="./histogram.js"></script>
     <script type="text/javascript" src="./graph.js"></script>
     <script type="text/javascript" src="./gameengine.js"></script>
-    <script type="text/javascript" src="./util.js"></script>
     <script type="text/javascript" src="./params.js"></script>
     <script type="text/javascript" src="./hexgrid.js"></script>
     <script type="text/javascript" src="./datamanager.js"></script>
@@ -58,6 +58,8 @@
         </div>
 
         <div id="options">
+            <h3>Grid Settings</h3>
+
             <input type="checkbox" id="cell-draw-red" checked />
             <label for="red">Draw Red</label><br />
 
@@ -83,6 +85,14 @@
 
             <input type="checkbox" id="endpoints" checked />
             <label for="endpoints">Show Endpoints</label><br />
+
+            <h3>Graph Settings</h3>
+
+            <input type="checkbox" id="ignore-color" checked />
+            <label for="endpoints">Ignore Colors</label><br />
+
+            <input type="checkbox" id="ignore-rotation" checked />
+            <label for="endpoints">Ignore Rotation</label><br />
         </div>
     </div>
 </body>

@@ -1,7 +1,7 @@
 class OrganismGraph {
     constructor(hexGrid) {
         this.hexGrid = hexGrid;
-        this.organismCount = new Map(); // Map from organism ID to count 
+        this.organismCount = new Map(); // Map from organism ID to count
         this.offspringMap = new Map(); // Map from parent organism ID to array of offspring IDs
         this.livingIDs = [];
         this.uniqueLivingIDs = new Set();
@@ -33,9 +33,9 @@ class OrganismGraph {
     }
 
     updateLivingOrganisms(livingIDs) {
-        this.livingIDs = livingIDs;   
-        this.uniqueLivingIDs = new Set(livingIDs); 
-        
+        this.livingIDs = livingIDs;
+        this.uniqueLivingIDs = new Set(livingIDs);
+
         const countMap = new Map();
         for (let id of livingIDs) {
             if (countMap.has(id)) {
@@ -65,7 +65,7 @@ class OrganismGraph {
         ctx.strokeStyle = color;
         ctx.stroke();
     }
-        
+
     drawTopOrganisms(ctx, x, y, n) {
         const topOrgs = this.livingCounts.slice(0, n);
         const tempOrg = new Organism(this.hexGrid);
@@ -81,16 +81,16 @@ class OrganismGraph {
             tempOrg.drawPipesAtPoint(ctx, center, size, pipes, flow);
             this.drawHexOutline(ctx, center, size, "#333333");
             ctx.font = "14px Arial";
-            ctx.fillStyle = "#000000";
+            ctx.fillStyle = "#e0def4";
             ctx.textAlign = "center";
-            ctx.fillText(`${count}`, center.x, center.y + size + 16);            
+            ctx.fillText(`${count}`, center.x, center.y + size + 16);
         });
         ctx.restore();
     }
 
     updateHTML() {
         document.getElementById('orggraph').innerHTML = `Tick: ${this.hexGrid.tick} <br/>
-         Total Organisms: ${this.totalOrganisms} Unique Kinds: ${this.organismCount.size}<br/> 
+         Total Organisms: ${this.totalOrganisms} Unique Kinds: ${this.organismCount.size}<br/>
          Living Organisms: ${this.livingIDs.length} Unique Kinds: ${this.uniqueLivingIDs.size}<br/>
          Max Count: ${this.maxCount} Max Offspring: ${this.maxOffspring}`;
     }

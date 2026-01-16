@@ -1,3 +1,6 @@
+const TEXT_COLOR = "#e0def4";
+
+
 //GameBoard code below
 function randomInt(n) {
     return Math.floor(Math.random() * n);
