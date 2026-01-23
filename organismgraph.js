@@ -81,7 +81,7 @@ class OrganismGraph {
             tempOrg.drawPipesAtPoint(ctx, center, size, pipes, flow);
             this.drawHexOutline(ctx, center, size, "#333333");
             ctx.font = "14px Arial";
-            ctx.fillStyle = "#e0def4";
+            ctx.fillStyle = TEXT_COLOR;
             ctx.textAlign = "center";
             ctx.fillText(`${count}`, center.x, center.y + size + 16);
         });

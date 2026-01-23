@@ -311,7 +311,7 @@ class Organism {
         const endpoints = document.getElementById('endpoints').checked;
 
         const gridCell = this.grid.getCell(this.q, this.r);
-        if (display === "none") {
+        if (display === "black") {
             // don't display them
             gridCell.R = 0;
             gridCell.G = 0;

@@ -1,12 +1,14 @@
 const TEXT_COLOR_DARK_BACKGROUND = "#000000";
 const TEXT_COLOR_LIGHT_BACKGROUND = "#e0def4";
 
-var TEXT_COLOR = TEXT_COLOR_LIGHT_BACKGROUND;
+// var TEXT_COLOR = TEXT_COLOR_LIGHT_BACKGROUND;
 
+// Set initial text color.
 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
     // dark mode
     TEXT_COLOR = TEXT_COLOR_DARK_BACKGROUND;
 }
+// update text color on color scheme change.
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
     TEXT_COLOR = event.matches ? TEXT_COLOR_DARK_BACKGROUND : TEXT_COLOR_LIGHT_BACKGROUND;
 });
@@ -40,6 +42,7 @@ var PARAMETERS = {
     energyDecay: 0.01,        // Fraction of organism energy lost per tick
 
     // Evolution parameters
+    energyMax: 100,               // The maximum amount of energy that can be stored at one time
     reproductionThreshold: 100,   // Energy needed to reproduce
     mutationRate: 0.05,           // chance per endpoint/configuration
     deathRate: 0.005,             // death chance per tick (lightning bolt)
