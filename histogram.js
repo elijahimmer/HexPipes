@@ -6,8 +6,8 @@ class Histogram {
 
         const defaults = {
             label: "",
-            width: PARAMS.graphWidth,
-            height: PARAMS.graphHeight,
+            width: PARAMETERS.graphWidth,
+            height: PARAMETERS.graphHeight,
         };
         Object.assign(this, defaults, options);
 
@@ -17,7 +17,6 @@ class Histogram {
     update() {
     }
     draw(ctx) {
-        if (!document.getElementById("graphs").checked) return;
         var length = this.data.length > (this.width) ?
             Math.floor(this.width) : this.data.length;
         var start = this.data.length > (this.width) ?
@@ -40,7 +39,7 @@ class Histogram {
         this.ctx.strokeRect(this.x, this.y, this.width, this.height);
     }
     fill(color, x, y) {
-        this.ctx.fillStyle = "white";
+        this.ctx.fillStyle = BACKGROUND_COLOR;
         var c = color * 99 + 1;
         c = 511 - Math.floor(Math.log(c) / Math.log(100) * 512);
         if (c > 255) {

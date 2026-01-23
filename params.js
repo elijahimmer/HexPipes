@@ -1,15 +1,21 @@
+const BACKGROUND_COLOR_LIGHT = "#ffffff";
+const BACKGROUND_COLOR_DARK = "#000000";
 const TEXT_COLOR_DARK_BACKGROUND = "#000000";
 const TEXT_COLOR_LIGHT_BACKGROUND = "#e0def4";
 
-// var TEXT_COLOR = TEXT_COLOR_LIGHT_BACKGROUND;
+var BACKGROUND_COLOR = BACKGROUND_COLOR_LIGHT;
+var TEXT_COLOR = TEXT_COLOR_LIGHT_BACKGROUND;
+
 
 // Set initial text color.
 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
     // dark mode
+    BACKGROUND_COLOR = BACKGROUND_COLOR_DARK;
     TEXT_COLOR = TEXT_COLOR_DARK_BACKGROUND;
 }
 // update text color on color scheme change.
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+    BACKGROUND_COLOR = event.matches ? BACKGROUND_COLOR_DARK : BACKGROUND_COLOR_LIGHT;
     TEXT_COLOR = event.matches ? TEXT_COLOR_DARK_BACKGROUND : TEXT_COLOR_LIGHT_BACKGROUND;
 });
 
@@ -23,9 +29,9 @@ var PARAMETERS = {
 
     // Canvas parameters
     canvasWidth: 1600,
-    canvasHeight: 1000,
+    canvasHeight: 1200,
     gridOffsetX: 500,        // X offset to center grid
-    gridOffsetY: 500,        // Y offset to center grid
+    gridOffsetY: 550,        // Y offset to center grid
 
     // Hex Grid parameters
     gridRadius: 25,          // Radius of hex grid (10 = 271 cells)
@@ -52,6 +58,7 @@ var PARAMETERS = {
     arrowLength: 6,          // Length of flow direction arrows
     circleRadius: 3,         // Radius of flow direction circle
 
+    graphPadding: 25,    // Graph padding in pixels
     graphWidth: 600,
     graphHeight: 120,
 };
