@@ -14,8 +14,8 @@ class DataManager {
     }
 
     createGraphs() {
-        let y_pos = PARAMETERS.graphPadding;
-        const x_pos = PARAMETERS.canvasWidth - PARAMETERS.graphWidth - PARAMETERS.graphPadding;
+        let y_pos = PARAMETERS.graphVertPadding;
+        const x_pos = PARAMETERS.canvasWidth - PARAMETERS.graphWidth - PARAMETERS.graphHoriPadding;
         // Create action graph
         this.populationGraph = new Graph(
             /* x */ x_pos,
@@ -27,7 +27,7 @@ class DataManager {
         );
         gameEngine.addGraph(this.populationGraph);
 
-        y_pos += PARAMETERS.graphHeight + PARAMETERS.graphPadding;
+        y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding;
         this.totalSpeciesHistogram = new Histogram(
            /*       x */ x_pos,
            /*       y */ y_pos,
@@ -40,7 +40,7 @@ class DataManager {
         );
         gameEngine.addGraph(this.totalSpeciesHistogram);
 
-        y_pos += PARAMETERS.graphHeight + PARAMETERS.graphPadding;
+        y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding;
         this.livingSpeciesHistogram = new Histogram(
            /*       x */ x_pos,
            /*       y */ y_pos,
@@ -53,9 +53,13 @@ class DataManager {
         );
         gameEngine.addGraph(this.livingSpeciesHistogram);
 
-        y_pos += PARAMETERS.graphHeight + PARAMETERS.graphPadding * 2;
+        y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding * 2;
         this.organismGraphYPos = y_pos;
-        this.organismGraphXPos = PARAMETERS.canvasWidth - 600;
+        const organismGraphWidth = 550;
+        const graphWidth = PARAMETERS.graphWidth;
+        const offset = Math.abs(Math.floor((graphWidth - organismGraphWidth) / 2));
+
+        this.organismGraphXPos = PARAMETERS.canvasWidth - (graphWidth - offset) - PARAMETERS.graphHoriPadding;
     }
 
     updateData() {

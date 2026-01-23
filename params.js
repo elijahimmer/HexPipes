@@ -58,7 +58,8 @@ var PARAMETERS = {
     arrowLength: 6,          // Length of flow direction arrows
     circleRadius: 3,         // Radius of flow direction circle
 
-    graphPadding: 25,    // Graph padding in pixels
+    graphVertPadding: 25,    // Graph vertical padding in pixels
+    graphHoriPadding: 15,    // Graph horizontal padding in pixels
     graphWidth: 600,
     graphHeight: 120,
 };
