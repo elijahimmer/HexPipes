@@ -1,7 +1,6 @@
 class DataManager {
     constructor(hexGrid) {
         this.hexGrid = hexGrid;
-        this.organismGraph = hexGrid.organismGraph;
 
         this.population = [];
         this.uniqueOrganisms = [];
@@ -65,7 +64,7 @@ class DataManager {
     updateData() {
         // Update population data
         this.population.push(this.hexGrid.organisms.length);
-        this.uniqueOrganisms.push(this.organismGraph.uniqueLivingIDs.size);
+        this.uniqueOrganisms.push(this.hexGrid.organismGraph.uniqueLivingIDs.size);
     }
 
     logData() {
@@ -87,11 +86,9 @@ class DataManager {
             this.updateData();
         }
 
+        // TODO(Elijah): Ignore color, directionality, etc. here.
         {
-            var counts = this.organismGraph.organismCount.entries().reduce(function (acc, entry) {
-                acc.push(entry[1]);
-                return acc;
-            }, new Array());
+            var counts = Array.from(this.hexGrid.organismGraph.organismCount.values());
             counts.sort((a, b) => b - a);
             counts = counts.slice(0, 20);
 
@@ -101,10 +98,11 @@ class DataManager {
         }
 
         {
-            var counts = this.organismGraph.livingCounts.entries().reduce(function (acc, entry) {
-                acc.push(entry[1][1]);
-                return acc;
-            }, new Array());
+            var counts = this.hexGrid.organismGraph.livingCounts.values()
+                .reduce(function (acc, [_, count]) {
+                    acc.push(count);
+                    return acc;
+                }, new Array());
             counts.sort((a, b) => b - a);
             counts = counts.slice(0, 20);
 
@@ -115,6 +113,6 @@ class DataManager {
     }
 
     draw(ctx) {
-        this.organismGraph.drawTopOrganisms(ctx, this.organismGraphXPos, this.organismGraphYPos, 60);
+        this.hexGrid.organismGraph.drawTopOrganisms(ctx, this.organismGraphXPos, this.organismGraphYPos, 60);
     }
 }

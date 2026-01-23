@@ -70,7 +70,6 @@ class OrganismGraph {
 
     drawTopOrganisms(ctx, x, y, n) {
         const topOrgs = new Map();
-        const baseTopOrgs = this.livingCounts.slice(0, n);
 
         const ignore_color = document.getElementById('ignore-color').checked;
         const ignore_rotation = document.getElementById('ignore-rotation').checked;
@@ -79,7 +78,7 @@ class OrganismGraph {
         const tempOrg = new Organism(this.hexGrid);
 
         ctx.save();
-        baseTopOrgs.forEach(([orgID, count], index) => {
+        this.livingCounts.forEach(([orgID, count], index) => {
             var pipes = tempOrg.pipesFromID(orgID);
 
             if (ignore_color) {
@@ -123,8 +122,9 @@ class OrganismGraph {
             }
         });
 
-        const entries = Array.from(topOrgs.values());
+        var entries = Array.from(topOrgs.values());
         entries.sort((a, b) => b.count - a.count);
+        entries = entries.slice(0, 20);
 
 
         const pipe_mid_color_tmp = pipe_mid_color;
