@@ -126,6 +126,9 @@ class OrganismGraph {
         const entries = Array.from(topOrgs.values());
         entries.sort((a, b) => b.count - a.count);
 
+
+        const pipe_mid_color_tmp = pipe_mid_color;
+        pipe_mid_color = BLACK_RGB;
         var index = 0;
         entries.forEach(({count, pipes}) => {
             const flow = false;
@@ -140,6 +143,7 @@ class OrganismGraph {
             ctx.textAlign = "center";
             ctx.fillText(`${count}`, center.x, center.y + size + 16);
         });
+        pipe_mid_color = pipe_mid_color_tmp;
         ctx.restore();
     }
 

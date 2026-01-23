@@ -306,7 +306,7 @@ class Organism {
             gridCell.R = 0;
             gridCell.G = 0;
             gridCell.B = 0;
-            pipe_mid_color = GREY;
+            pipe_mid_color = GREY_RGB;
         } else if (display === "grey") {
             // reset color of cell
             gridCell.R = GREY_RGB.R;
@@ -321,7 +321,7 @@ class Organism {
             gridCell.R = 255 - proportion;
             gridCell.G = 0;
             gridCell.B = proportion;
-            pipe_mid_color = GREY;
+            pipe_mid_color = GREY_RGB;
         } else console.error(`Unknown 'organism-display' value ${display}`);
 
          if (pipe_show === "none") {
