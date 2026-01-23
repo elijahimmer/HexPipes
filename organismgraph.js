@@ -47,7 +47,7 @@ class OrganismGraph {
         this.livingCounts = [...countMap.entries()].sort((a, b) => b[1] - a[1]);
     }
 
-    drawHexOutline(ctx, center, size, color) {
+    drawHex(ctx, center, size, color) {
         const corners = [];
         // corners for flat-topped hexagon
         for (let i = 0; i < 6; i++) {
@@ -56,30 +56,85 @@ class OrganismGraph {
             const y = center.y + size * Math.sin(angle);
             corners.push({ x: x, y: y });
         }
+
         ctx.beginPath();
         ctx.moveTo(corners[0].x, corners[0].y);
         for (let i = 1; i < 6; i++) {
             ctx.lineTo(corners[i].x, corners[i].y);
         }
         ctx.closePath();
-        ctx.strokeStyle = color;
-        ctx.stroke();
+
+        ctx.fillStyle = color;
+        ctx.fill();
     }
 
     drawTopOrganisms(ctx, x, y, n) {
-        const topOrgs = this.livingCounts.slice(0, n);
+        const topOrgs = new Map();
+        const baseTopOrgs = this.livingCounts.slice(0, n);
+
+        const ignore_color = document.getElementById('ignore-color').checked;
+        const ignore_rotation = document.getElementById('ignore-rotation').checked;
+        const ignore_directionality = document.getElementById('ignore-directionality').checked;
+
         const tempOrg = new Organism(this.hexGrid);
 
         ctx.save();
-        topOrgs.forEach(([orgID, count], index) => {
-            const pipes = tempOrg.pipesFromID(orgID);
+        baseTopOrgs.forEach(([orgID, count], index) => {
+            var pipes = tempOrg.pipesFromID(orgID);
 
+            if (ignore_color) {
+                pipes = pipes.map(pipe => {
+                    pipe.inputColor = 'B';
+                    pipe.outputColor = 'R';
+                    return pipe;
+                })
+
+            }
+            var name_pipes = JSON.parse(JSON.stringify(pipes)); // deep copy pipes... this is terrible...
+
+            if (ignore_directionality) {
+                name_pipes = name_pipes.map((entry) => {
+                    if (entry.inputSide > entry.outputSide) {
+                        const tmp = entry.inputSide;
+                        entry.inputSide = entry.outputSide;
+                        entry.outputSide = tmp;
+                    }
+                    return entry;
+                });
+            }
+
+            if (ignore_rotation) {
+                // TODO(Elijah): Implement ignoring rotation.
+                // name_pipes = name_pipes.map((entry) => {
+                //     entry.inputSide = Math.abs(entry.inputSide - entry.outputSide);
+                //     entry.outputSide = 0;
+                // })
+            }
+
+            tempOrg.pipes = name_pipes;
+            const name = tempOrg.organismID();
+
+            if (topOrgs.has(name)) {
+                const old = topOrgs.get(name);
+                old.count += count;
+                topOrgs.set(name, old);
+            } else {
+                topOrgs.set(name, { count: count, pipes: pipes });
+            }
+        });
+
+        const entries = Array.from(topOrgs.values());
+        entries.sort((a, b) => b.count - a.count);
+
+        var index = 0;
+        entries.forEach(({count, pipes}) => {
             const flow = false;
             const center = { x: x + (index % 12) * 50, y: y + Math.floor(index / 12) * 62 };
             const size = 20;
+            index++
 
+            this.drawHex(ctx, center, size, GREY);
             tempOrg.drawPipesAtPoint(ctx, center, size, pipes, flow);
-            this.drawHexOutline(ctx, center, size, "#333333");
             ctx.font = "14px Arial";
             ctx.fillStyle = TEXT_COLOR;
             ctx.textAlign = "center";

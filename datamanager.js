@@ -81,6 +81,7 @@ class DataManager {
     }
 
     update() {
+        if (document.getElementById('pause').checked) return;
         // Update data every tick (not just on reporting periods)
         if(this.hexGrid.tick % PARAMETERS.reportingPeriod === 0) {
             this.updateData();

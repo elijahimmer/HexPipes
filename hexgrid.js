@@ -298,6 +298,7 @@ class HexGrid {
      * Main update function called by game engine
      */
     update() {
+        if (document.getElementById('pause').checked) return;
         this.tick++;
         // Step 1: Diffusion
         this.diffuse();

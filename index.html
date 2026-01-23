@@ -58,16 +58,19 @@
         </div>
 
         <div id="options">
+            <input type="checkbox" id="pause" checked />
+            <label for="pause">Pause</label><br />
+
             <h3>Grid Settings</h3>
 
             <input type="checkbox" id="cell-draw-red" checked />
-            <label for="red">Draw Red</label><br />
+            <label for="cell-draw-red">Draw Red</label><br />
 
             <input type="checkbox" id="cell-draw-green" checked />
-            <label for="green">Draw Green</label><br />
+            <label for="cell-draw-green">Draw Green</label><br />
 
             <input type="checkbox" id="cell-draw-blue" checked />
-            <label for="blue">Draw Blue</label><br />
+            <label for="cell-draw-blue">Draw Blue</label><br />
 
             <label for="organism-display">Display Organism:</label>
             <select id="organism-display">
@@ -89,10 +92,13 @@
             <h3>Graph Settings</h3>
 
             <input type="checkbox" id="ignore-color" />
-            <label for="endpoints">Ignore Colors</label><br />
+            <label for="ignore-color">Ignore colors</label><br />
+
+            <input type="checkbox" id="ignore-directionality" />
+            <label for="ignore-directionality">Ignore Directionality (which way the pipes point)</label><br />
 
             <input type="checkbox" id="ignore-rotation" />
-            <label for="endpoints">Ignore Rotation</label><br />
+            <label for="ignore-rotation">Ignore Rotation</label><br />
         </div>
     </div>
 </body>

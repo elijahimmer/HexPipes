@@ -1,14 +1,4 @@
-const GREY = {
-    R: 0x90,
-    G: 0x8c,
-    B: 0xaa,
-};
-const BLACK = {
-    R: 0,
-    G: 0,
-    B: 0,
-};
-var pipe_mid_color = GREY;
+var pipe_mid_color = GREY_RGB;
 
 class Organism {
     constructor(grid, organism) {
@@ -319,10 +309,10 @@ class Organism {
             pipe_mid_color = GREY;
         } else if (display === "grey") {
             // reset color of cell
-            gridCell.R = 0x90;
-            gridCell.G = 0x8c;
-            gridCell.B = 0xaa;
-            pipe_mid_color = BLACK;
+            gridCell.R = GREY_RGB.R;
+            gridCell.G = GREY_RGB.G;
+            gridCell.B = GREY_RGB.B;
+            pipe_mid_color = BLACK_RGB;
         } else if (display === "energy") {
             const energy_min = Math.floor(PARAMETERS.starvationThreshold * PARAMETERS.energyMax);
             const energy_max = PARAMETERS.energyMax;
