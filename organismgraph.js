@@ -44,41 +44,15 @@ class OrganismGraph {
                 countMap.set(id, 1);
             }
         }
-        this.livingCounts = [...countMap.entries()].sort((a, b) => b[1] - a[1]);
-    }
-
-    drawHex(ctx, center, size, color) {
-        const corners = [];
-        // corners for flat-topped hexagon
-        for (let i = 0; i < 6; i++) {
-            const angle = Math.PI / 180 * (60 * i);
-            const x = center.x + size * Math.cos(angle);
-            const y = center.y + size * Math.sin(angle);
-            corners.push({ x: x, y: y });
-        }
-
-        ctx.beginPath();
-        ctx.moveTo(corners[0].x, corners[0].y);
-        for (let i = 1; i < 6; i++) {
-            ctx.lineTo(corners[i].x, corners[i].y);
-        }
-        ctx.closePath();
-
-        ctx.fillStyle = color;
-        ctx.fill();
-    }
-
-    drawTopOrganisms(ctx, x, y, n) {
-        const topOrgs = new Map();
 
         const ignore_color = document.getElementById('ignore-color').checked;
         const ignore_rotation = document.getElementById('ignore-rotation').checked;
         const ignore_directionality = document.getElementById('ignore-directionality').checked;
 
+        const topOrgs = new Map();
         const tempOrg = new Organism(this.hexGrid);
 
-        ctx.save();
-        this.livingCounts.forEach(([orgID, count], index) => {
+        countMap.forEach((count, orgID) => {
             var pipes = tempOrg.pipesFromID(orgID);
 
             if (ignore_color) {
@@ -122,9 +96,42 @@ class OrganismGraph {
             }
         });
 
-        var entries = Array.from(topOrgs.values());
-        entries.sort((a, b) => b.count - a.count);
-        entries = entries.slice(0, 20);
+        this.livingCounts = Array.from(topOrgs.entries()).map(([id, {count, pipes}]) => {
+            return {
+                orgID: id,
+                count: count,
+                pipes: pipes,
+            };
+        }).sort((a, b) => b.count - a.count);
+    }
+
+    drawHex(ctx, center, size, color) {
+        const corners = [];
+        // corners for flat-topped hexagon
+        for (let i = 0; i < 6; i++) {
+            const angle = Math.PI / 180 * (60 * i);
+            const x = center.x + size * Math.cos(angle);
+            const y = center.y + size * Math.sin(angle);
+            corners.push({ x: x, y: y });
+        }
+
+        ctx.beginPath();
+        ctx.moveTo(corners[0].x, corners[0].y);
+        for (let i = 1; i < 6; i++) {
+            ctx.lineTo(corners[i].x, corners[i].y);
+        }
+        ctx.closePath();
+
+        ctx.fillStyle = color;
+        ctx.fill();
+    }
+
+    drawTopOrganisms(ctx, x, y, n) {
+        const tempOrg = new Organism(this.hexGrid);
+
+        ctx.save();
+
+        const entries = this.livingCounts.slice(0, 20);
 
 
         const pipe_mid_color_tmp = pipe_mid_color;
@@ -134,7 +141,7 @@ class OrganismGraph {
             const flow = false;
             const center = { x: x + (index % 12) * 50, y: y + Math.floor(index / 12) * 62 };
             const size = 20;
-            index++
+            index++;
 
             this.drawHex(ctx, center, size, GREY);
             tempOrg.drawPipesAtPoint(ctx, center, size, pipes, flow);

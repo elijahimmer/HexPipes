@@ -65,6 +65,30 @@ class DataManager {
         // Update population data
         this.population.push(this.hexGrid.organisms.length);
         this.uniqueOrganisms.push(this.hexGrid.organismGraph.uniqueLivingIDs.size);
+
+        {
+            var counts = Array.from(this.hexGrid.organismGraph.organismCount.values());
+            counts.sort((a, b) => b - a);
+            counts = counts.slice(0, 20);
+
+            if (counts.length > 0) {
+                this.totalSpeciesHistogram.data.push(counts);
+            }
+        }
+
+        {
+            var counts = this.hexGrid.organismGraph.livingCounts.values()
+                .reduce(function (acc, count) {
+                    acc.push(count);
+                    return acc;
+                }, new Array());
+            counts.sort((a, b) => b - a);
+            counts = counts.slice(0, 20);
+
+            if (counts.length > 0) {
+                this.livingSpeciesHistogram.data.push(counts);
+            }
+        }
     }
 
     logData() {
@@ -84,31 +108,6 @@ class DataManager {
         // Update data every tick (not just on reporting periods)
         if(this.hexGrid.tick % PARAMETERS.reportingPeriod === 0) {
             this.updateData();
-        }
-
-        // TODO(Elijah): Ignore color, directionality, etc. here.
-        {
-            var counts = Array.from(this.hexGrid.organismGraph.organismCount.values());
-            counts.sort((a, b) => b - a);
-            counts = counts.slice(0, 20);
-
-            if (counts.length > 0) {
-                this.totalSpeciesHistogram.data.push(counts);
-            }
-        }
-
-        {
-            var counts = this.hexGrid.organismGraph.livingCounts.values()
-                .reduce(function (acc, [_, count]) {
-                    acc.push(count);
-                    return acc;
-                }, new Array());
-            counts.sort((a, b) => b - a);
-            counts = counts.slice(0, 20);
-
-            if (counts.length > 0) {
-                this.livingSpeciesHistogram.data.push(counts);
-            }
         }
     }
 
