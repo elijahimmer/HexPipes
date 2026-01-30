@@ -94,6 +94,7 @@ class OrganismGraph {
                     })
                 }
 
+                // This code is terrible-- but it works.
                 if (i & rotation_bitmask) {
                     // I don't know why this has to be 12-- but when it is less it doesn't work.
                     for (let i = 0; i < 12; i++) {
