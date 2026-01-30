@@ -24,7 +24,6 @@ class DataManager {
             /* min */ 0, /* no minimum */
             /* max */ 0, /* no maximum */
         );
-        gameEngine.addGraph(this.populationGraph);
 
         y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding;
         this.totalSpeciesHistogram = new Histogram(
@@ -37,20 +36,21 @@ class DataManager {
                height: PARAMETERS.graphHeight,
            },
         );
-        gameEngine.addGraph(this.totalSpeciesHistogram);
 
         y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding;
-        this.livingSpeciesHistogram = new Histogram(
-           /*       x */ x_pos,
-           /*       y */ y_pos,
-           /*    data */ [],
-           /* options */ {
-               label: "Living Organism Species",
-               width: PARAMETERS.graphWidth,
-               height: PARAMETERS.graphHeight,
-           },
-        );
-        gameEngine.addGraph(this.livingSpeciesHistogram);
+        this.livingSpeciesHistograms = [];
+        for (let i = 0; i < total_living_counts; i ++) {
+            this.livingSpeciesHistograms[i] = new Histogram(
+               /*       x */ x_pos,
+               /*       y */ y_pos,
+               /*    data */ [],
+               /* options */ {
+                   label: "Living Organism Species",
+                   width: PARAMETERS.graphWidth,
+                   height: PARAMETERS.graphHeight,
+               },
+            );
+        }
 
         y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding * 2;
         this.organismGraphYPos = y_pos;
@@ -67,26 +67,29 @@ class DataManager {
         this.uniqueOrganisms.push(this.hexGrid.organismGraph.uniqueLivingIDs.size);
 
         {
-            var counts = Array.from(this.hexGrid.organismGraph.organismCount.values());
+            const histogram = this.totalSpeciesHistogram;
+            let counts = Array.from(this.hexGrid.organismGraph.organismCount.values());
             counts.sort((a, b) => b - a);
             counts = counts.slice(0, 20);
 
             if (counts.length > 0) {
-                this.totalSpeciesHistogram.data.push(counts);
+                histogram.data.push(counts);
             }
         }
 
-        {
-            var counts = this.hexGrid.organismGraph.livingCounts.values()
-                .reduce(function (acc, count) {
-                    acc.push(count);
+        for (let i = 0; i < total_living_counts; i++) {
+            const histogram = this.livingSpeciesHistograms[i];
+            const organismGraph = this.hexGrid.organismGraph;
+            let counts = organismGraph.livingCountsMatrix[i].values()
+                .reduce(function (acc, organism) {
+                    acc.push(organism.count);
                     return acc;
                 }, new Array());
             counts.sort((a, b) => b - a);
             counts = counts.slice(0, 20);
 
             if (counts.length > 0) {
-                this.livingSpeciesHistogram.data.push(counts);
+                histogram.data.push(counts);
             }
         }
     }
@@ -112,6 +115,10 @@ class DataManager {
     }
 
     draw(ctx) {
+        this.populationGraph.draw(ctx);
         this.hexGrid.organismGraph.drawTopOrganisms(ctx, this.organismGraphXPos, this.organismGraphYPos, 60);
+        const livingCountIndex = this.hexGrid.organismGraph.getLivingCountIndex();
+        this.totalSpeciesHistogram.draw(ctx);
+        this.livingSpeciesHistograms[livingCountIndex].draw(ctx);
     }
 }

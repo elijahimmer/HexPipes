@@ -71,7 +71,7 @@ class GameEngine {
         const cellHeight = PARAMETERS.pixelDimension / PARAMETERS.numRows;
 
         function getXY(event) {
-            return { 
+            return {
                 col: Math.floor(event.x / cellWidth),
                 row: Math.floor(event.y / cellHeight)
             }
@@ -89,16 +89,16 @@ class GameEngine {
     draw() {
         // Clear the entire canvas
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        
+
         // Draw all entities
         for (var i = 0; i < this.entities.length; i++) {
             this.entities[i].draw(this.ctx);
         }
-        
-        // Draw all graphs
-        for (var i = 0; i < this.graphs.length; i++) {
-            this.graphs[i].draw(this.ctx);
-        }
+
+        // // Draw all graphs
+        // for (var i = 0; i < this.graphs.length; i++) {
+        //     this.graphs[i].draw(this.ctx);
+        // }
     }
     update() {
         var entitiesCount = this.entities.length;
