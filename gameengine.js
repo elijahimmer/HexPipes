@@ -7,7 +7,7 @@ window.requestAnimFrame = (function () {
             window.oRequestAnimationFrame ||
             window.msRequestAnimationFrame ||
             function (/* function */ callback, /* DOMElement */ element) {
-                window.setTimeout(callback, 1000 / 60);
+                window.setTimeout(callback, 0);
             };
 })();
 
@@ -20,11 +20,11 @@ class Timer {
         this.ticks = [];
     }
     tick() {
-        var wallCurrent = performance.now();
-        var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
+        let wallCurrent = performance.now();
+        let wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
         this.wallLastTimestamp = wallCurrent;
 
-        var gameDelta = Math.min(wallDelta, this.maxStep);
+        let gameDelta = Math.min(wallDelta, this.maxStep);
         this.gameTime += gameDelta;
 
         this.ticks.push(wallDelta);
@@ -60,7 +60,7 @@ class GameEngine {
     }
     start() {
         console.log("starting game");
-        var that = this;
+        let that = this;
         (function gameLoop() {
             that.loop();
             requestAnimFrame(gameLoop, that.ctx.canvas);
@@ -71,7 +71,7 @@ class GameEngine {
         const cellHeight = PARAMETERS.pixelDimension / PARAMETERS.numRows;
 
         function getXY(event) {
-            return { 
+            return {
                 col: Math.floor(event.x / cellWidth),
                 row: Math.floor(event.y / cellHeight)
             }
@@ -89,29 +89,29 @@ class GameEngine {
     draw() {
         // Clear the entire canvas
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-        
+
         // Draw all entities
-        for (var i = 0; i < this.entities.length; i++) {
+        for (let i = 0; i < this.entities.length; i++) {
             this.entities[i].draw(this.ctx);
         }
-        
-        // Draw all graphs
-        for (var i = 0; i < this.graphs.length; i++) {
-            this.graphs[i].draw(this.ctx);
-        }
+
+        // // Draw all graphs
+        // for (let i = 0; i < this.graphs.length; i++) {
+        //     this.graphs[i].draw(this.ctx);
+        // }
     }
     update() {
-        var entitiesCount = this.entities.length;
+        let entitiesCount = this.entities.length;
 
-        for (var i = 0; i < entitiesCount; i++) {
-            var entity = this.entities[i];
+        for (let i = 0; i < entitiesCount; i++) {
+            let entity = this.entities[i];
 
             if (!entity.removeFromWorld) {
                 entity.update();
             }
         }
 
-        for (var i = this.entities.length - 1; i >= 0; --i) {
+        for (let i = this.entities.length - 1; i >= 0; --i) {
             if (this.entities[i].removeFromWorld) {
                 this.entities.splice(i, 1);
             }
@@ -120,17 +120,9 @@ class GameEngine {
     loop() {
         this.clockTick = this.timer.tick();
         document.getElementById('frameRate').textContent = `Frame Rate: ${this.timer.ticks.length} Tick: ${this.clockTick.toFixed(3)}`;
-        var loops = PARAMETERS.updatesPerDraw;
+        let loops = PARAMETERS.updatesPerDraw;
         while (loops-- > 0) this.update();
         this.draw();
         this.click = null;
     }
 };
-
-
-
-
-
-
-
-

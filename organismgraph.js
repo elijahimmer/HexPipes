@@ -1,3 +1,8 @@
+const color_bitmask = 1;
+const directionality_bitmask = 2;
+const rotation_bitmask = 4;
+const total_living_counts = 8;
+
 class OrganismGraph {
     constructor(hexGrid) {
         this.hexGrid = hexGrid;
@@ -5,10 +10,18 @@ class OrganismGraph {
         this.offspringMap = new Map(); // Map from parent organism ID to array of offspring IDs
         this.livingIDs = [];
         this.uniqueLivingIDs = new Set();
-        this.livingCounts = [];
+        this.livingCountsMatrix = new Array(total_living_counts);
+        for (var i = 0; i < total_living_counts; i++) this.livingCountsMatrix[i] = [];
         this.maxCount = 0;
         this.maxOffspring = 0;
         this.totalOrganisms = 0;
+    }
+
+    getLivingCountIndex() {
+        const ignore_color = document.getElementById('ignore-color').checked * color_bitmask;
+        const ignore_rotation = document.getElementById('ignore-rotation').checked * rotation_bitmask;
+        const ignore_directionality = document.getElementById('ignore-directionality').checked * directionality_bitmask;
+        return ignore_color + ignore_rotation + ignore_directionality;
     }
 
     addOrganism(organism, parent) {
@@ -16,12 +29,13 @@ class OrganismGraph {
         const orgID = organism.organismID();
         const parentID = parent?.organismID();
 
-        if (this.organismCount.has(orgID)) {
-            this.organismCount.set(orgID, this.organismCount.get(orgID) + 1);
+        const organismCount = this.organismCount;
+        if (organismCount.has(orgID)) {
+            organismCount.set(orgID, organismCount.get(orgID) + 1);
         } else {
-            this.organismCount.set(orgID, 1);
+            organismCount.set(orgID, 1);
         }
-        this.maxCount = Math.max(this.maxCount, this.organismCount.get(orgID));
+        this.maxCount = Math.max(this.maxCount, organismCount.get(orgID));
 
         if (parentID) {
             if (!this.offspringMap.has(parentID)) {
@@ -45,64 +59,86 @@ class OrganismGraph {
             }
         }
 
-        const ignore_color = document.getElementById('ignore-color').checked;
-        const ignore_rotation = document.getElementById('ignore-rotation').checked;
-        const ignore_directionality = document.getElementById('ignore-directionality').checked;
+        for (var i = 0; i < total_living_counts; i++) {
+            const topOrgs = new Map();
+            const tempOrg = new Organism(this.hexGrid);
 
-        const topOrgs = new Map();
-        const tempOrg = new Organism(this.hexGrid);
+            countMap.forEach((count, orgID) => {
+                var pipes = tempOrg.pipesFromID(orgID);
 
-        countMap.forEach((count, orgID) => {
-            var pipes = tempOrg.pipesFromID(orgID);
+                if (i & color_bitmask) {
+                    pipes = pipes.map(pipe => {
+                        pipe.inputColor = 'B';
+                        pipe.outputColor = 'R';
+                        return pipe;
+                    })
+                }
+                var name_pipes = JSON.parse(JSON.stringify(pipes)); // deep copy pipes... this is terrible...
+                tempOrg.pipes = name_pipes;
 
-            if (ignore_color) {
-                pipes = pipes.map(pipe => {
-                    pipe.inputColor = 'B';
-                    pipe.outputColor = 'R';
-                    return pipe;
-                })
+                if (i & directionality_bitmask) {
+                    name_pipes = name_pipes.map((entry) => {
+                        if (entry.inputSide > entry.outputSide) {
+                            const tmp = entry.inputSide;
+                            entry.inputSide = entry.outputSide;
+                            entry.outputSide = tmp;
+                        }
+                        return entry;
+                    });
+                }
+                if (i & color_bitmask) {
+                    name_pipes = name_pipes.map(pipe => {
+                        pipe.inputColor = 'B';
+                        pipe.outputColor = 'R';
+                        return pipe;
+                    })
+                }
 
-            }
-            var name_pipes = JSON.parse(JSON.stringify(pipes)); // deep copy pipes... this is terrible...
-
-            if (ignore_directionality) {
-                name_pipes = name_pipes.map((entry) => {
-                    if (entry.inputSide > entry.outputSide) {
-                        const tmp = entry.inputSide;
-                        entry.inputSide = entry.outputSide;
-                        entry.outputSide = tmp;
+                // This code is terrible-- but it works.
+                if (i & rotation_bitmask) {
+                    // I don't know why this has to be 12-- but when it is less it doesn't work.
+                    for (let i = 0; i < 12; i++) {
+                        for (const pipe of name_pipes) {
+                            pipe.inputSide = (pipe.inputSide + 1) % 6;
+                            pipe.outputSide = (pipe.outputSide + 1) % 6;
+                            if (i & directionality_bitmask) {
+                                if (pipe.inputSide > pipe.outputSide) {
+                                    const tmp = pipe.inputSide;
+                                    pipe.inputSide = pipe.outputSide;
+                                    pipe.outputSide = tmp;
+                                }
+                            }
+                            if (i & color_bitmask) {
+                                pipe.inputColor = 'B';
+                                pipe.outputColor = 'R';
+                            }
+                        }
+                        tempOrg.pipes = name_pipes;
+                        if (topOrgs.has(tempOrg.organismID())) {
+                            break;
+                        }
                     }
-                    return entry;
-                });
-            }
+                }
 
-            if (ignore_rotation) {
-                // TODO(Elijah): Implement ignoring rotation.
-                // name_pipes = name_pipes.map((entry) => {
-                //     entry.inputSide = Math.abs(entry.inputSide - entry.outputSide);
-                //     entry.outputSide = 0;
-                // })
-            }
+                const name = tempOrg.organismID();
 
-            tempOrg.pipes = name_pipes;
-            const name = tempOrg.organismID();
+                if (topOrgs.has(name)) {
+                    const old = topOrgs.get(name);
+                    old.count += count;
+                    topOrgs.set(name, old);
+                } else {
+                    topOrgs.set(name, { count: count, pipes: pipes });
+                }
+            });
 
-            if (topOrgs.has(name)) {
-                const old = topOrgs.get(name);
-                old.count += count;
-                topOrgs.set(name, old);
-            } else {
-                topOrgs.set(name, { count: count, pipes: pipes });
-            }
-        });
-
-        this.livingCounts = Array.from(topOrgs.entries()).map(([id, {count, pipes}]) => {
-            return {
-                orgID: id,
-                count: count,
-                pipes: pipes,
-            };
-        }).sort((a, b) => b.count - a.count);
+            this.livingCountsMatrix[i] = Array.from(topOrgs.entries()).map(([id, {count, pipes}]) => {
+                return {
+                    orgID: id,
+                    count: count,
+                    pipes: pipes,
+                };
+            }).sort((a, b) => b.count - a.count);
+        }
     }
 
     drawHex(ctx, center, size, color) {
@@ -131,7 +167,7 @@ class OrganismGraph {
 
         ctx.save();
 
-        const entries = this.livingCounts.slice(0, 20);
+        const entries = this.livingCountsMatrix[this.getLivingCountIndex()].slice(0, 50);
 
 
         const pipe_mid_color_tmp = pipe_mid_color;
