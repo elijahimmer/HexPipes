@@ -298,6 +298,8 @@ class HexGrid {
      * Main update function called by game engine
      */
     update() {
+        this.updateLineage()
+
         if (document.getElementById('pause').checked) return;
         this.tick++;
         // Step 1: Diffusion
@@ -339,8 +341,19 @@ class HexGrid {
 
         // get unique living organism IDs
         const livingIDs = this.organisms.map(org => org.organismID());
-        this.organismGraph.updateLivingOrganisms(livingIDs);
-        this.organismGraph.updateHTML();
+        this.organismGraph.update(livingIDs);
+    }
+
+    updateLineage() {
+        if (!gameEngine.click) return;
+        const pos = this.pixelToHex(gameEngine.click.x, gameEngine.click.y);
+        if (!pos) return;
+        const wanted_key = this.key(pos.q, pos.r);
+
+        const cell = this.cells.get(wanted_key);
+        if (!cell || !cell.organism) return;
+        console.log(cell);
+        this.lineage = cell;
     }
 
     /**
@@ -399,6 +412,7 @@ class HexGrid {
             }
         }
 
+        // TODO(Elijah): groups here
         // place chains in groups with the same source
         const groups = [];
         for (let i = 0; i < chains.length; i++) {
@@ -566,12 +580,22 @@ class HexGrid {
      * Convert axial coordinates (q, r) to pixel coordinates (x, y)
      */
     hexToPixel(q, r) {
-        const x = this.cellSize * (3/2 * q);
-        const y = this.cellSize * (Math.sqrt(3) * (r + q/2));
+        const y = this.cellSize * (Math.sqrt(3) * q + Math.sqrt(3)/2 * r);
+        const x = this.cellSize * (3/2 * r);
         return {
             x: x + PARAMETERS.gridOffsetX,
             y: y + PARAMETERS.gridOffsetY
         };
+    }
+
+    pixelToHex(x, y) {
+        const ny = (y - PARAMETERS.gridOffsetY) / this.cellSize;
+        const nx = (x - PARAMETERS.gridOffsetX) / this.cellSize;
+        const q = Math.sqrt(3)/3 * ny - 1/3 * nx;
+        const r = 2/3 * nx;
+        const pos = { q: Math.floor(q), r: Math.floor(r) }
+        if (this.isInBounds(pos.q, pos.r)) return pos;
+        else return null;
     }
 
     /**

@@ -24,7 +24,9 @@ function reset() {
     gameEngine.entities = [];
     gameEngine.graphs = [];
 
-    gameEngine.addEntity(new HexGrid()); // Using HexGrid instead of Tumbler
+    const grid = new HexGrid();
+    gameEngine.addEntity(grid); // Using HexGrid instead of Tumbler
+    gameEngine.addEntity(new Lineage(grid));
 }
 
 ASSET_MANAGER.downloadAll(function () {

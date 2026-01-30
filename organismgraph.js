@@ -15,6 +15,7 @@ class OrganismGraph {
         this.maxCount = 0;
         this.maxOffspring = 0;
         this.totalOrganisms = 0;
+        this.lineage = null;
     }
 
     getLivingCountIndex() {
@@ -44,6 +45,11 @@ class OrganismGraph {
             this.offspringMap.get(parentID).push(orgID);
             this.maxOffspring = Math.max(this.maxOffspring, this.offspringMap.get(parentID).length);
         }
+    }
+
+    update(livingIDs) {
+        this.updateLivingOrganisms(livingIDs);
+        this.updateHTML();
     }
 
     updateLivingOrganisms(livingIDs) {
@@ -96,8 +102,7 @@ class OrganismGraph {
 
                 // This code is terrible-- but it works.
                 if (i & rotation_bitmask) {
-                    // I don't know why this has to be 12-- but when it is less it doesn't work.
-                    for (let i = 0; i < 12; i++) {
+                    for (let j = 0; j < 6; j++) {
                         for (const pipe of name_pipes) {
                             pipe.inputSide = (pipe.inputSide + 1) % 6;
                             pipe.outputSide = (pipe.outputSide + 1) % 6;
@@ -141,6 +146,13 @@ class OrganismGraph {
         }
     }
 
+    updateHTML() {
+        document.getElementById('orggraph').innerHTML = `Tick: ${this.hexGrid.tick} <br/>
+         Total Organisms: ${this.totalOrganisms} Unique Kinds: ${this.organismCount.size}<br/>
+         Living Organisms: ${this.livingIDs.length} Unique Kinds: ${this.uniqueLivingIDs.size}<br/>
+         Max Count: ${this.maxCount} Max Offspring: ${this.maxOffspring}`;
+    }
+
     drawHex(ctx, center, size, color) {
         const corners = [];
         // corners for flat-topped hexagon
@@ -167,8 +179,7 @@ class OrganismGraph {
 
         ctx.save();
 
-        const entries = this.livingCountsMatrix[this.getLivingCountIndex()].slice(0, 50);
-
+        const entries = this.livingCountsMatrix[this.getLivingCountIndex()].slice(0, 120);
 
         const pipe_mid_color_tmp = pipe_mid_color;
         pipe_mid_color = BLACK_RGB;
@@ -188,12 +199,7 @@ class OrganismGraph {
         });
         pipe_mid_color = pipe_mid_color_tmp;
         ctx.restore();
+
     }
 
-    updateHTML() {
-        document.getElementById('orggraph').innerHTML = `Tick: ${this.hexGrid.tick} <br/>
-         Total Organisms: ${this.totalOrganisms} Unique Kinds: ${this.organismCount.size}<br/>
-         Living Organisms: ${this.livingIDs.length} Unique Kinds: ${this.uniqueLivingIDs.size}<br/>
-         Max Count: ${this.maxCount} Max Offspring: ${this.maxOffspring}`;
-    }
 }
