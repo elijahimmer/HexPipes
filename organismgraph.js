@@ -72,9 +72,9 @@ class OrganismGraph {
                         pipe.outputColor = 'R';
                         return pipe;
                     })
-
                 }
                 var name_pipes = JSON.parse(JSON.stringify(pipes)); // deep copy pipes... this is terrible...
+                tempOrg.pipes = name_pipes;
 
                 if (i & directionality_bitmask) {
                     name_pipes = name_pipes.map((entry) => {
@@ -86,16 +86,39 @@ class OrganismGraph {
                         return entry;
                     });
                 }
-
-                if (i & rotation_bitmask) {
-                    // TODO(Elijah): Implement ignoring rotation.
-                    // name_pipes = name_pipes.map((entry) => {
-                    //     entry.inputSide = Math.abs(entry.inputSide - entry.outputSide);
-                    //     entry.outputSide = 0;
-                    // })
+                if (i & color_bitmask) {
+                    name_pipes = name_pipes.map(pipe => {
+                        pipe.inputColor = 'B';
+                        pipe.outputColor = 'R';
+                        return pipe;
+                    })
                 }
 
-                tempOrg.pipes = name_pipes;
+                if (i & rotation_bitmask) {
+                    // I don't know why this has to be 12-- but when it is less it doesn't work.
+                    for (let i = 0; i < 12; i++) {
+                        for (const pipe of name_pipes) {
+                            pipe.inputSide = (pipe.inputSide + 1) % 6;
+                            pipe.outputSide = (pipe.outputSide + 1) % 6;
+                            if (i & directionality_bitmask) {
+                                if (pipe.inputSide > pipe.outputSide) {
+                                    const tmp = pipe.inputSide;
+                                    pipe.inputSide = pipe.outputSide;
+                                    pipe.outputSide = tmp;
+                                }
+                            }
+                            if (i & color_bitmask) {
+                                pipe.inputColor = 'B';
+                                pipe.outputColor = 'R';
+                            }
+                        }
+                        tempOrg.pipes = name_pipes;
+                        if (topOrgs.has(tempOrg.organismID())) {
+                            break;
+                        }
+                    }
+                }
+
                 const name = tempOrg.organismID();
 
                 if (topOrgs.has(name)) {
@@ -143,7 +166,7 @@ class OrganismGraph {
 
         ctx.save();
 
-        const entries = this.livingCountsMatrix[this.getLivingCountIndex()].slice(0, 20);
+        const entries = this.livingCountsMatrix[this.getLivingCountIndex()].slice(0, 50);
 
 
         const pipe_mid_color_tmp = pipe_mid_color;

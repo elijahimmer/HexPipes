@@ -13,8 +13,8 @@ var PARAMETERS = {
     gridOffsetY: 550,        // Y offset to center grid
 
     // Hex Grid parameters
-    gridRadius: 25,          // Radius of hex grid (10 = 271 cells)
-    cellSize: 12,            // Size of each hex cell in pixels
+    gridRadius: 16,          // Radius of hex grid (10 = 271 cells)
+    cellSize: 16,            // Size of each hex cell in pixels
     addOrganismsOnTick: 200, // Tick that new organisms are added
 
     numOrganisms: 30,        // Initial number of organisms
