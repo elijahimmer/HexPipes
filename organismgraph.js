@@ -2,6 +2,8 @@ const color_bitmask = 1;
 const directionality_bitmask = 2;
 const rotation_bitmask = 4;
 const total_living_counts = 8;
+const base_5_living_index = color_bitmask | directionality_bitmask | rotation_bitmask;
+const base_15_living_index = color_bitmask | directionality_bitmask;
 
 class OrganismGraph {
     constructor(hexGrid) {
@@ -15,6 +17,7 @@ class OrganismGraph {
         this.maxCount = 0;
         this.maxOffspring = 0;
         this.totalOrganisms = 0;
+        this.lineage = null;
     }
 
     getLivingCountIndex() {
@@ -46,16 +49,28 @@ class OrganismGraph {
         }
     }
 
-    updateLivingOrganisms(livingIDs) {
-        this.livingIDs = livingIDs;
-        this.uniqueLivingIDs = new Set(livingIDs);
+    update(livingOrgs) {
+        this.updateLivingOrganisms(livingOrgs);
+        this.updateHTML();
+    }
+
+    updateLivingOrganisms(livingOrgs) {
+
+        this.livingIDs = livingOrgs.map(org => org.organismID());
+        this.uniqueLivingIDs = new Set(this.livingIDs);
 
         const countMap = new Map();
-        for (let id of livingIDs) {
+        for (let org of livingOrgs) {
+            const id = org.organismID();
             if (countMap.has(id)) {
-                countMap.set(id, countMap.get(id) + 1);
+                const last = countMap.get(id);
+                last.count += 1;
+                last.energy += org.energy;
             } else {
-                countMap.set(id, 1);
+                countMap.set(id, {
+                    count: 1,
+                    energy: org.energy,
+                });
             }
         }
 
@@ -63,8 +78,8 @@ class OrganismGraph {
             const topOrgs = new Map();
             const tempOrg = new Organism(this.hexGrid);
 
-            countMap.forEach((count, orgID) => {
-                var pipes = tempOrg.pipesFromID(orgID);
+            countMap.forEach((entry, id) => {
+                var pipes = tempOrg.pipesFromID(id);
 
                 if (i & color_bitmask) {
                     pipes = pipes.map(pipe => {
@@ -96,8 +111,7 @@ class OrganismGraph {
 
                 // This code is terrible-- but it works.
                 if (i & rotation_bitmask) {
-                    // I don't know why this has to be 12-- but when it is less it doesn't work.
-                    for (let i = 0; i < 12; i++) {
+                    for (let j = 0; j < 6; j++) {
                         for (const pipe of name_pipes) {
                             pipe.inputSide = (pipe.inputSide + 1) % 6;
                             pipe.outputSide = (pipe.outputSide + 1) % 6;
@@ -124,21 +138,30 @@ class OrganismGraph {
 
                 if (topOrgs.has(name)) {
                     const old = topOrgs.get(name);
-                    old.count += count;
+                    old.count += entry.count;
+                    old.energy += entry.energy;
                     topOrgs.set(name, old);
                 } else {
-                    topOrgs.set(name, { count: count, pipes: pipes });
+                    topOrgs.set(name, { count: entry.count, energy: entry.energy, pipes: pipes });
                 }
             });
 
-            this.livingCountsMatrix[i] = Array.from(topOrgs.entries()).map(([id, {count, pipes}]) => {
+            this.livingCountsMatrix[i] = Array.from(topOrgs.entries()).map(([id, {count, pipes, energy}]) => {
                 return {
                     orgID: id,
                     count: count,
                     pipes: pipes,
+                    energy: energy,
                 };
             }).sort((a, b) => b.count - a.count);
         }
+    }
+
+    updateHTML() {
+        document.getElementById('orggraph').innerHTML = `Tick: ${this.hexGrid.tick} <br/>
+         Total Organisms: ${this.totalOrganisms} Unique Kinds: ${this.organismCount.size}<br/>
+         Living Organisms: ${this.livingIDs.length} Unique Kinds: ${this.uniqueLivingIDs.size}<br/>
+         Max Count: ${this.maxCount} Max Offspring: ${this.maxOffspring}`;
     }
 
     drawHex(ctx, center, size, color) {
@@ -167,8 +190,7 @@ class OrganismGraph {
 
         ctx.save();
 
-        const entries = this.livingCountsMatrix[this.getLivingCountIndex()].slice(0, 50);
-
+        const entries = this.livingCountsMatrix[this.getLivingCountIndex()].slice(0, 120);
 
         const pipe_mid_color_tmp = pipe_mid_color;
         pipe_mid_color = BLACK_RGB;
@@ -188,12 +210,7 @@ class OrganismGraph {
         });
         pipe_mid_color = pipe_mid_color_tmp;
         ctx.restore();
+
     }
 
-    updateHTML() {
-        document.getElementById('orggraph').innerHTML = `Tick: ${this.hexGrid.tick} <br/>
-         Total Organisms: ${this.totalOrganisms} Unique Kinds: ${this.organismCount.size}<br/>
-         Living Organisms: ${this.livingIDs.length} Unique Kinds: ${this.uniqueLivingIDs.size}<br/>
-         Max Count: ${this.maxCount} Max Offspring: ${this.maxOffspring}`;
-    }
 }

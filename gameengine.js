@@ -50,6 +50,7 @@ class GameEngine {
         this.ctx = null;
         this.surfaceWidth = null;
         this.surfaceHeight = null;
+        this.click = null;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -67,17 +68,13 @@ class GameEngine {
         })();
     }
     startInput() {
-        const cellWidth = PARAMETERS.pixelDimension / PARAMETERS.numCols;
-        const cellHeight = PARAMETERS.pixelDimension / PARAMETERS.numRows;
-
-        function getXY(event) {
-            return {
-                col: Math.floor(event.x / cellWidth),
-                row: Math.floor(event.y / cellHeight)
-            }
-        }
         this.ctx.canvas.addEventListener('click', (event) => {
-            this.click = getXY(event);
+            if (event.target === document.getElementById('gameWorld') && event.button === 0) {
+                this.click = {
+                    x: event.layerX,
+                    y: event.layerY
+                };
+            }
         });
     }
     addEntity(entity) {

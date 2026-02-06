@@ -1,15 +1,15 @@
 class Graph {
-    constructor(x, y, data, label, min, max, resize = true) {
+    constructor(x, y, width, height, data, label, min, max, resize = true, colors = base5colors) {
         this.x = x;
         this.y = y;
         this.data = data;
         this.label = label;
         this.resize = resize;
 
-        this.xSize = PARAMETERS.graphWidth;
-        this.ySize = PARAMETERS.graphHeight;
+        this.xSize = width;
+        this.ySize = height;
         this.ctx = gameEngine.ctx;
-        this.colors = ["#00BB00", "#BB0000", "#00BBBB", "#CCCCCC"];
+        this.colors = colors;
         this.minVal = min;
         this.maxVal = max;
     }
@@ -31,7 +31,7 @@ class Graph {
             for (var j = 0; j < this.data.length; j++) {
                 var data = this.data[j];
 
-                this.ctx.strokeStyle = this.colors[j];
+                this.ctx.fillStyle = this.ctx.strokeStyle = this.colors[j];
                 this.ctx.lineWidth = 2;
 
                 this.ctx.beginPath();
@@ -52,8 +52,6 @@ class Graph {
                 this.ctx.stroke();
                 this.ctx.closePath();
 
-                this.ctx.strokeStyle = TEXT_COLOR;
-                this.ctx.fillSytle = TEXT_COLOR;
                 this.ctx.textAlign = "right";
                 let value = data[data.length - 1];
                 if(!Number.isInteger(value)) value = value.toFixed(2);

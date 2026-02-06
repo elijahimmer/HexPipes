@@ -43,6 +43,20 @@ var PARAMETERS = {
     graphHeight: 120,
 };
 
+function saveParameters() {
+    document.getElementById("numOrganisms").value = PARAMETERS.numOrganisms;
+    document.getElementById("mutationRate").value = PARAMETERS.mutationRate;
+    document.getElementById("reproductionThreshold").value = PARAMETERS.reproductionThreshold;
+    document.getElementById("deathRate").value = PARAMETERS.deathRate;
+    document.getElementById("starvationRate").value = PARAMETERS.starvationRate;
+    document.getElementById("starvationThreshold").value = PARAMETERS.starvationThreshold;
+    document.getElementById("k_diffusion").value = PARAMETERS.k_diffusion;
+    document.getElementById("k_pipeFlow").value = PARAMETERS.k_pipe;
+    document.getElementById("lossRate").value = PARAMETERS.loss_rate;
+    document.getElementById("gridRadius").value = PARAMETERS.gridRadius;
+    document.getElementById("cellSize").value = PARAMETERS.cellSize;
+}
+
 function loadParameters() {
     // Load parameters from UI if available
     PARAMETERS.numOrganisms = parseInt(document.getElementById("numOrganisms").value);

@@ -3,6 +3,7 @@ class Histogram {
         this.x = x;
         this.y = y;
         this.data = data;
+        this.maxEntries = 0;
 
         const defaults = {
             label: "",
@@ -21,13 +22,19 @@ class Histogram {
             Math.floor(this.width) : this.data.length;
         var start = this.data.length > (this.width) ?
             this.data.length - (this.width) : 0;
+
+        const maxEntries = this.data.slice(start).reduce(function (acc, x) {
+            return Math.max(acc, x.length);
+        }, 0);
+        this.maxEntries = maxEntries;
+
         for (var i = 0; i < length; i++) {
             var maxVal = this.data[i + start].reduce(function (acc, x) {
                 return acc + x;
             }, 0);
             for (var j = 0; j < this.data[i + start].length; j++) {
 
-                this.fill(this.data[i + start][j] / maxVal, i, 19 - j);
+                this.fill(this.data[i + start][j] / maxVal, i, j);
             }
         }
         this.ctx.fillStyle = TEXT_COLOR;
@@ -38,7 +45,8 @@ class Histogram {
         this.ctx.lineWidth = 1;
         this.ctx.strokeRect(this.x, this.y, this.width, this.height);
     }
-    fill(color, x, y) {
+    fill(color, x, fromTop) {
+        const y = this.maxEntries - 1 - fromTop;
         this.ctx.fillStyle = BACKGROUND_COLOR;
         var c = color * 99 + 1;
         c = 511 - Math.floor(Math.log(c) / Math.log(100) * 512);
@@ -52,7 +60,7 @@ class Histogram {
         }
 
         var width = 1;
-        var height = Math.floor(this.height / 20);
+        var height = Math.floor(this.height / this.maxEntries);
         this.ctx.fillRect(this.x + (x * width),
             this.y + (y * height),
             width,

@@ -16,15 +16,19 @@ if (window.io !== undefined) {
 		databaseDisconnected();
 	});
 
+
 	socket.addEventListener("log", console.log);
 }
 
 function reset() {
+
     loadParameters();
     gameEngine.entities = [];
     gameEngine.graphs = [];
 
-    gameEngine.addEntity(new HexGrid()); // Using HexGrid instead of Tumbler
+    const grid = new HexGrid();
+    gameEngine.addEntity(grid); // Using HexGrid instead of Tumbler
+    gameEngine.addEntity(new Lineage(grid));
 }
 
 ASSET_MANAGER.downloadAll(function () {
@@ -33,6 +37,7 @@ ASSET_MANAGER.downloadAll(function () {
 	var ctx = canvas.getContext('2d');
 
 	gameEngine.init(ctx);
+	saveParameters();
 
 	reset();
 
