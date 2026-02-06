@@ -94,8 +94,8 @@ class DataManager {
             /* data */ this.base15EnergyAverage,
             /* label */ "Base 15 Average energy",
             /* min */ 0, /* no minimum */
-            /* max */ 0, /* no maximum */
-            /* resize */ true,
+            /* max */ PARAMETERS.energyMax, /* no maximum */
+            /* resize */ false,
             /* colors */ base15colors,
         );
         this.base15EnergyGraphTotal = new Graph(
@@ -181,6 +181,7 @@ class DataManager {
                     const energy = organism?.energy ?? 0;
                     this.base15EnergyTotal[index].push(energy);
 
+                    // TODO(Elijah): Average energy is very volitile when low pops
                     const averageEnergy = count ? energy/count : 0;
                     this.base15EnergyAverage[index].push(averageEnergy);
 
