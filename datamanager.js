@@ -66,7 +66,7 @@ class DataManager {
             /* width */ PARAMETERS.graphWidth,
             /* height */ PARAMETERS.graphHeight,
             /* data */ this.base5Pops,
-            /* label */ "base 5 species graph",
+            /* label */ "Base 5 Species Graph",
             /* min */ 0, /* no minimum */
             /* max */ 0, /* no maximum */
         );
@@ -78,7 +78,7 @@ class DataManager {
             /* width */ PARAMETERS.graphWidth,
             /* height */ PARAMETERS.graphHeight * 1.5,
             /* data */ this.base15Pops,
-            /* label */ "base 15 species graph",
+            /* label */ "Base 15 Species Graph",
             /* min */ 0, /* no minimum */
             /* max */ 0, /* no maximum */
             /* resize */ true,
@@ -92,7 +92,7 @@ class DataManager {
             /* width */ PARAMETERS.graphWidth,
             /* height */ PARAMETERS.graphHeight,
             /* data */ this.base15EnergyAverage,
-            /* label */ "Base 15 Average energy",
+            /* label */ "Base 15 Average Energy",
             /* min */ 0, /* no minimum */
             /* max */ PARAMETERS.energyMax, /* no maximum */
             /* resize */ false,
