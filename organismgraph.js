@@ -2,6 +2,8 @@ const color_bitmask = 1;
 const directionality_bitmask = 2;
 const rotation_bitmask = 4;
 const total_living_counts = 8;
+const base_5_living_index = color_bitmask | directionality_bitmask | rotation_bitmask;
+const base_15_living_index = color_bitmask | directionality_bitmask;
 
 class OrganismGraph {
     constructor(hexGrid) {
@@ -47,21 +49,28 @@ class OrganismGraph {
         }
     }
 
-    update(livingIDs) {
-        this.updateLivingOrganisms(livingIDs);
+    update(livingOrgs) {
+        this.updateLivingOrganisms(livingOrgs);
         this.updateHTML();
     }
 
-    updateLivingOrganisms(livingIDs) {
-        this.livingIDs = livingIDs;
-        this.uniqueLivingIDs = new Set(livingIDs);
+    updateLivingOrganisms(livingOrgs) {
+
+        this.livingIDs = livingOrgs.map(org => org.organismID());
+        this.uniqueLivingIDs = new Set(this.livingIDs);
 
         const countMap = new Map();
-        for (let id of livingIDs) {
+        for (let org of livingOrgs) {
+            const id = org.organismID();
             if (countMap.has(id)) {
-                countMap.set(id, countMap.get(id) + 1);
+                const last = countMap.get(id);
+                last.count += 1;
+                last.energy += org.energy;
             } else {
-                countMap.set(id, 1);
+                countMap.set(id, {
+                    count: 1,
+                    energy: org.energy,
+                });
             }
         }
 
@@ -69,8 +78,8 @@ class OrganismGraph {
             const topOrgs = new Map();
             const tempOrg = new Organism(this.hexGrid);
 
-            countMap.forEach((count, orgID) => {
-                var pipes = tempOrg.pipesFromID(orgID);
+            countMap.forEach((entry, id) => {
+                var pipes = tempOrg.pipesFromID(id);
 
                 if (i & color_bitmask) {
                     pipes = pipes.map(pipe => {
@@ -129,18 +138,20 @@ class OrganismGraph {
 
                 if (topOrgs.has(name)) {
                     const old = topOrgs.get(name);
-                    old.count += count;
+                    old.count += entry.count;
+                    old.energy += entry.energy;
                     topOrgs.set(name, old);
                 } else {
-                    topOrgs.set(name, { count: count, pipes: pipes });
+                    topOrgs.set(name, { count: entry.count, energy: entry.energy, pipes: pipes });
                 }
             });
 
-            this.livingCountsMatrix[i] = Array.from(topOrgs.entries()).map(([id, {count, pipes}]) => {
+            this.livingCountsMatrix[i] = Array.from(topOrgs.entries()).map(([id, {count, pipes, energy}]) => {
                 return {
                     orgID: id,
                     count: count,
                     pipes: pipes,
+                    energy: energy,
                 };
             }).sort((a, b) => b.count - a.count);
         }

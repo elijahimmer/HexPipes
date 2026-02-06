@@ -340,8 +340,7 @@ class HexGrid {
         });
 
         // get unique living organism IDs
-        const livingIDs = this.organisms.map(org => org.organismID());
-        this.organismGraph.update(livingIDs);
+        this.organismGraph.update(this.organisms);
     }
 
     updateLineage() {

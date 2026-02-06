@@ -16,10 +16,12 @@ if (window.io !== undefined) {
 		databaseDisconnected();
 	});
 
+
 	socket.addEventListener("log", console.log);
 }
 
 function reset() {
+
     loadParameters();
     gameEngine.entities = [];
     gameEngine.graphs = [];
@@ -35,6 +37,7 @@ ASSET_MANAGER.downloadAll(function () {
 	var ctx = canvas.getContext('2d');
 
 	gameEngine.init(ctx);
+	saveParameters();
 
 	reset();
 
