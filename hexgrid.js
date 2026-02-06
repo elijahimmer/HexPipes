@@ -344,7 +344,9 @@ class HexGrid {
     }
 
     updateLineage() {
-        if (!gameEngine.click) return;
+        // TODO(Elijah): Fix lineages to re-enable this function.
+        return;
+        // if (!gameEngine.click) return;
         const pos = this.pixelToHex(gameEngine.click.x, gameEngine.click.y);
         if (!pos) return;
         const wanted_key = this.key(pos.q, pos.r);
