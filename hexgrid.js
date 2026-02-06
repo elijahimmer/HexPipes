@@ -499,7 +499,7 @@ class HexGrid {
                 const pipeFactor = this.calculateColorDistance(pipe.inputColor, pipe.outputColor) / 3;
                 pipe.flow = remainingFlow;
                 const organism = step.organism;
-                organism.energy += energyGained * pipeFactor;
+                organism.energy = Math.min(organism.energy + energyGained * pipeFactor, PARAMETERS.energyMax);
             }
         }
     }

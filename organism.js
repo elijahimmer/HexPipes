@@ -314,10 +314,10 @@ class Organism {
             gridCell.B = GREY_RGB.B;
             pipe_mid_color = BLACK_RGB;
         } else if (display === "energy") {
-            const energy_min = Math.floor(PARAMETERS.starvationThreshold * PARAMETERS.energyMax);
-            const energy_max = PARAMETERS.energyMax;
-            const energy_percent = Math.max(0, (this.energy - energy_min) / energy_max);
-            const proportion = Math.round(energy_percent * 255);
+            const energyMin = Math.floor(PARAMETERS.starvationThreshold * PARAMETERS.energyMax);
+            const energyMax = PARAMETERS.energyMax;
+            const energyPercent = Math.max(0, (this.energy - energyMin) / energyMax);
+            const proportion = Math.round(energyPercent * 255);
             gridCell.R = 255 - proportion;
             gridCell.G = 0;
             gridCell.B = proportion;

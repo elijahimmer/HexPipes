@@ -6,7 +6,8 @@ class DataManager {
         this.uniqueOrganisms = [];
         this.base5Pops = [[],[],[],[],[]];
         this.base15Pops = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
-        this.base15Energy = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
+        this.base15EnergyAverage = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
+        this.base15EnergyTotal = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
 
         this.createGraphs();
     }
@@ -85,15 +86,27 @@ class DataManager {
         );
 
         y_pos += PARAMETERS.graphHeight  * 1.5 + PARAMETERS.graphVertPadding;
-        this.base15EnergyGraph = new Graph(
+        this.base15EnergyGraphAverage = new Graph(
             /* x */ x_pos,
             /* y */ y_pos,
             /* width */ PARAMETERS.graphWidth,
             /* height */ PARAMETERS.graphHeight,
-            /* data */ this.base15Energy,
-            /* label */ "base 15 energy graph",
+            /* data */ this.base15EnergyAverage,
+            /* label */ "Base 15 Average energy",
             /* min */ 0, /* no minimum */
-            /* max */ 0, /* no maximum */
+            /* max */ PARAMETERS.energyMax, /* no maximum */
+            /* resize */ false,
+            /* colors */ base15colors,
+        );
+        this.base15EnergyGraphTotal = new Graph(
+            /* x */ x_pos,
+            /* y */ y_pos,
+            /* width */ PARAMETERS.graphWidth,
+            /* height */ PARAMETERS.graphHeight,
+            /* data */ this.base15EnergyTotal,
+            /* label */ "Base 15 Total Energy",
+            /* min */ 0,
+            /* max */ 100,
             /* resize */ true,
             /* colors */ base15colors,
         );
@@ -162,8 +175,16 @@ class DataManager {
                     const organism = base15.find((element) => id == element.orgID);
                     if (organism == null) not_found.push(id);
 
-                    this.base15Pops[index].push(organism?.count ?? 0);
-                    this.base15Energy[index].push(organism?.energy ?? 0);
+                    const count = organism?.count ?? 0;
+                    this.base15Pops[index].push(count);
+
+                    const energy = organism?.energy ?? 0;
+                    this.base15EnergyTotal[index].push(energy);
+
+                    // TODO(Elijah): Average energy is very volitile when low pops
+                    const averageEnergy = count ? energy/count : 0;
+                    this.base15EnergyAverage[index].push(averageEnergy);
+
                     index += 1;
                 }
             }
@@ -199,6 +220,16 @@ class DataManager {
         this.livingSpeciesHistograms[livingCountIndex].draw(ctx);
         this.base5SpeciesGraph.draw(ctx);
         this.base15SpeciesGraph.draw(ctx);
-        this.base15EnergyGraph.draw(ctx);
+
+        const energyGraph = document.getElementById("energy-graph").value;
+        if (energyGraph == "average") {
+            this.base15EnergyGraphAverage.draw(ctx);
+        } else if (energyGraph == "total") {
+            this.base15EnergyGraphTotal.draw(ctx);
+        } else console.log("Unknown energy-graph value!", energyGraph);
+
+    }
+
+    getEnergyGraphType() {
     }
 }

@@ -27,7 +27,7 @@ var PARAMETERS = {
     energyDecay: 0.01,        // Fraction of organism energy lost per tick
 
     // Evolution parameters
-    energyMax: 100,               // The maximum amount of energy that can be stored at one time
+    energyMax: 150,               // The maximum amount of energy that can be stored at one time
     reproductionThreshold: 100,   // Energy needed to reproduce
     mutationRate: 0.05,           // chance per endpoint/configuration
     deathRate: 0.005,             // death chance per tick (lightning bolt)
