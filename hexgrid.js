@@ -581,8 +581,10 @@ class HexGrid {
      * Convert axial coordinates (q, r) to pixel coordinates (x, y)
      */
     hexToPixel(q, r) {
-        const y = this.cellSize * (Math.sqrt(3) * q + Math.sqrt(3)/2 * r);
-        const x = this.cellSize * (3/2 * r);
+        const x = this.cellSize * (3/2 * q);
+        const y = this.cellSize * (Math.sqrt(3) * (r + q/2));
+        // const y = this.cellSize * (Math.sqrt(3) * q + Math.sqrt(3)/2 * r);
+        // const x = this.cellSize * (3/2 * r);
         return {
             x: x + PARAMETERS.gridOffsetX,
             y: y + PARAMETERS.gridOffsetY
