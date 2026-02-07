@@ -67,7 +67,7 @@ const base5colors = ["#00BB00", "#BB0000", "#00BBBB", "#F6C177", "#CCCCCC"];
 // should have the same structure as `base5order`
 const base15colors = [
     // 3 short
-    "#00BB00", "#00BB5E", "#5EBB00",
+    "#00BB00", "#00BB5E",
     // 2 long, 1 short
     "#BB0000", "#BB5E00", "#BB005E", "#BEBE00", "#F10E57", "#F1360E",
     // short straight

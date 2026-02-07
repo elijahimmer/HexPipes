@@ -55,7 +55,6 @@ class OrganismGraph {
     }
 
     updateLivingOrganisms(livingOrgs) {
-
         this.livingIDs = livingOrgs.map(org => org.organismID());
         this.uniqueLivingIDs = new Set(this.livingIDs);
 
@@ -88,7 +87,7 @@ class OrganismGraph {
                         return pipe;
                     })
                 }
-                var name_pipes = JSON.parse(JSON.stringify(pipes)); // deep copy pipes... this is terrible...
+                var name_pipes = tempOrg.copyPipes({pipes});
                 tempOrg.pipes = name_pipes;
 
                 if (i & directionality_bitmask) {
@@ -109,7 +108,6 @@ class OrganismGraph {
                     })
                 }
 
-                // This code is terrible-- but it works.
                 if (i & rotation_bitmask) {
                     for (let j = 0; j < 6; j++) {
                         for (const pipe of name_pipes) {
@@ -127,7 +125,6 @@ class OrganismGraph {
                                 pipe.outputColor = 'R';
                             }
                         }
-                        tempOrg.pipes = name_pipes;
                         if (topOrgs.has(tempOrg.organismID())) {
                             break;
                         }
@@ -142,7 +139,7 @@ class OrganismGraph {
                     old.energy += entry.energy;
                     topOrgs.set(name, old);
                 } else {
-                    topOrgs.set(name, { count: entry.count, energy: entry.energy, pipes: pipes });
+                    topOrgs.set(name, { count: entry.count, energy: entry.energy, pipes });
                 }
             });
 
@@ -158,7 +155,7 @@ class OrganismGraph {
     }
 
     updateHTML() {
-        document.getElementById('orggraph').innerHTML = `Tick: ${this.hexGrid.tick} <br/>
+        document.getElementById('orggraph').innerHTML = `Tick: ${this.hexGrid.tick}<br/>
          Total Organisms: ${this.totalOrganisms} Unique Kinds: ${this.organismCount.size}<br/>
          Living Organisms: ${this.livingIDs.length} Unique Kinds: ${this.uniqueLivingIDs.size}<br/>
          Max Count: ${this.maxCount} Max Offspring: ${this.maxOffspring}`;
@@ -210,7 +207,5 @@ class OrganismGraph {
         });
         pipe_mid_color = pipe_mid_color_tmp;
         ctx.restore();
-
     }
-
 }

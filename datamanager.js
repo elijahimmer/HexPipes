@@ -227,9 +227,5 @@ class DataManager {
         } else if (energyGraph == "total") {
             this.base15EnergyGraphTotal.draw(ctx);
         } else console.log("Unknown energy-graph value!", energyGraph);
-
-    }
-
-    getEnergyGraphType() {
     }
 }
