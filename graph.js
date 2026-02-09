@@ -6,8 +6,8 @@ class Graph {
         this.label = label;
         this.resize = resize;
 
-        this.xSize = width;
-        this.ySize = height;
+        this.xSize = Math.floor(width);
+        this.ySize = Math.floor(height);
         this.ctx = gameEngine.ctx;
         this.colors = colors;
         this.minVal = min;
@@ -38,8 +38,9 @@ class Graph {
 
                 this.ctx.beginPath();
                 var xPos = this.x;
-                var yPos = data.length > this.xSize ? this.y + this.ySize - Math.floor((data[data.length - this.xSize] - this.minVal) / (this.maxVal - this.minVal) * this.ySize)
-                : this.y + this.ySize - Math.floor((data[0] - this.minVal) / (this.maxVal - this.minVal) * this.ySize);
+                var yPos = data.length > this.xSize ?
+                    this.y + this.ySize - Math.floor((data[data.length - this.xSize] - this.minVal) / (this.maxVal - this.minVal) * this.ySize) :
+                    this.y + this.ySize - Math.floor((data[0] - this.minVal) / (this.maxVal - this.minVal) * this.ySize);
                 this.ctx.moveTo(xPos, yPos);
                 var length = data.length > this.xSize ?
                     this.xSize : data.length;
