@@ -32,12 +32,12 @@ class Histogram {
         }, 0);
         this.maxEntries = maxEntries;
 
-        for (var i = 0; i < length; i++) {
-            var maxVal = this.data[i + start].reduce(function (acc, x) {
+        for (const [index, entry] of this.data.slice(start).entries()) {
+            var maxVal = entry.reduce(function (acc, x) {
                 return acc + x;
             }, 0);
-            for (var j = 0; j < this.data[i + start].length; j++) {
-                this.fill(this.data[i + start][j] / maxVal, i, j);
+            for (let j = 0; j < entry.length; j++) {
+                this.fill(entry[j] / maxVal, index, j);
             }
         }
         this.ctx.fillStyle = TEXT_COLOR;
