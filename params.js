@@ -41,21 +41,9 @@ var PARAMETERS = {
     graphHoriPadding: 15,    // Graph horizontal padding in pixels
     graphWidth: 600,
     graphHeight: 120,
-};
 
-function saveParameters() {
-    document.getElementById("numOrganisms").value = PARAMETERS.numOrganisms;
-    document.getElementById("mutationRate").value = PARAMETERS.mutationRate;
-    document.getElementById("reproductionThreshold").value = PARAMETERS.reproductionThreshold;
-    document.getElementById("deathRate").value = PARAMETERS.deathRate;
-    document.getElementById("starvationRate").value = PARAMETERS.starvationRate;
-    document.getElementById("starvationThreshold").value = PARAMETERS.starvationThreshold;
-    document.getElementById("k_diffusion").value = PARAMETERS.k_diffusion;
-    document.getElementById("k_pipeFlow").value = PARAMETERS.k_pipe;
-    document.getElementById("lossRate").value = PARAMETERS.loss_rate;
-    document.getElementById("gridRadius").value = PARAMETERS.gridRadius;
-    document.getElementById("cellSize").value = PARAMETERS.cellSize;
-}
+    enforceMaxEnergy: false,
+};
 
 function loadParameters() {
     // Load parameters from UI if available
@@ -70,9 +58,9 @@ function loadParameters() {
     PARAMETERS.loss_rate = parseFloat(document.getElementById("lossRate").value);
     PARAMETERS.gridRadius = parseInt(document.getElementById("gridRadius").value);
     PARAMETERS.cellSize = parseInt(document.getElementById("cellSize").value);
+    PARAMETERS.enforceMaxEnergy = document.getElementById("enforceMaxEnergy").checked;
 
     // Could calculate dependent parameters here if needed
-
 
     console.log("Parameters loaded:", PARAMETERS);
 }

@@ -37,7 +37,6 @@ ASSET_MANAGER.downloadAll(function () {
 	var ctx = canvas.getContext('2d');
 
 	gameEngine.init(ctx);
-	saveParameters();
 
 	reset();
 

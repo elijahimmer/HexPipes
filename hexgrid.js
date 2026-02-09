@@ -32,6 +32,8 @@ class HexGrid {
 
         // Organism storage
         this.organisms = [];
+        this.starvationDeaths = [];
+        this.randomDeaths = [];
 
         // Initialize the hex grid
         this.initializeGrid();
@@ -301,6 +303,7 @@ class HexGrid {
         this.updateLineage()
 
         if (document.getElementById('pause').checked) return;
+
         this.tick++;
         // Step 1: Diffusion
         this.diffuse();
@@ -323,17 +326,24 @@ class HexGrid {
         }
         this.organisms.push(...newOrganisms);
 
-        // Step 4: Death (lightning bolt)
+        // Step 4: Death (lightning bolt or starvation)
         this.organisms = this.organisms.filter(organism => {
-            if (Math.random() < PARAMETERS.deathRate ||
-                (organism.energy < PARAMETERS.reproductionThreshold * PARAMETERS.starvationThreshold && Math.random() < PARAMETERS.starvationRate)) {
+            const starved = (organism.energy < PARAMETERS.reproductionThreshold * PARAMETERS.starvationThreshold && Math.random() < PARAMETERS.starvationRate);
+            const random = Math.random() < PARAMETERS.deathRate;
+            if (starved || random) {
                 // Clear organism from cell
                 const gridCell = this.getCell(organism.q, organism.r);
                 gridCell.organism = null;
                 gridCell.R = 0;
                 gridCell.G = 0;
                 gridCell.B = 0;
-                // console.log(`⚡ Organism died at (${organism.q}, ${organism.r})`);
+
+                if (starved) {
+                    this.starvationDeaths.push(organism);
+                } else if (random) {
+                    this.randomDeaths.push(organism);
+                }
+
                 return false; // Remove from array
             }
             return true; // Keep in array
@@ -499,7 +509,11 @@ class HexGrid {
                 const pipeFactor = this.calculateColorDistance(pipe.inputColor, pipe.outputColor) / 3;
                 pipe.flow = remainingFlow;
                 const organism = step.organism;
-                organism.energy = Math.min(organism.energy + energyGained * pipeFactor, PARAMETERS.energyMax);
+
+                organism.energy = organism.energy + energyGained * pipeFactor;
+                if (PARAMETERS.enforceMaxEnergy) {
+                    organism.energy = Math.min(organism.energy, PARAMETERS.energyMax);
+                }
             }
         }
     }
