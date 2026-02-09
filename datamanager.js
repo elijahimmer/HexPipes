@@ -4,6 +4,11 @@ class DataManager {
 
         this.population = [];
         this.uniqueOrganisms = [];
+        this.starvationDeaths = [];
+        this.randomDeaths = [];
+        this.starvationDeaths = [];
+        this.energyLostOnDeath = [];
+        this.randomDeaths = [];
         this.base5Pops = [[],[],[],[],[]];
         this.base15Pops = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
         this.base15EnergyAverage = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
@@ -18,7 +23,9 @@ class DataManager {
 
     createGraphs() {
         let y_pos = PARAMETERS.graphVertPadding;
-        const x_pos = PARAMETERS.canvasWidth - PARAMETERS.graphWidth - PARAMETERS.graphHoriPadding;
+        const x_pos = PARAMETERS.canvasWidth - PARAMETERS.graphWidth - PARAMETERS.graphHoriPadding * 2;
+        const half_width = (PARAMETERS.graphWidth - PARAMETERS.graphHoriPadding) / 2;
+        const half_offset = (PARAMETERS.graphWidth + PARAMETERS.graphHoriPadding) / 2;
 
         // Create action graph
         this.populationGraph = new Graph(
@@ -27,36 +34,51 @@ class DataManager {
             /* width */ PARAMETERS.graphWidth,
             /* height */ PARAMETERS.graphHeight,
             /* data */ [this.population, this.uniqueOrganisms],
-            /* label */ "Population",
+            /* label */ "Population (population green, unique red)",
             /* min */ 0, /* no minimum */
             /* max */ 0, /* no maximum */
         );
 
         y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding;
-        this.totalSpeciesHistogram = new Histogram(
-           /*       x */ x_pos,
-           /*       y */ y_pos,
-           /*    data */ [],
-           /* options */ {
-               label: "Total Organism Species",
-               width: PARAMETERS.graphWidth,
-               height: PARAMETERS.graphHeight,
-           },
-        );
+        {
+            this.deathCauseGraph = new Graph(
+                /* x */ x_pos,
+                /* y */ y_pos,
+                /* width */ half_width,
+                /* height */ PARAMETERS.graphHeight,
+                /* data */ [this.starvationDeaths, this.randomDeaths],
+                /* label */ "Cause of Death (starvation green, random red)",
+                /* min */ 0, /* no minimum */
+                /* max */ 0, /* no maximum */
+            );
+        }
 
         y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding;
-        this.livingSpeciesHistograms = [];
-        for (let i = 0; i < total_living_counts; i ++) {
-            this.livingSpeciesHistograms[i] = new Histogram(
+        {
+            this.totalSpeciesHistogram = new Histogram(
                /*       x */ x_pos,
                /*       y */ y_pos,
                /*    data */ [],
                /* options */ {
-                   label: "Living Organism Species",
-                   width: PARAMETERS.graphWidth,
+                   label: "Total Organism Species",
+                   width: half_width,
                    height: PARAMETERS.graphHeight,
                },
             );
+
+            this.livingSpeciesHistograms = [];
+            for (let i = 0; i < total_living_counts; i ++) {
+                this.livingSpeciesHistograms[i] = new Histogram(
+                   /*       x */ x_pos + half_offset,
+                   /*       y */ y_pos,
+                   /*    data */ [],
+                   /* options */ {
+                       label: "Living Organism Species",
+                       width: half_width,
+                       height: PARAMETERS.graphHeight,
+                   },
+                );
+            }
         }
 
         y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding;
@@ -85,39 +107,41 @@ class DataManager {
             /* colors */ base15Colors,
         );
 
-        y_pos += PARAMETERS.graphHeight  * 1.5 + PARAMETERS.graphVertPadding;
-        this.base15EnergyGraphAverage = new Graph(
-            /* x */ x_pos,
-            /* y */ y_pos,
-            /* width */ PARAMETERS.graphWidth,
-            /* height */ PARAMETERS.graphHeight,
-            /* data */ this.base15EnergyAverage,
-            /* label */ "Base 15 Average Energy",
-            /* min */ 0, /* no minimum */
-            /* max */ PARAMETERS.energyMax, /* no maximum */
-            /* resize */ false,
-            /* colors */ base15Colors,
-        );
-        this.base15EnergyGraphTotal = new Graph(
-            /* x */ x_pos,
-            /* y */ y_pos,
-            /* width */ PARAMETERS.graphWidth,
-            /* height */ PARAMETERS.graphHeight,
-            /* data */ this.base15EnergyTotal,
-            /* label */ "Base 15 Total Energy",
-            /* min */ 0,
-            /* max */ 100,
-            /* resize */ true,
-            /* colors */ base15Colors,
-        );
+        y_pos += PARAMETERS.graphHeight * 1.5 + PARAMETERS.graphVertPadding;
+        {
+            this.base15EnergyGraphAverage = new Graph(
+                /*      x */ x_pos,
+                /*      y */ y_pos,
+                /*  width */ half_width,
+                /* height */ PARAMETERS.graphHeight * 1.5,
+                /*   data */ this.base15EnergyAverage,
+                /*  label */ "Base 15 Average Energy",
+                /*    min */ 0, /* no minimum */
+                /*    max */ 0, /* no maximum */
+                /* resize */ true,
+                /* colors */ base15Colors,
+            );
+            this.base15EnergyGraphTotal = new Graph(
+                /*      x */ x_pos + half_offset,
+                /*      y */ y_pos,
+                /*  width */ half_width,
+                /* height */ PARAMETERS.graphHeight * 1.5,
+                /*   data */ this.base15EnergyTotal,
+                /*  label */ "Base 15 Total Energy",
+                /*    min */ 0,
+                /*    max */ 100,
+                /* resize */ true,
+                /* colors */ base15Colors,
+            );
+        }
 
-        y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding * 2;
+        y_pos += PARAMETERS.graphHeight * 1.5 + PARAMETERS.graphVertPadding * 2;
         this.organismGraphYPos = y_pos;
         const organismGraphWidth = 550;
         const graphWidth = PARAMETERS.graphWidth;
         const offset = Math.abs(Math.floor((graphWidth - organismGraphWidth) / 2));
 
-        this.organismGraphXPos = PARAMETERS.canvasWidth - (graphWidth - offset) - PARAMETERS.graphHoriPadding;
+        this.organismGraphXPos = PARAMETERS.canvasWidth - (graphWidth - offset) - PARAMETERS.graphHoriPadding * 2;
     }
 
     updateData() {
@@ -125,6 +149,11 @@ class DataManager {
         // Update population data
         this.population.push(this.hexGrid.organisms.length);
         this.uniqueOrganisms.push(organismGraph.uniqueLivingIDs.size);
+
+        this.starvationDeaths.push(this.hexGrid.starvationDeaths.length);
+        this.hexGrid.starvationDeaths = [];
+        this.randomDeaths.push(this.hexGrid.randomDeaths.length);
+        this.hexGrid.randomDeaths = [];
 
         {
             const histogram = this.totalSpeciesHistogram;
@@ -195,18 +224,14 @@ class DataManager {
 
     draw(ctx) {
         this.populationGraph.draw(ctx);
+        this.deathCauseGraph.draw(ctx);
         this.hexGrid.organismGraph.drawTopOrganisms(ctx, this.organismGraphXPos, this.organismGraphYPos, 24);
-        const livingCountIndex = this.hexGrid.organismGraph.getLivingCountIndex();
         this.totalSpeciesHistogram.draw(ctx);
+        const livingCountIndex = this.hexGrid.organismGraph.getLivingCountIndex();
         this.livingSpeciesHistograms[livingCountIndex].draw(ctx);
         this.base5SpeciesGraph.draw(ctx);
         this.base15SpeciesGraph.draw(ctx);
-
-        const energyGraph = document.getElementById("energy-graph").value;
-        if (energyGraph == "average") {
-            this.base15EnergyGraphAverage.draw(ctx);
-        } else if (energyGraph == "total") {
-            this.base15EnergyGraphTotal.draw(ctx);
-        } else console.log("Unknown energy-graph value!", energyGraph);
+        this.base15EnergyGraphAverage.draw(ctx);
+        this.base15EnergyGraphTotal.draw(ctx);
     }
 }

@@ -11,17 +11,21 @@ class Histogram {
             height: PARAMETERS.graphHeight,
         };
         Object.assign(this, defaults, options);
+        this.width = Math.floor(this.width);
+        this.height = Math.floor(this.height);
 
         this.ctx = gameEngine.ctx;
         this.maxVal = 0;
     }
+
     update() {
     }
+
     draw(ctx) {
         var length = this.data.length > (this.width) ?
             Math.floor(this.width) : this.data.length;
         var start = this.data.length > (this.width) ?
-            this.data.length - (this.width) : 0;
+            this.data.length - this.width : 0;
 
         const maxEntries = this.data.slice(start).reduce(function (acc, x) {
             return Math.max(acc, x.length);
@@ -33,7 +37,6 @@ class Histogram {
                 return acc + x;
             }, 0);
             for (var j = 0; j < this.data[i + start].length; j++) {
-
                 this.fill(this.data[i + start][j] / maxVal, i, j);
             }
         }
@@ -45,6 +48,7 @@ class Histogram {
         this.ctx.lineWidth = 1;
         this.ctx.strokeRect(this.x, this.y, this.width, this.height);
     }
+
     fill(color, x, fromTop) {
         const y = this.maxEntries - 1 - fromTop;
         this.ctx.fillStyle = BACKGROUND_COLOR;
