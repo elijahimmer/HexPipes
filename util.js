@@ -17,11 +17,22 @@ function generateNormalSample(mean = 0, stdDev = 1) {
 };
 
 function rgb(r, g, b) {
-    return "rgb(" + r + "," + g + "," + b + ")";
+    return `rgb(${r},${g},${b})`;
 };
 
 function hsl(h, s, l) {
-    return "hsl(" + h + "," + s + "%," + l + "%)";
+    return `hsl(${h},${s}%,${l}%)`;
+};
+
+function parseHexColor(hex) {
+    assert(hex.length == 7, `invalid hex color "${hex}" too short`)
+    assert(hex[0] == '#', `invalid hex color "${hex}" incorrect start`)
+
+    return {
+        R: parseInt(hex.slice(1,3), 16),
+        G: parseInt(hex.slice(3,5), 16),
+        B: parseInt(hex.slice(5,7), 16),
+    };
 };
 
 function download(filename, text) {
@@ -49,13 +60,13 @@ function assert(ok, msg) {
 }
 
 // Each bucket is a species which contains all of the possible rotations of that species.
-const base5order = [
+const base5Order = [
     // 3 short
     ["0B1R-2B3R-4B5R", "0B5R-1B2R-3B4R"],
     // 2 long, 1 short
-    ["0B5R-1B3R-2B4R", "0B1R-2B4R-3B5R", "0B2R-1B3R-4B5R", "0B2R-1B5R-3B4R", "0B4R-1B2R-3B5R", "0B4R-1B5R-2B3R"],
+    ["0B2R-1B3R-4B5R",  "0B5R-1B3R-2B4R", "0B1R-2B4R-3B5R", "0B4R-1B2R-3B5R", "0B4R-1B5R-2B3R", "0B2R-1B5R-3B4R"],
     // short straight
-    ["0B3R-1B2R-4B5R", "0B5R-1B4R-2B3R", "0B1R-2B5R-3B4R"],
+    ["0B5R-1B4R-2B3R", "0B1R-2B5R-3B4R", "0B3R-1B2R-4B5R"],
     // long straight
     ["0B4R-1B3R-2B5R", "0B2R-1B4R-3B5R", "0B3R-1B5R-2B4R"],
     // straight
@@ -63,18 +74,21 @@ const base5order = [
 ];
 
 // buckets in order
-const base5colors = ["#00BB00", "#BB0000", "#00BBBB", "#F6C177", "#CCCCCC"];
+const base5Colors = ["#00BB00", "#BB0000", "#00BBBB", "#F6C177", "#CCCCCC"];
+const base5ColorsRgb = base5Colors.map((color) => parseHexColor(color));
+
 // should have the same structure as `base5order`
-const base15colors = [
+const base15Colors = [
     // 3 short
     "#00BB00", "#00BB5E",
     // 2 long, 1 short
-    "#BB0000", "#BB5E00", "#BB005E", "#BEBE00", "#F10E57", "#F1360E",
+    "#BB0000", "#BB5E00", "#BB005E", "#BEBE00", "#BB5E5E", "#BB3333",
     // short straight
-    "#00BBBB", "#005EBB", "#00BB5E",
+    "#005EBB","#00BBBB", "#00BB5E",
     // long straight
     "#F6C177", "#ECF677", "#EFE810",
     // straight
     "#CCCCCC"
 ];
+const base15ColorsRgb = base15Colors.map((color) => parseHexColor(color));
 

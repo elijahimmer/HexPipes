@@ -73,9 +73,9 @@ class OrganismGraph {
             }
         }
 
+        const tempOrg = new Organism(this.hexGrid);
         for (var i = 0; i < total_living_counts; i++) {
             const topOrgs = new Map();
-            const tempOrg = new Organism(this.hexGrid);
 
             countMap.forEach((entry, id) => {
                 var pipes = tempOrg.pipesFromID(id);
@@ -143,14 +143,52 @@ class OrganismGraph {
                 }
             });
 
-            this.livingCountsMatrix[i] = Array.from(topOrgs.entries()).map(([id, {count, pipes, energy}]) => {
+            const mapped = Array.from(topOrgs.entries()).map(([id, {count, pipes, energy}]) => {
                 return {
                     orgID: id,
                     count: count,
                     pipes: pipes,
                     energy: energy,
                 };
-            }).sort((a, b) => b.count - a.count);
+            });
+
+            if (i === base_5_living_index) {
+                assert(topOrgs.size <= 5, `Too many top orgs! ${topOrgs}`);
+
+                // change the org to be the base rotation
+                for (const org of mapped) {
+                    (() => {
+                        for (const [index, id_list] of base5Order.entries()) {
+                            for (const id of id_list) {
+                                if (id == org.orgID) {
+                                    org.orgID = id_list[0];
+                                    return;
+                                }
+                            }
+                        }
+                    })()
+                }
+
+                this.livingCountsMatrix[i] = new Array(5);
+                for (const [index, id_list] of base5Order.entries()) {
+                    this.livingCountsMatrix[i][index] = mapped.find((e) => e.orgID == id_list[0]) ??
+                        {orgID: id_list[0], count: 0, pipes: tempOrg.pipesFromID(id_list[0]), energy: 0};
+                }
+            } else if (i === base_15_living_index) {
+                assert(topOrgs.size <= 15, `Too many top orgs! ${topOrgs}`);
+
+                this.livingCountsMatrix[i] = new Array(15);
+                let index = 0;
+                for (const id_list of base5Order) {
+                    for (const id of id_list) {
+                        this.livingCountsMatrix[i][index] = mapped.find((e) => e.orgID == id) ??
+                            {orgID: id, count: 0, pipes: tempOrg.pipesFromID(id), energy: 0};
+                        index += 1
+                    }
+                }
+            } else {
+                this.livingCountsMatrix[i] = mapped.sort((a, b) => b.count - a.count);
+            }
         }
     }
 
@@ -161,7 +199,7 @@ class OrganismGraph {
          Max Count: ${this.maxCount} Max Offspring: ${this.maxOffspring}`;
     }
 
-    drawHex(ctx, center, size, color) {
+    drawHex(ctx, center, size, color, strokeStyle = null) {
         const corners = [];
         // corners for flat-topped hexagon
         for (let i = 0; i < 6; i++) {
@@ -178,6 +216,11 @@ class OrganismGraph {
         }
         ctx.closePath();
 
+        if (strokeStyle) {
+            ctx.strokeStyle = strokeStyle;
+            ctx.lineWidth = 6;
+            ctx.stroke();
+        };
         ctx.fillStyle = color;
         ctx.fill();
     }
@@ -187,7 +230,11 @@ class OrganismGraph {
 
         ctx.save();
 
-        const entries = this.livingCountsMatrix[this.getLivingCountIndex()].slice(0, 120);
+        const livingIndex = this.getLivingCountIndex();
+        const entries = this.livingCountsMatrix[livingIndex].slice(0, 24);
+
+        const isBase15 = livingIndex === base_15_living_index;
+        const isBase5 = livingIndex === base_5_living_index;
 
         const pipe_mid_color_tmp = pipe_mid_color;
         pipe_mid_color = BLACK_RGB;
@@ -196,15 +243,26 @@ class OrganismGraph {
             const flow = false;
             const center = { x: x + (index % 12) * 50, y: y + Math.floor(index / 12) * 62 };
             const size = 20;
-            index++;
+            index += 1;
 
-            this.drawHex(ctx, center, size, GREY);
+            tempOrg.pipes = pipes;
+            let strokeStyle = null;
+            if (isBase5) {
+                const baseType = tempOrg.baseType();
+                strokeStyle = base5Colors[baseType.base5];
+            } else if (isBase15) {
+                const baseType = tempOrg.baseType();
+                strokeStyle = base15Colors[baseType.base15];
+            }
+
+            this.drawHex(ctx, center, size, GREY, strokeStyle);
             tempOrg.drawPipesAtPoint(ctx, center, size, pipes, flow);
             ctx.font = "14px Arial";
             ctx.fillStyle = TEXT_COLOR;
             ctx.textAlign = "center";
             ctx.fillText(`${count}`, center.x, center.y + size + 16);
         });
+
         pipe_mid_color = pipe_mid_color_tmp;
         ctx.restore();
     }
