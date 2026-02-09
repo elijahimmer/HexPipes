@@ -581,8 +581,10 @@ class HexGrid {
      * Convert axial coordinates (q, r) to pixel coordinates (x, y)
      */
     hexToPixel(q, r) {
-        const y = this.cellSize * (Math.sqrt(3) * q + Math.sqrt(3)/2 * r);
-        const x = this.cellSize * (3/2 * r);
+        const x = this.cellSize * (3/2 * q);
+        const y = this.cellSize * (Math.sqrt(3) * (r + q/2));
+        // const y = this.cellSize * (Math.sqrt(3) * q + Math.sqrt(3)/2 * r);
+        // const x = this.cellSize * (3/2 * r);
         return {
             x: x + PARAMETERS.gridOffsetX,
             y: y + PARAMETERS.gridOffsetY
@@ -590,10 +592,11 @@ class HexGrid {
     }
 
     pixelToHex(x, y) {
+        // TODO(Elijah): Make sure this is correct.
         const ny = (y - PARAMETERS.gridOffsetY) / this.cellSize;
         const nx = (x - PARAMETERS.gridOffsetX) / this.cellSize;
-        const q = Math.sqrt(3)/3 * ny - 1/3 * nx;
-        const r = 2/3 * nx;
+        const q = 2/3 * nx;
+        const r = Math.sqrt(3)/3 * ny - 1/3 * nx;
         const pos = { q: Math.floor(q), r: Math.floor(r) }
         if (this.isInBounds(pos.q, pos.r)) return pos;
         else return null;

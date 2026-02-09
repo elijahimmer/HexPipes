@@ -1,5 +1,5 @@
 class Graph {
-    constructor(x, y, width, height, data, label, min, max, resize = true, colors = base5colors) {
+    constructor(x, y, width, height, data, label, min, max, resize = true, colors = base5Colors) {
         this.x = x;
         this.y = y;
         this.data = data;
@@ -13,8 +13,10 @@ class Graph {
         this.minVal = min;
         this.maxVal = max;
     }
+
     update() {
     }
+
     draw(ctx) {
         if(this.resize) this.updateMinAndMax();
         // if (!document.getElementById("graphs").checked) return;
@@ -75,6 +77,7 @@ class Graph {
         this.ctx.lineWidth = 1;
         this.ctx.strokeRect(this.x, this.y, this.xSize, this.ySize);
     }
+
     updateMinAndMax() {
         this.minVal = Math.min(this.minVal, ...[].concat(...this.data));
         this.maxVal = Math.max(this.maxVal, ...[].concat(...this.data));

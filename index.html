@@ -76,6 +76,8 @@
             <label for="organism-display">Display Organism:</label>
             <select id="organism-display">
                 <option value="grey" selected>Grey</option>
+                <option value="base5" selected>Base 5 Type</option>
+                <option value="base15" selected>Base 15 Type</option>
                 <option value="black">Black</option>
                 <option value="energy">Energy</option>
             </select> <br />
@@ -93,18 +95,18 @@
             <h3>Graph Settings</h3>
 
             <input type="checkbox" id="ignore-color" />
-            <label for="ignore-color">Ignore colors</label><br />
+            <label for="ignore-color" checked>Ignore colors</label><br />
 
             <input type="checkbox" id="ignore-directionality" />
-            <label for="ignore-directionality">Ignore Directionality (which way the pipes point)</label><br />
+            <label for="ignore-directionality" checked>Ignore Directionality (which way the pipes point)</label><br />
 
             <input type="checkbox" id="ignore-rotation" />
             <label for="ignore-rotation">Ignore Rotation</label><br />
 
-            <label for="energy-graph">Energy Graph Display:</label>
+            <label for="energy-graph">Base 15 Energy Graph:</label>
             <select id="energy-graph">
-                <option value="average" selected>Average</option>
-                <option value="total">Total</option>
+                <option value="average">Average</option>
+                <option value="total" selected>Total</option>
             </select><br />
         </div>
     </div>

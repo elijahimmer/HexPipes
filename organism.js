@@ -270,14 +270,14 @@ class Organism {
         return colorMap[colorName];
     }
 
-    organismID() {
-        const pipeCodes = this.pipes.map(pipe =>
+    organismID(pipes = this.pipes) {
+        const pipeCodes = pipes.map(pipe =>
             `${pipe.inputSide}${pipe.inputColor}${pipe.outputSide}${pipe.outputColor}`
         ).sort((a, b) => a.localeCompare(b)).join('-');
         return pipeCodes;
     }
 
-    pipesFromID(pipeID) {
+    pipesFromID(pipeID = this.organismID) {
         const pipeStrings = pipeID.split('-');
         const pipes = pipeStrings.map(str => {
             return {
@@ -322,6 +322,21 @@ class Organism {
             gridCell.G = 0;
             gridCell.B = proportion;
             pipe_mid_color = GREY_RGB;
+        } else if (display === "base5" || display === "base15") {
+            const baseType = this.baseType();
+            assert(baseType.base5 < base5Colors.length, `Incorrect base type expected: ${baseType.base5} < 5`);
+            assert(baseType.base15 < base15Colors.length, `Incorrect base type expected: ${baseType.base15} < 15`);
+            let color;
+            if (display === "base5") {
+                color = base5ColorsRgb[baseType.base5];
+            } else if (display === "base15") {
+                color = base15ColorsRgb[baseType.base15];
+            } else console.error("unreachable", display);
+            // console.log(this.organismID(), baseType, color);
+            gridCell.R = color.R;
+            gridCell.G = color.G;
+            gridCell.B = color.B;
+            pipe_mid_color = BLACK_RGB;
         } else console.error(`Unknown 'organism-display' value ${display}`);
 
          if (pipe_show === "none") {
@@ -535,7 +550,6 @@ class Organism {
         return {x, y};
     }
 
-
     /**
      * Interpolate between two colors with gray in middle
      */
@@ -558,5 +572,47 @@ class Organism {
                 B: pipe_mid_color.B * (1 - s) + color2.B * s
             };
         }
+    }
+
+    baseType() {
+        const pipes = this.copyPipes(this);
+        for (let j = 0; j < 6; j++) {
+            for (const pipe of pipes) {
+                if (j != 0) {
+                    pipe.inputSide = (pipe.inputSide + 1) % 6;
+                    pipe.outputSide = (pipe.outputSide + 1) % 6;
+                }
+                if (pipe.inputSide > pipe.outputSide) {
+                    const tmp = pipe.inputSide;
+                    pipe.inputSide = pipe.outputSide;
+                    pipe.outputSide = tmp;
+                }
+                pipe.inputColor = 'B';
+                pipe.outputColor = 'R';
+            }
+            var id = this.organismID(pipes);
+
+            var base5Index = 0;
+            var base15Index = 0;
+            for (const base15Ids of base5Order) {
+                for (const base15Id of base15Ids) {
+                    if (base15Id === id) {
+                        return {
+                            base5: base5Index,
+                            base15: base15Index,
+                        };
+                    }
+                    base15Index += 1;
+                }
+                base5Index += 1;
+            }
+        }
+
+        // soft failover
+        console.warn("unknown organism type", this.organismID());
+        return {
+            base5: 0,
+            base15: 0,
+        };
     }
 }

@@ -66,7 +66,7 @@ class DataManager {
             /* width */ PARAMETERS.graphWidth,
             /* height */ PARAMETERS.graphHeight,
             /* data */ this.base5Pops,
-            /* label */ "base 5 species graph",
+            /* label */ "Base 5 Species Graph",
             /* min */ 0, /* no minimum */
             /* max */ 0, /* no maximum */
         );
@@ -78,11 +78,11 @@ class DataManager {
             /* width */ PARAMETERS.graphWidth,
             /* height */ PARAMETERS.graphHeight * 1.5,
             /* data */ this.base15Pops,
-            /* label */ "base 15 species graph",
+            /* label */ "Base 15 Species Graph",
             /* min */ 0, /* no minimum */
             /* max */ 0, /* no maximum */
             /* resize */ true,
-            /* colors */ base15colors,
+            /* colors */ base15Colors,
         );
 
         y_pos += PARAMETERS.graphHeight  * 1.5 + PARAMETERS.graphVertPadding;
@@ -92,11 +92,11 @@ class DataManager {
             /* width */ PARAMETERS.graphWidth,
             /* height */ PARAMETERS.graphHeight,
             /* data */ this.base15EnergyAverage,
-            /* label */ "Base 15 Average energy",
+            /* label */ "Base 15 Average Energy",
             /* min */ 0, /* no minimum */
             /* max */ PARAMETERS.energyMax, /* no maximum */
             /* resize */ false,
-            /* colors */ base15colors,
+            /* colors */ base15Colors,
         );
         this.base15EnergyGraphTotal = new Graph(
             /* x */ x_pos,
@@ -108,7 +108,7 @@ class DataManager {
             /* min */ 0,
             /* max */ 100,
             /* resize */ true,
-            /* colors */ base15colors,
+            /* colors */ base15Colors,
         );
 
         y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding * 2;
@@ -144,7 +144,7 @@ class DataManager {
                     acc.push(organism.count);
                     return acc;
                 }, new Array());
-            counts.sort((a, b) => b - a);
+            if (i != base_5_living_index && i != base_15_living_index) counts.sort((a, b) => b - a);
             counts = counts.slice(0, 20);
 
             if (counts.length > 0) {
@@ -154,41 +154,22 @@ class DataManager {
 
         {
             const base5 = organismGraph.livingCountsMatrix[base_5_living_index];
-            var not_found = [];
-            for (const [index, id] of base5order.entries()) {
-                const organism = base5.find((element) => id.includes(element.orgID));
-                if (organism == null) not_found.push(id);
-
-                this.base5Pops[index].push(organism?.count ?? 0);
+            for (const [index, organism] of base5.entries()) {
+                this.base5Pops[index].push(organism.count);
             }
-            // We should have all of them, but why not check.
-            if (5 - not_found.length != base5.length) console.warn("missing at least one of:", not_found);
         }
 
         {
             const base15 = organismGraph.livingCountsMatrix[base_15_living_index];
+            for (const [index, organism] of base15.entries()) {
+                this.base15Pops[index].push(organism.count);
 
-            var not_found = [];
-            var index = 0;
-            for (const id_list of base5order) {
-                for (const id of id_list) {
-                    const organism = base15.find((element) => id == element.orgID);
-                    if (organism == null) not_found.push(id);
+                this.base15EnergyTotal[index].push(organism.energy);
 
-                    const count = organism?.count ?? 0;
-                    this.base15Pops[index].push(count);
-
-                    const energy = organism?.energy ?? 0;
-                    this.base15EnergyTotal[index].push(energy);
-
-                    // TODO(Elijah): Average energy is very volitile when low pops
-                    const averageEnergy = count ? energy/count : 0;
-                    this.base15EnergyAverage[index].push(averageEnergy);
-
-                    index += 1;
-                }
+                // TODO(Elijah): Average energy is very volitile when low pops
+                const averageEnergy = organism.count ? organism.energy/organism.count : 0;
+                this.base15EnergyAverage[index].push(averageEnergy);
             }
-            if (15 - not_found.length != base15.length) console.warn("missing at least one of:", not_found);
         }
     }
 
@@ -227,9 +208,5 @@ class DataManager {
         } else if (energyGraph == "total") {
             this.base15EnergyGraphTotal.draw(ctx);
         } else console.log("Unknown energy-graph value!", energyGraph);
-
-    }
-
-    getEnergyGraphType() {
     }
 }
