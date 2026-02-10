@@ -59,6 +59,15 @@ function loadParameters() {
     PARAMETERS.gridRadius = parseInt(document.getElementById("gridRadius").value);
     PARAMETERS.cellSize = parseInt(document.getElementById("cellSize").value);
     PARAMETERS.enforceMaxEnergy = document.getElementById("enforceMaxEnergy").checked;
+    {
+        let seed = parseInt(document.getElementById("randomSeed").value);
+        if (!seed) {
+            seed = Math.floor(Math.random() * 0xFFFF_FFFF);
+            document.getElementById("randomSeed").value = seed.toString();
+        }
+
+        PARAMETERS.randomSeed = seed;
+    }
 
     // Could calculate dependent parameters here if needed
 

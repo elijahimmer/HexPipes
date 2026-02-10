@@ -195,24 +195,24 @@ class Organism {
             const inputCell = this.getInputCell(pipe);
             const outputCell = this.getOutputCell(pipe);
 
-            if (Math.random() < PARAMETERS.mutationRate) {
+            if (arng.double() < PARAMETERS.mutationRate) {
                 pipe.inputColor = colors[randomInt(colors.length)];
             }
 
-            if (Math.random() < PARAMETERS.mutationRate) {
+            if (arng.double() < PARAMETERS.mutationRate) {
                 pipe.outputColor = colors[randomInt(colors.length)];
             }
 
-            if (Math.random() < PARAMETERS.mutationRate) {
+            if (arng.double() < PARAMETERS.mutationRate) {
                 pipe.inputConnect = !pipe.inputConnect;
             }
 
-            if (Math.random() < PARAMETERS.mutationRate) {
+            if (arng.double() < PARAMETERS.mutationRate) {
                 pipe.outputConnect = !pipe.outputConnect;
             }
         }
 
-        if (Math.random() < PARAMETERS.mutationRate) {
+        if (arng.double() < PARAMETERS.mutationRate) {
             if (this.pipes.length >= 2) {
                 const pipe1Idx = randomInt(this.pipes.length);
                 let pipe2Idx;
@@ -242,7 +242,7 @@ class Organism {
         }
 
         // Mutate rotation
-        if (Math.random() < PARAMETERS.mutationRate) {
+        if (arng.double() < PARAMETERS.mutationRate) {
             // Rotate by ±1 or ±2 positions (60° or 120°)
             const rotations = [-2, -1, 1, 2];
             const rotation = rotations[randomInt(rotations.length)];

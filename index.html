@@ -4,9 +4,9 @@
 <head>
     <meta charset="utf-8">
     <title>Hex Pipes</title>
-    <link rel="stylesheet" type="text/css" href="./style.css">
-    </link>
+    <link rel="stylesheet" type="text/css" href="./style.css"></link>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.1/socket.io.js"></script>
+    <script type="text/javascript" src="./alea.js"></script>
     <script type="text/javascript" src="./util.js"></script>
     <script type="text/javascript" src="./assetmanager.js"></script>
     <script type="text/javascript" src="./histogram.js"></script>
@@ -50,9 +50,12 @@
                 <input type="number" id="starvationRate" value="0.5" min="0" max="1" step="0.01" />
                 <label for="starvationThreshold">Starvation Threshold (% of reproductionThreshold):</label>
                 <input type="number" id="starvationThreshold" value="0.01" min="0" max="1" step="0.001" />
-
+                <label for="randomSeed">Random Seed (doesn't yet work):</label>
+                <input type="number" id="randomSeed" value="" placeholder="none", min="0", max="0xFFFF_FFFF", step="1" autocomplete="off"/>
                 <label for="enforceMaxEnergy">Enforce Max Energy:</label>
                 <input type="checkbox" id="enforceMaxEnergy" />
+                <label for="taxPipeFlow">Tax pipe flow (unimplemented):</label>
+                <input type="checkbox" id="taxPipeFlow" />
 
 
                 <div id="orggraph">Ticks: 0 <br/> Total Organisms: 0 <br/> Max Count: 0<br/> Map Size: 0</div>
@@ -105,6 +108,9 @@
 
             <input type="checkbox" id="ignore-rotation" />
             <label for="ignore-rotation">Ignore Rotation</label><br />
+
+            <input type="checkbox" id="sort-top-orgs" />
+            <label for="sort-top-orgs">Sort top organisms (only applicable to base 5 and 15)</label><br />
 
             <!-- <label for="energy-graph">Base 15 Energy Graph:</label> -->
             <!-- <select id="energy-graph"> -->

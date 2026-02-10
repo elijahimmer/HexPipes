@@ -111,8 +111,8 @@ class HexGrid {
             let attempts = 0;
             do {
                 // Random position in interior (not edges)
-                q = Math.floor(Math.random() * (2 * (this.radius - 1) + 1)) - (this.radius - 1);
-                r = Math.floor(Math.random() * (2 * (this.radius - 1) + 1)) - (this.radius - 1);
+                q = Math.floor(arng.double() * (2 * (this.radius - 1) + 1)) - (this.radius - 1);
+                r = Math.floor(arng.double() * (2 * (this.radius - 1) + 1)) - (this.radius - 1);
                 attempts++;
                 if (attempts > 100) break; // Safety check
             } while (!this.isLegalPlacement(q, r));
@@ -328,8 +328,8 @@ class HexGrid {
 
         // Step 4: Death (lightning bolt or starvation)
         this.organisms = this.organisms.filter(organism => {
-            const starved = (organism.energy < PARAMETERS.reproductionThreshold * PARAMETERS.starvationThreshold && Math.random() < PARAMETERS.starvationRate);
-            const random = Math.random() < PARAMETERS.deathRate;
+            const starved = (organism.energy < PARAMETERS.reproductionThreshold * PARAMETERS.starvationThreshold && arng.double() < PARAMETERS.starvationRate);
+            const random = arng.double() < PARAMETERS.deathRate;
             if (starved || random) {
                 // Clear organism from cell
                 const gridCell = this.getCell(organism.q, organism.r);
