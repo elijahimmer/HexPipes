@@ -181,9 +181,7 @@ class DataManager {
             counts.sort((a, b) => b - a);
             counts = counts.slice(0, 20);
 
-            if (counts.length > 0) {
-                histogram.data.push(counts);
-            }
+            histogram.data.push(counts);
         }
 
         for (let i = 0; i < total_living_counts; i++) {
@@ -246,7 +244,6 @@ class DataManager {
         this.graphPopulation.draw(ctx);
         this.graphDeathCause.draw(ctx);
         this.graphEnergyLoss.draw(ctx);
-        this.hexGrid.organismGraph.drawTopOrganisms(ctx, this.organismGraphXPos, this.organismGraphYPos, 24);
         this.histogramTotalSpecies.draw(ctx);
         const livingCountIndex = this.hexGrid.organismGraph.getLivingCountIndex();
         this.histogramsLivingSpecies[livingCountIndex].draw(ctx);
@@ -254,5 +251,6 @@ class DataManager {
         this.graphBase15Species.draw(ctx);
         this.base15EnergyGraphAverage.draw(ctx);
         this.base15EnergyGraphTotal.draw(ctx);
+        this.hexGrid.organismGraph.drawTopOrganisms(ctx, this.organismGraphXPos, this.organismGraphYPos, 24);
     }
 }
