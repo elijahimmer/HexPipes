@@ -34,7 +34,9 @@ class HexGrid {
         this.organisms = [];
         this.starvationDeaths = [];
         this.randomDeaths = [];
+
         this.pipeFlowLoss = 0.0;
+        this.chains = [];
 
         // Initialize the hex grid
         this.initializeGrid();
@@ -423,6 +425,8 @@ class HexGrid {
                 }
             }
         }
+
+        this.chains.push(...chains);
 
         // TODO(Elijah): groups here
         // place chains in groups with the same source

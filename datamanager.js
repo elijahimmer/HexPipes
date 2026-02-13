@@ -12,6 +12,8 @@ class DataManager {
         this.base15EnergyAverage = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
         this.base15EnergyTotal = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
         this.pipeFlowLoss = [];
+        this.pipeChainLengthsAverage = [];
+        this.pipeChainLengthsLongest = [];
 
         this.createGraphs();
     }
@@ -37,8 +39,8 @@ class DataManager {
             /* min */ 0, /* no minimum */
             /* max */ 0, /* no maximum */
         );
-
         y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding;
+
         {
             this.graphDeathCause = new Graph(
                 /*      x */ x_pos,
@@ -61,9 +63,25 @@ class DataManager {
                 /*    min */ 0, /* no minimum */
                 /*    max */ 0, /* no maximum */
             );
+            y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding;
         }
 
-        y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding;
+        {
+            this.graphPipeChains = new Graph(
+                /*      x */ x_pos,
+                /*      y */ y_pos,
+                /*  width */ half_width,
+                /* height */ PARAMETERS.graphHeight,
+                /*   data */ [this.pipeChainLengthsAverage, this.pipeChainLengthsLongest],
+                /*  label */ "Chain Lenghts (average green, longest red)",
+                /*    min */ 0, /* no minimum */
+                /*    max */ 0, /* no maximum */
+                /* resize */ true,
+                /* colors */ base5Colors,
+            );
+            y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding;
+        }
+
         {
             this.histogramTotalSpecies = new Histogram(
                /*       x */ x_pos,
@@ -90,8 +108,8 @@ class DataManager {
                 );
             }
         }
-
         y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding;
+
         this.graphBase5Species = new Graph(
             /* x */ x_pos,
             /* y */ y_pos,
@@ -102,8 +120,8 @@ class DataManager {
             /* min */ 0, /* no minimum */
             /* max */ 0, /* no maximum */
         );
-
         y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding;
+
         this.graphBase15Species = new Graph(
             /* x */ x_pos,
             /* y */ y_pos,
@@ -116,8 +134,8 @@ class DataManager {
             /* resize */ true,
             /* colors */ base15Colors,
         );
-
         y_pos += PARAMETERS.graphHeight * 1.5 + PARAMETERS.graphVertPadding;
+
         {
             this.graphBase15EnergyAverage = new Graph(
                 /*      x */ x_pos,
@@ -143,9 +161,10 @@ class DataManager {
                 /* resize */ true,
                 /* colors */ base15Colors,
             );
+            y_pos += PARAMETERS.graphHeight * 1.5 + PARAMETERS.graphVertPadding;
         }
 
-        y_pos += PARAMETERS.graphHeight * 1.5 + PARAMETERS.graphVertPadding * 2;
+        y_pos += PARAMETERS.graphVertPadding;
         this.organismGraphYPos = y_pos;
         const organismGraphWidth = 550;
         const graphWidth = PARAMETERS.graphWidth;
@@ -177,6 +196,23 @@ class DataManager {
             this.hexGrid.randomDeaths = [];
         }
 
+        {
+            const chains = this.hexGrid.chains;
+            this.hexGrid.chains = [];
+
+            let sum = 0;
+            let max = 0;
+
+            for (const chain of chains) {
+                sum += chain.chain.length;
+                max = Math.max(max, chain.chain.length);
+            }
+
+
+            const average = sum / chains.length;
+            this.pipeChainLengthsAverage.push(average ? average : 0);
+            this.pipeChainLengthsLongest.push(max);
+        }
 
         {
             const histogram = this.histogramTotalSpecies;
@@ -247,6 +283,7 @@ class DataManager {
         this.graphPopulation.draw(ctx);
         this.graphDeathCause.draw(ctx);
         this.graphEnergyLoss.draw(ctx);
+        this.graphPipeChains.draw(ctx);
         this.histogramTotalSpecies.draw(ctx);
         const livingCountIndex = this.hexGrid.organismGraph.getLivingCountIndex();
         this.histogramsLivingSpecies[livingCountIndex].draw(ctx);
