@@ -11,6 +11,7 @@ class DataManager {
         this.base15Pops = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
         this.base15EnergyAverage = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
         this.base15EnergyTotal = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
+        this.pipeFlowLoss = [];
 
         this.createGraphs();
     }
@@ -55,8 +56,8 @@ class DataManager {
                 /*      y */ y_pos,
                 /*  width */ half_width,
                 /* height */ PARAMETERS.graphHeight,
-                /*   data */ [this.energyLostFromDeath],
-                /*  label */ "Energy loss (death green)",
+                /*   data */ [this.energyLostFromDeath, this.pipeFlowLoss],
+                /*  label */ "Energy loss (death green, flow tax red)",
                 /*    min */ 0, /* no minimum */
                 /*    max */ 0, /* no maximum */
             );
@@ -118,7 +119,7 @@ class DataManager {
 
         y_pos += PARAMETERS.graphHeight * 1.5 + PARAMETERS.graphVertPadding;
         {
-            this.base15EnergyGraphAverage = new Graph(
+            this.graphBase15EnergyAverage = new Graph(
                 /*      x */ x_pos,
                 /*      y */ y_pos,
                 /*  width */ half_width,
@@ -130,7 +131,7 @@ class DataManager {
                 /* resize */ true,
                 /* colors */ base15Colors,
             );
-            this.base15EnergyGraphTotal = new Graph(
+            this.graphBase15EnergyTotal = new Graph(
                 /*      x */ x_pos + half_offset,
                 /*      y */ y_pos,
                 /*  width */ half_width,
@@ -158,6 +159,8 @@ class DataManager {
         // Update population data
         this.population.push(this.hexGrid.organisms.length);
         this.uniqueOrganisms.push(organismGraph.uniqueLivingIDs.size);
+        this.pipeFlowLoss.push(this.hexGrid.pipeFlowLoss);
+        this.hexGrid.pipeFlowLoss = 0;
 
         {
             this.deathsStarvation.push(this.hexGrid.starvationDeaths.length);
@@ -249,8 +252,9 @@ class DataManager {
         this.histogramsLivingSpecies[livingCountIndex].draw(ctx);
         this.graphBase5Species.draw(ctx);
         this.graphBase15Species.draw(ctx);
-        this.base15EnergyGraphAverage.draw(ctx);
-        this.base15EnergyGraphTotal.draw(ctx);
+        this.graphBase15EnergyAverage.draw(ctx);
+        this.graphBase15EnergyTotal.draw(ctx);
+
         this.hexGrid.organismGraph.drawTopOrganisms(ctx, this.organismGraphXPos, this.organismGraphYPos, 24);
     }
 }

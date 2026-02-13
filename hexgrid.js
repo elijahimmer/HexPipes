@@ -34,6 +34,7 @@ class HexGrid {
         this.organisms = [];
         this.starvationDeaths = [];
         this.randomDeaths = [];
+        this.pipeFlowLoss = 0.0;
 
         // Initialize the hex grid
         this.initializeGrid();
@@ -507,7 +508,13 @@ class HexGrid {
                 // compute pipe energy gain
                 const pipe = step.pipe;
                 const pipeFactor = this.calculateColorDistance(pipe.inputColor, pipe.outputColor) / 3;
+
                 pipe.flow = remainingFlow;
+                if (PARAMETERS.taxPipeFlow) {
+                    const loss = pipe.flow * PARAMETERS.loss_rate;
+                    pipe.flow -= loss;
+                    this.pipeFlowLoss += loss;
+                }
                 const organism = step.organism;
 
                 organism.energy = organism.energy + energyGained * pipeFactor;

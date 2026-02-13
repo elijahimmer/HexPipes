@@ -45,6 +45,7 @@ var PARAMETERS = {
     randomSeed: 0, // will be overriden
 
     enforceMaxEnergy: false,
+    taxPipeFlow: false,
 };
 
 function loadParameters() {
@@ -61,6 +62,7 @@ function loadParameters() {
     PARAMETERS.gridRadius = parseInt(document.getElementById("gridRadius").value);
     PARAMETERS.cellSize = parseInt(document.getElementById("cellSize").value);
     PARAMETERS.enforceMaxEnergy = document.getElementById("enforceMaxEnergy").checked;
+    PARAMETERS.taxPipeFlow = document.getElementById("taxPipeFlow").checked;
     {
         let seed = parseInt(document.getElementById("randomSeed").value);
         if (!seed) {
