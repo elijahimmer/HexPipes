@@ -16,7 +16,7 @@ An evolutionary artificial life system where single-hex organisms extract energy
 
 ### Organism Metabolism
 - **Pipe Networks**: Each organism has 3 pipes connecting pairs of its 6 sides
-- **Color Processing**: 
+- **Color Processing**:
   - Primaries (R, G, B): Pull single RGB channel
   - Secondaries (Y, C, M): Pull TWO channels (limited by minimum)
 - **Chain Flow**: Organisms connect output→input forming metabolic chains
@@ -55,7 +55,7 @@ An evolutionary artificial life system where single-hex organisms extract energy
 ### Real-Time Visualization
 - **Hex Grid**: Colorful diffusion from edges (toggle R/G/B channels)
 - **Organisms**: Black hexagons with colored curved pipes
-- **Flow Indicators**: 
+- **Flow Indicators**:
   - Green intensity shows flow amount (toggle on/off)
   - Input: Filled circle (●) at pulling end
   - Output: Arrow triangle (▶) at pushing end
@@ -193,6 +193,7 @@ High density forces competition, starvation pressure drives adaptation
 - **Vanilla JavaScript** (ES6+)
 - **HTML5 Canvas** for rendering
 - **Socket.io** (optional) for database logging
+- **Alea** Random number generator for seeded generation by Johannes Baagøe (`./alea.js`)
 - No build step required!
 
 ## 🧬 Configuration Space Analysis

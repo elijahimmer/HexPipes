@@ -20,9 +20,11 @@ if (window.io !== undefined) {
 	socket.addEventListener("log", console.log);
 }
 
-function reset() {
+var arng = new alea();
 
+function reset() {
     loadParameters();
+    arng = new alea(PARAMETERS.randomSeed);
     gameEngine.entities = [];
     gameEngine.graphs = [];
 

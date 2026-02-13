@@ -4,15 +4,14 @@ class DataManager {
 
         this.population = [];
         this.uniqueOrganisms = [];
-        this.starvationDeaths = [];
-        this.randomDeaths = [];
-        this.starvationDeaths = [];
-        this.energyLostOnDeath = [];
-        this.randomDeaths = [];
+        this.deathsStarvation = [];
+        this.deathsRandom = [];
+        this.energyLostFromDeath = [];
         this.base5Pops = [[],[],[],[],[]];
         this.base15Pops = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
         this.base15EnergyAverage = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
         this.base15EnergyTotal = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
+        this.pipeFlowLoss = [];
 
         this.createGraphs();
     }
@@ -28,7 +27,7 @@ class DataManager {
         const half_offset = (PARAMETERS.graphWidth + PARAMETERS.graphHoriPadding) / 2;
 
         // Create action graph
-        this.populationGraph = new Graph(
+        this.graphPopulation = new Graph(
             /* x */ x_pos,
             /* y */ y_pos,
             /* width */ PARAMETERS.graphWidth,
@@ -41,21 +40,32 @@ class DataManager {
 
         y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding;
         {
-            this.deathCauseGraph = new Graph(
-                /* x */ x_pos,
-                /* y */ y_pos,
-                /* width */ half_width,
+            this.graphDeathCause = new Graph(
+                /*      x */ x_pos,
+                /*      y */ y_pos,
+                /*  width */ half_width,
                 /* height */ PARAMETERS.graphHeight,
-                /* data */ [this.starvationDeaths, this.randomDeaths],
-                /* label */ "Cause of Death (starvation green, random red)",
-                /* min */ 0, /* no minimum */
-                /* max */ 0, /* no maximum */
+                /*   data */ [this.deathsStarvation, this.deathsRandom],
+                /*  label */ "Cause of Death (starvation green, random red)",
+                /*    min */ 0, /* no minimum */
+                /*    max */ 0, /* no maximum */
+            );
+
+            this.graphEnergyLoss = new Graph(
+                /*      x */ x_pos + half_offset,
+                /*      y */ y_pos,
+                /*  width */ half_width,
+                /* height */ PARAMETERS.graphHeight,
+                /*   data */ [this.energyLostFromDeath, this.pipeFlowLoss],
+                /*  label */ "Energy loss (death green, flow tax red)",
+                /*    min */ 0, /* no minimum */
+                /*    max */ 0, /* no maximum */
             );
         }
 
         y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding;
         {
-            this.totalSpeciesHistogram = new Histogram(
+            this.histogramTotalSpecies = new Histogram(
                /*       x */ x_pos,
                /*       y */ y_pos,
                /*    data */ [],
@@ -66,9 +76,9 @@ class DataManager {
                },
             );
 
-            this.livingSpeciesHistograms = [];
+            this.histogramsLivingSpecies = [];
             for (let i = 0; i < total_living_counts; i ++) {
-                this.livingSpeciesHistograms[i] = new Histogram(
+                this.histogramsLivingSpecies[i] = new Histogram(
                    /*       x */ x_pos + half_offset,
                    /*       y */ y_pos,
                    /*    data */ [],
@@ -82,7 +92,7 @@ class DataManager {
         }
 
         y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding;
-        this.base5SpeciesGraph = new Graph(
+        this.graphBase5Species = new Graph(
             /* x */ x_pos,
             /* y */ y_pos,
             /* width */ PARAMETERS.graphWidth,
@@ -94,7 +104,7 @@ class DataManager {
         );
 
         y_pos += PARAMETERS.graphHeight + PARAMETERS.graphVertPadding;
-        this.base15SpeciesGraph = new Graph(
+        this.graphBase15Species = new Graph(
             /* x */ x_pos,
             /* y */ y_pos,
             /* width */ PARAMETERS.graphWidth,
@@ -109,7 +119,7 @@ class DataManager {
 
         y_pos += PARAMETERS.graphHeight * 1.5 + PARAMETERS.graphVertPadding;
         {
-            this.base15EnergyGraphAverage = new Graph(
+            this.graphBase15EnergyAverage = new Graph(
                 /*      x */ x_pos,
                 /*      y */ y_pos,
                 /*  width */ half_width,
@@ -121,7 +131,7 @@ class DataManager {
                 /* resize */ true,
                 /* colors */ base15Colors,
             );
-            this.base15EnergyGraphTotal = new Graph(
+            this.graphBase15EnergyTotal = new Graph(
                 /*      x */ x_pos + half_offset,
                 /*      y */ y_pos,
                 /*  width */ half_width,
@@ -149,25 +159,36 @@ class DataManager {
         // Update population data
         this.population.push(this.hexGrid.organisms.length);
         this.uniqueOrganisms.push(organismGraph.uniqueLivingIDs.size);
-
-        this.starvationDeaths.push(this.hexGrid.starvationDeaths.length);
-        this.hexGrid.starvationDeaths = [];
-        this.randomDeaths.push(this.hexGrid.randomDeaths.length);
-        this.hexGrid.randomDeaths = [];
+        this.pipeFlowLoss.push(this.hexGrid.pipeFlowLoss);
+        this.hexGrid.pipeFlowLoss = 0;
 
         {
-            const histogram = this.totalSpeciesHistogram;
+            this.deathsStarvation.push(this.hexGrid.starvationDeaths.length);
+            this.deathsRandom.push(this.hexGrid.randomDeaths.length);
+
+            {
+                let totalLoss = 0;
+                for (const org of this.hexGrid.starvationDeaths) totalLoss += org.energy;
+                for (const org of this.hexGrid.randomDeaths) totalLoss += org.energy;
+                this.energyLostFromDeath.push(totalLoss);
+            }
+
+            this.hexGrid.starvationDeaths = [];
+            this.hexGrid.randomDeaths = [];
+        }
+
+
+        {
+            const histogram = this.histogramTotalSpecies;
             let counts = Array.from(organismGraph.organismCount.values());
             counts.sort((a, b) => b - a);
             counts = counts.slice(0, 20);
 
-            if (counts.length > 0) {
-                histogram.data.push(counts);
-            }
+            histogram.data.push(counts);
         }
 
         for (let i = 0; i < total_living_counts; i++) {
-            const histogram = this.livingSpeciesHistograms[i];
+            const histogram = this.histogramsLivingSpecies[i];
             let counts = organismGraph.livingCountsMatrix[i].values()
                 .reduce(function (acc, organism) {
                     acc.push(organism.count);
@@ -223,15 +244,17 @@ class DataManager {
     }
 
     draw(ctx) {
-        this.populationGraph.draw(ctx);
-        this.deathCauseGraph.draw(ctx);
-        this.hexGrid.organismGraph.drawTopOrganisms(ctx, this.organismGraphXPos, this.organismGraphYPos, 24);
-        this.totalSpeciesHistogram.draw(ctx);
+        this.graphPopulation.draw(ctx);
+        this.graphDeathCause.draw(ctx);
+        this.graphEnergyLoss.draw(ctx);
+        this.histogramTotalSpecies.draw(ctx);
         const livingCountIndex = this.hexGrid.organismGraph.getLivingCountIndex();
-        this.livingSpeciesHistograms[livingCountIndex].draw(ctx);
-        this.base5SpeciesGraph.draw(ctx);
-        this.base15SpeciesGraph.draw(ctx);
-        this.base15EnergyGraphAverage.draw(ctx);
-        this.base15EnergyGraphTotal.draw(ctx);
+        this.histogramsLivingSpecies[livingCountIndex].draw(ctx);
+        this.graphBase5Species.draw(ctx);
+        this.graphBase15Species.draw(ctx);
+        this.graphBase15EnergyAverage.draw(ctx);
+        this.graphBase15EnergyTotal.draw(ctx);
+
+        this.hexGrid.organismGraph.drawTopOrganisms(ctx, this.organismGraphXPos, this.organismGraphYPos, 24);
     }
 }

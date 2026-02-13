@@ -15,7 +15,7 @@ body {
 #controlPanel {
     display: flex;
     flex-direction: column; /* Stack child elements vertically */
-    width: 700px; /* Reduced width for compactness */
+    width: 500px; /* Reduced width for compactness */
 }
 
 #parameters {
@@ -24,7 +24,7 @@ body {
     background-color: #f9f9f9;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
     margin-bottom: 10px;
-    /* display: flex; */
+    display: flex;
     flex-wrap: wrap;  /* Allows items to wrap onto the next line */
     justify-content: space-between; /* Spaces out the sections nicely */
 }
@@ -69,7 +69,7 @@ body {
     padding: 5px; /* Reduced padding for compactness */
     margin-bottom: 8px; /* Reduced spacing between sections */
     background-color: #f1f1f1;
-    /* flex: 1 1 45%; /* Grow and shrink, but base width at 45% */ */
+    flex: 1 1 45%; /* Grow and shrink, but base width at 45% */
     margin: 5px; /* Adjust margins as necessary */
 }
 

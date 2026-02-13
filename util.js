@@ -1,6 +1,6 @@
 //GameBoard code below
 function randomInt(n) {
-    return Math.floor(Math.random() * n);
+    return Math.floor(arng.double() * n);
 };
 
 function distance(p1, p2) {
@@ -9,8 +9,8 @@ function distance(p1, p2) {
 
 function generateNormalSample(mean = 0, stdDev = 1) {
     // box-muller transform
-    let u1 = Math.random();
-    let u2 = Math.random();
+    let u1 = arng.double();
+    let u2 = arng.double();
 
     let z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
     return z0 * stdDev + mean;

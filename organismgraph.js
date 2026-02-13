@@ -174,6 +174,7 @@ class OrganismGraph {
                     this.livingCountsMatrix[i][index] = mapped.find((e) => e.orgID == id_list[0]) ??
                         {orgID: id_list[0], count: 0, pipes: tempOrg.pipesFromID(id_list[0]), energy: 0};
                 }
+
             } else if (i === base_15_living_index) {
                 assert(topOrgs.size <= 15, `Too many top orgs! ${topOrgs}`);
 
@@ -235,6 +236,9 @@ class OrganismGraph {
 
         const isBase15 = livingIndex === base_15_living_index;
         const isBase5 = livingIndex === base_5_living_index;
+        const sort_top_orgs = document.getElementById("sort-top-orgs").checked;
+
+        if (sort_top_orgs) entries.sort((a, b) => b.count - a.count);
 
         const pipe_mid_color_tmp = pipe_mid_color;
         pipe_mid_color = BLACK_RGB;

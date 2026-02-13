@@ -42,7 +42,10 @@ var PARAMETERS = {
     graphWidth: 600,
     graphHeight: 120,
 
+    randomSeed: 0, // will be overriden
+
     enforceMaxEnergy: false,
+    taxPipeFlow: false,
 };
 
 function loadParameters() {
@@ -59,23 +62,33 @@ function loadParameters() {
     PARAMETERS.gridRadius = parseInt(document.getElementById("gridRadius").value);
     PARAMETERS.cellSize = parseInt(document.getElementById("cellSize").value);
     PARAMETERS.enforceMaxEnergy = document.getElementById("enforceMaxEnergy").checked;
+    PARAMETERS.taxPipeFlow = document.getElementById("taxPipeFlow").checked;
+    {
+        let seed = parseInt(document.getElementById("randomSeed").value);
+        if (!seed) {
+            seed = Math.floor(Math.random() * 0xFFFF_FFFF);
+            document.getElementById("randomSeed").value = seed.toString();
+        }
+
+        PARAMETERS.randomSeed = seed;
+    }
 
     // Could calculate dependent parameters here if needed
 
     console.log("Parameters loaded:", PARAMETERS);
 }
 
-const BACKGROUND_COLOR_LIGHT = "#ffffff";
+const BACKGROUND_COLOR_LIGHT = "#FFFFFF";
 const BACKGROUND_COLOR_DARK = "#000000";
 const TEXT_COLOR_DARK_BACKGROUND = "#000000";
-const TEXT_COLOR_LIGHT_BACKGROUND = "#e0def4";
+const TEXT_COLOR_LIGHT_BACKGROUND = "#E0DEF4";
 
 var BACKGROUND_COLOR = BACKGROUND_COLOR_LIGHT;
 var TEXT_COLOR = TEXT_COLOR_LIGHT_BACKGROUND;
 
-const GREY = "#908caa";
-const GREY_RGB  = { R: 0x90, G: 0x8c, B: 0xaa };
-const BLACK_RGB = { R: 0x00, G: 0x00, B: 0x00 };
+const GREY = "#908CAA";
+const GREY_RGB  = parseHexColor(GREY);
+const BLACK_RGB = parseHexColor("#000000");
 
 // Set initial text color.
 if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
