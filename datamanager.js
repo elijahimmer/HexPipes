@@ -264,7 +264,19 @@ class DataManager {
             db: PARAMETERS.db,
             collection: PARAMETERS.collection,
             data: {
-
+                run_id: run_id,
+                seed: PARAMETERS.randomSeed,
+                tick: this.hexGrid.tick,
+                population: this.population,
+                uniqueOrganisms: this.uniqueOrganisms,
+                deathsStarvation: this.deathsStarvation,
+                deathsRandom: this.deathsRandom,
+                energyLostFromDeath: this.energyLostFromDeath,
+                base5Pops: this.base5Pops,
+                base15Pops: this.base15Pops,
+                base15EnergyAverage: this.base15EnergyAverage,
+                base15EnergyTotal: this.base15EnergyTotal,
+                pipeFlowLoss: this.pipeFlowLoss
             }
         };
 
@@ -275,6 +287,7 @@ class DataManager {
         if (document.getElementById('pause').checked) return;
         // Update data every tick (not just on reporting periods)
         if(this.hexGrid.tick % PARAMETERS.reportingPeriod === 0) {
+            this.logData();
             this.updateData();
         }
     }

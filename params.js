@@ -3,10 +3,8 @@ var PARAMETERS = {
     updatesPerDraw: 1,
     reportingPeriod: 100,
     db: "HexPipes",
-    collection: "test",
-    ip: 'https://73.19.38.112:8888',
-
-    // Canvas parameters
+    collection: "test-123",
+    ip: "https://73.19.38.112:8888", // Canvas parameters
     canvasWidth: 1600,
     canvasHeight: 1200,
     gridOffsetX: 500,        // X offset to center grid

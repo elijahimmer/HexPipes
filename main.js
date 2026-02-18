@@ -21,9 +21,24 @@ if (window.io !== undefined) {
 }
 
 var arng = new alea();
+var run_id;
 
 function reset() {
     loadParameters();
+    run_id = Math.floor(Math.random() * 0xFFFF_FFFF_FFFF_FFFF);
+
+    const data = {
+        db: PARAMETERS.db,
+        collection: PARAMETERS.collection,
+        data: {
+            run_id: run_id,
+            seed: PARAMETERS.randomSeed,
+            params: PARAMETERS
+        }
+    };
+
+    if (socket) socket.emit("insert", data);
+
     arng = new alea(PARAMETERS.randomSeed);
     gameEngine.entities = [];
     gameEngine.graphs = [];
