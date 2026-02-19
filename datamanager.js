@@ -35,7 +35,7 @@ class DataManager {
             /* width */ PARAMETERS.graphWidth,
             /* height */ PARAMETERS.graphHeight,
             /* data */ [this.population, this.uniqueOrganisms],
-            /* label */ "Population (population green, unique red)",
+            /* label */ "Population (population red, unique orange)",
             /* min */ 0, /* no minimum */
             /* max */ 0, /* no maximum */
         );
@@ -48,7 +48,7 @@ class DataManager {
                 /*  width */ half_width,
                 /* height */ PARAMETERS.graphHeight,
                 /*   data */ [this.deathsStarvation, this.deathsRandom],
-                /*  label */ "Cause of Death (starvation green, random red)",
+                /*  label */ "Cause of Death (starvation red, random orange)",
                 /*    min */ 0, /* no minimum */
                 /*    max */ 0, /* no maximum */
             );
@@ -59,7 +59,7 @@ class DataManager {
                 /*  width */ half_width,
                 /* height */ PARAMETERS.graphHeight,
                 /*   data */ [this.energyLostFromDeath, this.pipeFlowLoss],
-                /*  label */ "Energy loss (death green, flow tax red)",
+                /*  label */ "Energy loss (death red, flow tax orange)",
                 /*    min */ 0, /* no minimum */
                 /*    max */ 0, /* no maximum */
             );
@@ -73,7 +73,7 @@ class DataManager {
                 /*  width */ half_width,
                 /* height */ PARAMETERS.graphHeight,
                 /*   data */ [this.pipeChainLengthsAverage, this.pipeChainLengthsLongest],
-                /*  label */ "Chain Lenghts (average green, longest red)",
+                /*  label */ "Chain Lenghts (average red, longest orange)",
                 /*    min */ 0, /* no minimum */
                 /*    max */ 0, /* no maximum */
                 /* resize */ true,
