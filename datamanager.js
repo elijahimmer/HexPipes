@@ -266,6 +266,7 @@ class DataManager {
             data: {
                 run_id: run_id,
                 params: PARAMETERS,
+                last_tick: this.hexGrid.tick,
                 population: this.population,
                 uniqueOrganisms: this.uniqueOrganisms,
                 deathsStarvation: this.deathsStarvation,
