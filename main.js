@@ -22,7 +22,6 @@ if (window.io !== undefined) {
 
 var arng = new alea();
 var run_id;
-var run_index = 0;
 const runs = [
   {
     name: "Default",
@@ -36,12 +35,14 @@ const runs = [
     taxPipeFlow: true,
   }
 ];
+var run_index = Math.floor(Math.random() * runs.length) % runs.length;
 
 // TODO(Elijah): Fix this to support manual runs
 function reset() {
     PARAMETERS = structuredClone(DEFAULT_PARAMETERS);
     Object.assign(PARAMETERS, runs[run_index]);
     PARAMETERS.seed = Math.floor(Math.random() * 0xFFFF_FFFF);
+
     run_index = (run_index + 1) % runs.length;
     run_id = Math.floor(Math.random() * 0xFFFF_FFFF_FFFF_FFFF);
 

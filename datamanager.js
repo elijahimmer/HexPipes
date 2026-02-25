@@ -265,8 +265,7 @@ class DataManager {
             collection: PARAMETERS.collection,
             data: {
                 run_id: run_id,
-                seed: PARAMETERS.randomSeed,
-                tick: this.hexGrid.tick,
+                params: PARAMETERS,
                 population: this.population,
                 uniqueOrganisms: this.uniqueOrganisms,
                 deathsStarvation: this.deathsStarvation,
@@ -276,7 +275,9 @@ class DataManager {
                 base15Pops: this.base15Pops,
                 base15EnergyAverage: this.base15EnergyAverage,
                 base15EnergyTotal: this.base15EnergyTotal,
-                pipeFlowLoss: this.pipeFlowLoss
+                pipeFlowLoss: this.pipeFlowLoss,
+                pipeChainLengthsAverage: this.pipeChainLengthsAverage,
+                pipeChainLengthsLongest: this.pipeChainLengthsLongest
             }
         };
 
