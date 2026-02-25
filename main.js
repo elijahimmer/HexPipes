@@ -41,7 +41,7 @@ var run_index = Math.floor(Math.random() * runs.length) % runs.length;
 function reset() {
     PARAMETERS = structuredClone(DEFAULT_PARAMETERS);
     Object.assign(PARAMETERS, runs[run_index]);
-    PARAMETERS.seed = Math.floor(Math.random() * 0xFFFF_FFFF);
+    PARAMETERS.randomSeed = Math.floor(Math.random() * 0xFFFF_FFFF);
 
     run_index = (run_index + 1) % runs.length;
     run_id = Math.floor(Math.random() * 0xFFFF_FFFF_FFFF_FFFF);
@@ -66,6 +66,4 @@ ASSET_MANAGER.downloadAll(function () {
   gameEngine.init(ctx);
 
   reset();
-
-  gameEngine.start();
 });
