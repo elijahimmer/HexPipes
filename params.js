@@ -1,4 +1,4 @@
-var PARAMETERS = {
+const DEFAULT_PARAMETERS = {
     maxTicks: 200_000,
 
     // Framework parameters
@@ -47,6 +47,8 @@ var PARAMETERS = {
     enforceMaxEnergy: false,
     taxPipeFlow: false,
 };
+
+var PARAMETERS = structuredClone(DEFAULT_PARAMETERS);
 
 function loadParameters() {
     // Load parameters from UI if available

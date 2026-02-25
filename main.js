@@ -4,40 +4,42 @@ var ASSET_MANAGER = new AssetManager();
 
 var socket = null;
 if (window.io !== undefined) {
-	console.log("Database connected!");
+  console.log("Database connected!");
 
-	socket = io.connect(PARAMETERS.ip);
+  socket = io.connect(PARAMETERS.ip);
 
-	socket.on("connect", function () {
-		databaseConnected();
-	});
+  socket.on("connect", function () {
+    databaseConnected();
+  });
 
-	socket.on("disconnect", function () {
-		databaseDisconnected();
-	});
+  socket.on("disconnect", function () {
+    databaseDisconnected();
+  });
 
 
-	socket.addEventListener("log", console.log);
+  socket.addEventListener("log", console.log);
 }
 
 var arng = new alea();
 var run_id;
 var run_index = 0;
 const runs = [
-	{
-		name: "Default",
-	},
-	{
-		name: "Enforce Max Energy",
-		enforceMaxEnergy: true,
-	},
-	{
-		name: "Tax Pipe Flow",
-		taxPipeFlow: true,
-	}
+  {
+    name: "Default",
+  },
+  {
+    name: "Enforce Max Energy",
+    enforceMaxEnergy: true,
+  },
+  {
+    name: "Tax Pipe Flow",
+    taxPipeFlow: true,
+  }
 ];
 
+// TODO(Elijah): Fix this to support manual runs
 function reset() {
+    PARAMETERS = structuredClone(DEFAULT_PARAMETERS);
     Object.assign(PARAMETERS, runs[run_index]);
     PARAMETERS.seed = Math.floor(Math.random() * 0xFFFF_FFFF);
     run_index = (run_index + 1) % runs.length;
@@ -56,13 +58,13 @@ function reset() {
 }
 
 ASSET_MANAGER.downloadAll(function () {
-	console.log("starting up da sheild");
-	var canvas = document.getElementById('gameWorld');
-	const ctx = canvas.getContext('2d');
+  console.log("starting up da sheild");
+  var canvas = document.getElementById('gameWorld');
+  const ctx = canvas.getContext('2d');
 
-	gameEngine.init(ctx);
+  gameEngine.init(ctx);
 
-	reset();
+  reset();
 
-	gameEngine.start();
+  gameEngine.start();
 });
