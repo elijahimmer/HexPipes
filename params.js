@@ -1,4 +1,6 @@
 var PARAMETERS = {
+    maxTicks: 200_000,
+
     // Framework parameters
     updatesPerDraw: 1,
     reportingPeriod: 100,
@@ -48,6 +50,7 @@ var PARAMETERS = {
 
 function loadParameters() {
     // Load parameters from UI if available
+    PARAMETERS.name = document.getElementById("runName").value;
     PARAMETERS.numOrganisms = parseInt(document.getElementById("numOrganisms").value);
     PARAMETERS.mutationRate = parseFloat(document.getElementById("mutationRate").value);
     PARAMETERS.reproductionThreshold = parseFloat(document.getElementById("reproductionThreshold").value);

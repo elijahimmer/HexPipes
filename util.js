@@ -82,12 +82,12 @@ const base5Order = [
 function base15ColorFromIndex(i) {return `hsl(${i * 255.0 / 30.0}, 100%, 60.8%)`;}
 
 // buckets in order
-const base5Colors = [...[0, 5, 13, 20].map((index) => base15ColorFromIndex(index)), "#FFFFFF"];
+const base5Colors = [...[0, 5, 13, 20].map((index) => base15ColorFromIndex(index)), "#999999"];
 const base5ColorsRgb = base5Colors.map((color) => parseHexColor(standardizeColor(color)));
 
 // should have the same structure as `base5order`
 
-const base15Colors = [...[0,2, 6,7,8,9,10,11, 16,18,20, 23,25,27].map((index) => base15ColorFromIndex(index)), "#FFFFFF"];
+const base15Colors = [...[0,2, 6,7,8,9,10,11, 16,18,20, 23,25,27].map((index) => base15ColorFromIndex(index)), "#999999"];
 
 const base15ColorsRgb = base15Colors.map((color) => parseHexColor(standardizeColor(color)));
 

@@ -51,6 +51,7 @@ class GameEngine {
         this.surfaceWidth = null;
         this.surfaceHeight = null;
         this.click = null;
+        this.gameTick = 0;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -60,11 +61,16 @@ class GameEngine {
         this.startInput();
     }
     start() {
-        console.log("starting game");
+        console.log("starting game", PARAMETERS.name);
         let that = this;
         (function gameLoop() {
             that.loop();
-            requestAnimFrame(gameLoop, that.ctx.canvas);
+            if (that.gameTick >= PARAMETERS.maxTicks) {
+                that.hexGrid.dataManager.logData();
+                reset();
+            } else {
+                requestAnimFrame(gameLoop, that.ctx.canvas);
+            }
         })();
     }
     startInput() {
@@ -87,6 +93,8 @@ class GameEngine {
         // Clear the entire canvas
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
+        this.hexGrid.draw(this.ctx);
+
         // Draw all entities
         for (let i = 0; i < this.entities.length; i++) {
             this.entities[i].draw(this.ctx);
@@ -98,6 +106,7 @@ class GameEngine {
         // }
     }
     update() {
+        this.hexGrid.update();
         let entitiesCount = this.entities.length;
 
         for (let i = 0; i < entitiesCount; i++) {
@@ -116,6 +125,7 @@ class GameEngine {
     }
     loop() {
         this.clockTick = this.timer.tick();
+        this.gameTick += 1;
         document.getElementById('frameRate').textContent = `Frame Rate: ${this.timer.ticks.length} Tick: ${this.clockTick.toFixed(3)}`;
         let loops = PARAMETERS.updatesPerDraw;
         while (loops-- > 0) this.update();
