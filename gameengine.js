@@ -67,7 +67,7 @@ class GameEngine {
             that.loop();
             if (that.gameTick >= PARAMETERS.maxTicks) {
                 that.hexGrid.dataManager.logData();
-                reset();
+                reset(that.ctx);
             } else {
                 requestAnimFrame(gameLoop, that.ctx.canvas);
             }

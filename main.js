@@ -35,10 +35,12 @@ const runs = [
     taxPipeFlow: true,
   }
 ];
+
+// Start at a random index so it is evenly tested
 var run_index = Math.floor(Math.random() * runs.length) % runs.length;
 
 // TODO(Elijah): Fix this to support manual runs
-function reset() {
+function reset(ctx) {
     PARAMETERS = structuredClone(DEFAULT_PARAMETERS);
     Object.assign(PARAMETERS, runs[run_index]);
     PARAMETERS.randomSeed = Math.floor(Math.random() * 0xFFFF_FFFF);
@@ -47,7 +49,6 @@ function reset() {
     run_id = Math.floor(Math.random() * 0xFFFF_FFFF_FFFF_FFFF);
 
     arng = new alea(PARAMETERS.randomSeed);
-    const ctx = gameEngine.ctx;
     gameEngine = new GameEngine();
     gameEngine.init(ctx);
 
@@ -63,7 +64,5 @@ ASSET_MANAGER.downloadAll(function () {
   var canvas = document.getElementById('gameWorld');
   const ctx = canvas.getContext('2d');
 
-  gameEngine.init(ctx);
-
-  reset();
+  reset(ctx);
 });
