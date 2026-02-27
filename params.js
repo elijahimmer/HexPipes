@@ -1,12 +1,12 @@
-var PARAMETERS = {
+const DEFAULT_PARAMETERS = {
+    maxTicks: 200_000,
+
     // Framework parameters
     updatesPerDraw: 1,
     reportingPeriod: 100,
     db: "HexPipes",
-    collection: "test",
-    ip: 'https://73.19.38.112:8888',
-
-    // Canvas parameters
+    collection: "test-123",
+    ip: "https://73.19.38.112:8888", // Canvas parameters
     canvasWidth: 1600,
     canvasHeight: 1200,
     gridOffsetX: 500,        // X offset to center grid
@@ -48,8 +48,11 @@ var PARAMETERS = {
     taxPipeFlow: false,
 };
 
+var PARAMETERS = structuredClone(DEFAULT_PARAMETERS);
+
 function loadParameters() {
     // Load parameters from UI if available
+    PARAMETERS.name = document.getElementById("runName").value;
     PARAMETERS.numOrganisms = parseInt(document.getElementById("numOrganisms").value);
     PARAMETERS.mutationRate = parseFloat(document.getElementById("mutationRate").value);
     PARAMETERS.reproductionThreshold = parseFloat(document.getElementById("reproductionThreshold").value);
