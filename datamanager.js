@@ -265,6 +265,7 @@ class DataManager {
             collection: PARAMETERS.collection,
             data: {
                 run_id: run_id,
+                name: PARAMETERS.name,
                 params: PARAMETERS,
                 last_tick: this.hexGrid.tick,
                 population: this.population,
