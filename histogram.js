@@ -14,7 +14,6 @@ class Histogram {
         this.width = Math.floor(this.width);
         this.height = Math.floor(this.height);
 
-        this.ctx = gameEngine.ctx;
         this.maxVal = 0;
     }
 
@@ -37,35 +36,36 @@ class Histogram {
                 return acc + x;
             }, 0);
             for (let j = 0; j < entry.length; j++) {
-                this.fill(entry[j] / maxVal, index, j);
+                this.fill(ctx, entry[j] / maxVal, index, j);
             }
         }
-        this.ctx.fillStyle = TEXT_COLOR;
-        this.ctx.textAlign = "center";
-        this.ctx.fillText(this.label, this.x + this.width / 2, this.y + this.height + 10);
+        ctx.fillStyle = TEXT_COLOR;
+        ctx.textAlign = "center";
+        ctx.fillText(this.label, this.x + this.width / 2, this.y + this.height + 10);
 
-        this.ctx.strokeStyle = TEXT_COLOR;
-        this.ctx.lineWidth = 1;
-        this.ctx.strokeRect(this.x, this.y, this.width, this.height);
+        ctx.strokeStyle = TEXT_COLOR;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(this.x, this.y, this.width, this.height);
     }
 
-    fill(color, x, fromTop) {
+    fill(ctx, color, x, fromTop) {
         const y = this.maxEntries - 1 - fromTop;
-        this.ctx.fillStyle = BACKGROUND_COLOR;
+
+        ctx.fillStyle = BACKGROUND_COLOR;
         var c = color * 99 + 1;
         c = 511 - Math.floor(Math.log(c) / Math.log(100) * 512);
         if (c > 255) {
             c = c - 256;
-            this.ctx.fillStyle = rgb(c, c, 255);
+            ctx.fillStyle = rgb(c, c, 255);
         }
         else {
             //c = 255 - c;
-            this.ctx.fillStyle = rgb(0, 0, c);
+            ctx.fillStyle = rgb(0, 0, c);
         }
 
         var width = 1;
         var height = Math.floor(this.height / this.maxEntries);
-        this.ctx.fillRect(this.x + (x * width),
+        ctx.fillRect(this.x + (x * width),
             this.y + (y * height),
             width,
             height);

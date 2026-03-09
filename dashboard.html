@@ -8,18 +8,37 @@
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.1/socket.io.js"></script>
     <script type="text/javascript" src="./util.js"></script>
     <script type="text/javascript" src="./params.js"></script>
+    <script type="text/javascript" src="./histogram.js"></script>
+    <script type="text/javascript" src="./graph.js"></script>
+    <script type="text/javascript" src="./datamanager.js"></script>
     <script type="text/javascript" src="./dashboard.js"></script>
     <script>
 
     </script>
 </head>
 <body>
-    <canvas id="chart" tabindex="1" width="1600" height="1600"></canvas><br />
-    <div id="db" class="db-status">Database</div><br />
-    <label for="run_selection">Run Name:</label>
-    <select id="run_selection"></select><br /><br />
-    <button id="query">Query</button>  <button id="Next Query">Next Query</button>      <button id="download">Download</button><br />
-    <div id="query_info">Awaiting Run Names</div><br /><br />
 
+    <canvas id="dashboard" tabindex="1" width="1250" height="1600"></canvas><br />
+    <div id="options">
+        <div id="db" class="db-status">Database</div><br />
+        <label for="run_selection">Run Name:</label>
+        <select id="run_selection"></select><br /><br />
+        <button id="query">Query</button>  <button id="Next Query">Next Query</button>      <button id="download">Download</button><br />
+        <div id="query_info">Awaiting Run Names</div><br /><br />
+
+        <h3>Graph Settings</h3>
+
+        <input type="checkbox" id="ignore-color" checked/>
+        <label for="ignore-color">Ignore colors</label><br />
+
+        <input type="checkbox" id="ignore-directionality" checked />
+        <label for="ignore-directionality">Ignore Directionality (which way the pipes point)</label><br />
+
+        <input type="checkbox" id="ignore-rotation" />
+        <label for="ignore-rotation">Ignore Rotation</label><br />
+
+        <input type="checkbox" id="sort-top-orgs" />
+        <label for="sort-top-orgs">Sort top organisms (only applicable to base 5 and 15)</label><br />
+    </div>
 </body>
 </html>

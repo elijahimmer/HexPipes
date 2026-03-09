@@ -1,10 +1,24 @@
-const page_limit = 50;
+window.requestAnimFrame = (function () {
+    return window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            window.oRequestAnimationFrame ||
+            window.msRequestAnimationFrame ||
+            function (/* function */ callback, /* DOMElement */ element) {
+                window.setTimeout(callback, 0);
+            };
+})();
 
-var socket = null;
+var canvas;
+
+PARAMETERS.graphWidth = 1200;
+PARAMETERS.canvasWidth = PARAMETERS.graphWidth + PARAMETERS.graphHoriPadding * 4;
+window.data_manager = new DataManager(null);
 
 console.log("Database connected!");
 
-socket = io.connect(PARAMETERS.ip);
+window.page = 0;
+var socket = io.connect(PARAMETERS.ip);
 
 socket.on("connect", function () {
   databaseConnected();
@@ -14,12 +28,17 @@ socket.on("disconnect", function () {
   databaseDisconnected();
 });
 
-
 socket.addEventListener("log", console.log);
 
-
 document.addEventListener("DOMContentLoaded", function (event) {
-    context = document.getElementById("chart").getContext("2d");
+    window.canvas = document.getElementById("dashboard");
+    const ctx = canvas.getContext("2d");
+
+    (function drawLoop() {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        window.data_manager.draw(ctx);
+        requestAnimFrame(drawLoop, canvas);
+    })();
 
     console.log(`DOM loaded, connecting to database ${PARAMETERS.collection}@${PARAMETERS.db}`);
 
@@ -35,6 +54,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
         document.getElementById("query_info").innerHTML = "Query Sent. Awaiting Reply.";
 
         filter = null;
+        page = 0;
 
         console.log(`query: ${query} filter: ${filter}`);
 
@@ -42,7 +62,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
             {
                 db: PARAMETERS.db,
                 collection: PARAMETERS.collection,
-                query: { "run": query },
+                query: { "name": query },
             });
 
     }, false);
@@ -54,14 +74,11 @@ document.addEventListener("DOMContentLoaded", function (event) {
         document.getElementById("query_info").innerHTML = "Query Sent. Awaiting Reply.";
         filter = null;
 
-        console.log(query);
-        console.log(filter);
-
         socket.emit("count",
             {
                 db: PARAMETERS.db,
                 collection: PARAMETERS.collection,
-                query: { "run": query },
+                query: { "name": query },
             });
     }, false);
 
@@ -76,31 +93,29 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
 socket.on("count", function (length) {
     numRecords = length;
-    document.getElementById("query_info").innerHTML = `Received 0 of ${numRecords} records.`;
-    page = 0;
+    document.getElementById("query_info").innerHTML = `Received ${page + 1} of ${numRecords} records.`;
     data = [];
     // for (var i = 0; i < length/page_limit; i++) {
     socket.emit("find",
         {
             db: PARAMETERS.db,
             collection: PARAMETERS.collection,
-            query: { run: query },
+            query: { "name": query },
             filter: filter,
-            limit: 100,
+            limit: 1,
             page: page
         });
-    console.log(`Requesting page ${page} of size ${page_limit}.`);
     // }
 });
 
 socket.on("find", function (array) {
     if (array.length > 0) {
-        console.log("Find: data received.")
+        const run = array[0];
+        console.log(`Find: run #${page + 1}`, run)
 
-        data.push(...array);
-        document.getElementById("query_info").innerHTML = `Received ${data.length} of ${numRecords} records.`;
+        document.getElementById("query_info").innerHTML =
+            `Received run #${page + 1}/${numRecords}.`;
 
-        parseData(data);
 
         if(data.length < numRecords) socket.emit("find",
             {
@@ -108,13 +123,12 @@ socket.on("find", function (array) {
                 collection: PARAMETERS.collection,
                 query: { parameters: {name: query} },
                 filter: filter,
-                limit: page_limit,
+                limit: 1,
                 page: page++
             });
-        console.log(`Requesting page ${page} of size ${page_limit}.`);
 
-    }
-    else console.log("Empty data.");
+        window.data_manager.loadData(run);
+    } else console.log("Empty data.");
 });
 
 socket.on("distinct", function (array) {
@@ -126,6 +140,8 @@ socket.on("distinct", function (array) {
 });
 
 function populateDropDown(labels) {
+    console.log(`${labels.length} labels found`);
+
     const runSelect = document.getElementById("run_selection");
 
     // Populate the dropdown with names
@@ -136,3 +152,4 @@ function populateDropDown(labels) {
         runSelect.appendChild(option);
     });
 }
+

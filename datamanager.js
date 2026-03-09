@@ -11,6 +11,8 @@ class DataManager {
         this.base15Pops = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
         this.base15EnergyAverage = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
         this.base15EnergyTotal = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
+        this.totalSpecies = [];
+        this.livingSpecies = [[],[],[],[],[],[],[],[],[],[],[],[],[],[],[]];
         this.pipeFlowLoss = [];
         this.pipeChainLengthsAverage = [];
         this.pipeChainLengthsLongest = [];
@@ -86,7 +88,7 @@ class DataManager {
             this.histogramTotalSpecies = new Histogram(
                /*       x */ x_pos,
                /*       y */ y_pos,
-               /*    data */ [],
+               /*    data */ this.totalSpecies,
                /* options */ {
                    label: "Total Organism Species",
                    width: half_width,
@@ -99,7 +101,7 @@ class DataManager {
                 this.histogramsLivingSpecies[i] = new Histogram(
                    /*       x */ x_pos + half_offset,
                    /*       y */ y_pos,
-                   /*    data */ [],
+                   /*    data */ this.livingSpecies[i],
                    /* options */ {
                        label: "Living Organism Species",
                        width: half_width,
@@ -259,12 +261,12 @@ class DataManager {
         }
     }
 
+    // TODO(Elijah): Log and load histogram data!
     logData() {
         const data = {
             db: PARAMETERS.db,
             collection: PARAMETERS.collection,
             data: {
-                run_id: run_id,
                 name: PARAMETERS.name,
                 params: PARAMETERS,
                 last_tick: this.hexGrid.tick,
@@ -277,6 +279,8 @@ class DataManager {
                 base15Pops: this.base15Pops,
                 base15EnergyAverage: this.base15EnergyAverage,
                 base15EnergyTotal: this.base15EnergyTotal,
+                totalSpecies: this.totalSpecies,
+                livingSpecies: this.livingSpecies,
                 pipeFlowLoss: this.pipeFlowLoss,
                 pipeChainLengthsAverage: this.pipeChainLengthsAverage,
                 pipeChainLengthsLongest: this.pipeChainLengthsLongest
@@ -284,6 +288,50 @@ class DataManager {
         };
 
         if (socket) socket.emit("insert", data);
+    }
+
+    loadData(data) {
+        for (let field of [
+            "population",
+            "uniqueOrganisms",
+            "deathsStarvation",
+            "deathsRandom",
+            "energyLostFromDeath",
+            "base5Pops",
+            "base15Pops",
+            "base15EnergyAverage",
+            "base15EnergyTotal",
+            "pipeFlowLoss",
+            "pipeChainLengthsAverage",
+            "pipeChainLengthsLongest"
+        ]) {
+            this[field].length = 0;
+            this[field].push(...data[field]);
+        }
+
+        for (let field_name of [
+            "livingSpecies",
+        ]) {
+            const field = this[field_name];
+            field?.forEach(function (entry, idx) {
+                if (data[field_name]) {
+                    field[idx].length = 0;
+                    field[idx].push(...data[field_name]);
+                }
+            })
+        }
+
+        for (let field_name of [
+            "livingSpecies",
+        ]) {
+            const field = this[field_name];
+            field?.forEach(function (entry, idx) {
+                if (data[field_name]) {
+                    field[idx].length = 0;
+                    field[idx].push(...data[field_name]);
+                }
+            })
+        }
     }
 
     update() {
@@ -300,13 +348,14 @@ class DataManager {
         this.graphEnergyLoss.draw(ctx);
         this.graphPipeChains.draw(ctx);
         this.histogramTotalSpecies.draw(ctx);
-        const livingCountIndex = this.hexGrid.organismGraph.getLivingCountIndex();
+        const livingCountIndex = getLivingCountIndex();
         this.histogramsLivingSpecies[livingCountIndex].draw(ctx);
         this.graphBase5Species.draw(ctx);
         this.graphBase15Species.draw(ctx);
         this.graphBase15EnergyAverage.draw(ctx);
         this.graphBase15EnergyTotal.draw(ctx);
 
-        this.hexGrid.organismGraph.drawTopOrganisms(ctx, this.organismGraphXPos, this.organismGraphYPos, 24);
+        // In the dashboard we don't have one!
+        this.hexGrid?.organismGraph.drawTopOrganisms(ctx, this.organismGraphXPos, this.organismGraphYPos, 24);
     }
 }

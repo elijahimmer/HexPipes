@@ -8,7 +8,6 @@ class Graph {
 
         this.xSize = Math.floor(width);
         this.ySize = Math.floor(height);
-        this.ctx = gameEngine.ctx;
         this.colors = colors;
         this.minVal = min;
         this.maxVal = max;
@@ -22,26 +21,26 @@ class Graph {
         // if (!document.getElementById("graphs").checked) return;
 
         // Save the current context state
-        this.ctx.save();
+        ctx.save();
 
         // Create a clipping region that matches your graph boundaries
-        this.ctx.beginPath();
-        this.ctx.rect(this.x, this.y, this.xSize, this.ySize);
-        this.ctx.clip();
+        ctx.beginPath();
+        ctx.rect(this.x, this.y, this.xSize, this.ySize);
+        ctx.clip();
 
         if (this.data[0].length > 1) {
             for (var j = 0; j < this.data.length; j++) {
                 var data = this.data[j];
 
-                this.ctx.fillStyle = this.ctx.strokeStyle = this.colors[j];
-                this.ctx.lineWidth = 2;
+                ctx.fillStyle = ctx.strokeStyle = this.colors[j];
+                ctx.lineWidth = 2;
 
-                this.ctx.beginPath();
+                ctx.beginPath();
                 var xPos = this.x;
                 var yPos = data.length > this.xSize ?
                     this.y + this.ySize - Math.floor((data[data.length - this.xSize] - this.minVal) / (this.maxVal - this.minVal) * this.ySize) :
                     this.y + this.ySize - Math.floor((data[0] - this.minVal) / (this.maxVal - this.minVal) * this.ySize);
-                this.ctx.moveTo(xPos, yPos);
+                ctx.moveTo(xPos, yPos);
                 var length = data.length > this.xSize ?
                     this.xSize : data.length;
                 for (var i = 1; i < length; i++) {
@@ -50,33 +49,33 @@ class Graph {
                     xPos++;
                     yPos = this.y + this.ySize - Math.floor((data[index] - this.minVal) / (this.maxVal - this.minVal) * this.ySize);
 
-                    this.ctx.lineTo(xPos, yPos);
+                    ctx.lineTo(xPos, yPos);
                 }
-                this.ctx.stroke();
-                this.ctx.closePath();
+                ctx.stroke();
+                ctx.closePath();
 
-                this.ctx.textAlign = "right";
+                ctx.textAlign = "right";
                 let value = data[data.length - 1];
                 if(!Number.isInteger(value)) value = value.toFixed(2);
-                this.ctx.fillText(value, this.x + this.xSize - 5, yPos + 10);
+                ctx.fillText(value, this.x + this.xSize - 5, yPos + 10);
             }
         }
 
-        this.ctx.restore();
+        ctx.restore();
 
         var firstTick = 0;
         firstTick = this.data[0].length > this.xSize ? this.data[0].length - this.xSize : 0;
-        this.ctx.fillStyle = TEXT_COLOR;
-        this.ctx.textAlign = "left";
-        this.ctx.fillText(firstTick * PARAMETERS.reportingPeriod, this.x + 5, this.y + this.ySize + 10);
-        this.ctx.textAlign = "right";
-        this.ctx.fillText((this.data[0].length - 1)* PARAMETERS.reportingPeriod, this.x + this.xSize - 5, this.y + this.ySize + 10);
-        this.ctx.textAlign = "center";
-        this.ctx.fillText(this.label, this.x + this.xSize / 2, this.y + this.ySize + 12);
+        ctx.fillStyle = TEXT_COLOR;
+        ctx.textAlign = "left";
+        ctx.fillText(firstTick * PARAMETERS.reportingPeriod, this.x + 5, this.y + this.ySize + 10);
+        ctx.textAlign = "right";
+        ctx.fillText((this.data[0].length - 1)* PARAMETERS.reportingPeriod, this.x + this.xSize - 5, this.y + this.ySize + 10);
+        ctx.textAlign = "center";
+        ctx.fillText(this.label, this.x + this.xSize / 2, this.y + this.ySize + 12);
 
-        this.ctx.strokeStyle = TEXT_COLOR;
-        this.ctx.lineWidth = 1;
-        this.ctx.strokeRect(this.x, this.y, this.xSize, this.ySize);
+        ctx.strokeStyle = TEXT_COLOR;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(this.x, this.y, this.xSize, this.ySize);
     }
 
     updateMinAndMax() {
