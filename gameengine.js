@@ -51,7 +51,6 @@ class GameEngine {
         this.surfaceWidth = null;
         this.surfaceHeight = null;
         this.click = null;
-        this.gameTick = 0;
     }
     init(ctx) {
         this.ctx = ctx;
@@ -65,9 +64,13 @@ class GameEngine {
         let that = this;
         (function gameLoop() {
             that.loop();
-            if (that.gameTick >= PARAMETERS.maxTicks) {
+
+            const everything_dead = that.hexGrid.tick > PARAMETERS.addOrganismsOnTick * 2
+                                        && that.hexGrid.organisms.length == 0;
+
+            if (everything_dead || that.hexGrid.tick >= PARAMETERS.maxTicks) {
                 that.hexGrid.dataManager.logData();
-                reset(that.ctx);
+                reset();
             } else {
                 requestAnimFrame(gameLoop, that.ctx.canvas);
             }
@@ -125,7 +128,6 @@ class GameEngine {
     }
     loop() {
         this.clockTick = this.timer.tick();
-        this.gameTick += 1;
         document.getElementById('frameRate').textContent = `Frame Rate: ${this.timer.ticks.length} Tick: ${this.clockTick.toFixed(3)}`;
         let loops = PARAMETERS.updatesPerDraw;
         while (loops-- > 0) this.update();

@@ -5,7 +5,7 @@ const DEFAULT_PARAMETERS = {
     updatesPerDraw: 1,
     reportingPeriod: 100,
     db: "HexPipes",
-    collection: "test-123",
+    collection: "dashboard-test",
     ip: "https://73.19.38.112:8888", // Canvas parameters
     canvasWidth: 1600,
     canvasHeight: 1200,

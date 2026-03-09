@@ -1,3 +1,17 @@
+const color_bitmask = 1;
+const directionality_bitmask = 2;
+const rotation_bitmask = 4;
+const total_living_counts = 8;
+const base_5_living_index = color_bitmask | directionality_bitmask | rotation_bitmask;
+const base_15_living_index = color_bitmask | directionality_bitmask;
+
+function getLivingCountIndex() {
+    const ignore_color = document.getElementById('ignore-color').checked * color_bitmask;
+    const ignore_rotation = document.getElementById('ignore-rotation').checked * rotation_bitmask;
+    const ignore_directionality = document.getElementById('ignore-directionality').checked * directionality_bitmask;
+    return ignore_color + ignore_rotation + ignore_directionality;
+}
+
 //GameBoard code below
 function randomInt(n) {
     return Math.floor(arng.double() * n);

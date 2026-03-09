@@ -1,10 +1,3 @@
-const color_bitmask = 1;
-const directionality_bitmask = 2;
-const rotation_bitmask = 4;
-const total_living_counts = 8;
-const base_5_living_index = color_bitmask | directionality_bitmask | rotation_bitmask;
-const base_15_living_index = color_bitmask | directionality_bitmask;
-
 class OrganismGraph {
     constructor(hexGrid) {
         this.hexGrid = hexGrid;
@@ -18,13 +11,6 @@ class OrganismGraph {
         this.maxOffspring = 0;
         this.totalOrganisms = 0;
         this.lineage = null;
-    }
-
-    getLivingCountIndex() {
-        const ignore_color = document.getElementById('ignore-color').checked * color_bitmask;
-        const ignore_rotation = document.getElementById('ignore-rotation').checked * rotation_bitmask;
-        const ignore_directionality = document.getElementById('ignore-directionality').checked * directionality_bitmask;
-        return ignore_color + ignore_rotation + ignore_directionality;
     }
 
     addOrganism(organism, parent) {
@@ -231,7 +217,7 @@ class OrganismGraph {
 
         ctx.save();
 
-        const livingIndex = this.getLivingCountIndex();
+        const livingIndex = getLivingCountIndex();
         const entries = this.livingCountsMatrix[livingIndex].slice(0, 24);
 
         const isBase15 = livingIndex === base_15_living_index;
