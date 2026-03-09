@@ -68,3 +68,7 @@ ASSET_MANAGER.downloadAll(function () {
 
   reset(ctx);
 });
+
+window.addEventListener("beforeunload", function(e){
+  if (gameEngine.hexGrid) gameEngine.hexGrid.dataManager.logData();
+});
