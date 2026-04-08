@@ -17,6 +17,11 @@ window.data_manager = new DataManager(null);
 
 console.log("Database connected!");
 
+function collectionName() {
+    const entry = document.getElementById("collection-name")
+    return entry.value || PARAMETERS.collection
+}
+
 window.page = 0;
 var socket = io.connect(PARAMETERS.ip);
 
@@ -40,12 +45,13 @@ document.addEventListener("DOMContentLoaded", function (event) {
         requestAnimFrame(drawLoop, canvas);
     })();
 
-    console.log(`DOM loaded, connecting to database ${PARAMETERS.collection}@${PARAMETERS.db}`);
+    console.log(`DOM loaded, connecting to database ${PARAMETERS.collection}@${collectionName()}`);
+    const entry = document.getElementById("collection-name").value = collectionName();
 
     socket.emit("distinct",
         {
             db: PARAMETERS.db,
-            collection: PARAMETERS.collection,
+            collection: collectionName(),
             key: "name"
         });
 
@@ -61,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
         socket.emit("count",
             {
                 db: PARAMETERS.db,
-                collection: PARAMETERS.collection,
+                collection: collectionName(),
                 query: { "name": query },
             });
 
@@ -77,7 +83,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
         socket.emit("count",
             {
                 db: PARAMETERS.db,
-                collection: PARAMETERS.collection,
+                collection: collectionName(),
                 query: { "name": query },
             });
     }, false);
@@ -99,7 +105,7 @@ socket.on("count", function (length) {
     socket.emit("find",
         {
             db: PARAMETERS.db,
-            collection: PARAMETERS.collection,
+            collection: collectionName(),
             query: { "name": query },
             filter: filter,
             limit: 1,
@@ -120,7 +126,7 @@ socket.on("find", function (array) {
         if(data.length < numRecords) socket.emit("find",
             {
                 db: PARAMETERS.db,
-                collection: PARAMETERS.collection,
+                collection: collectionName(),
                 query: { parameters: {name: query} },
                 filter: filter,
                 limit: 1,
