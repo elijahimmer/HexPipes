@@ -173,7 +173,7 @@ function populateDropDown(labels) {
 function getStats() {
     console.log("Stats!");
 
-    const entry_count = 10_000;
+    const entry_count = 200;
     const success_ratios = [.99, .95, .90, .75, 0];
 
     let success_counts_base_5 = [0, 0, 0, 0, 0];
@@ -182,8 +182,8 @@ function getStats() {
     let success_counts_base_15 = [0, 0, 0, 0, 0];
 
     data.forEach((entry) => {
-        const radius = entry.params.gridRadius;
-        const cell_count = 3 * (radius * radius) - 3 * radius - 1;
+        const radius = entry.params.gridRadius - 1;
+        const cell_count = 3 * (radius * radius - radius) - 1;
 
         { // base 5 successes
             const dominant_species_count = entry.base5Pops.reduce((acc, cur) => {
@@ -206,8 +206,14 @@ function getStats() {
 
     const stats = document.getElementById("stats");
     stats.textContent = `
-        successes base 5: ${success_counts_base_5}
-        average success ratio base 5: ${success_ratio_base_5 / data.length}
+        successes base 5: ${success_counts_base_5}\n
+        average success ratio base 5: ${success_ratio_base_5 / data.length}\n
     `
 }
 
+// NOTES:
+// Snapshot board on collection
+// Replace board
+// Double logging
+// Hierarchy of categorization -- finish base 5 categorization
+//     Create buckets
