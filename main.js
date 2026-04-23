@@ -55,6 +55,8 @@ function reset() {
     gameEngine.init(ctx);
 
     const grid = new HexGrid();
+    window.hexGrid = grid;
+
     gameEngine.hexGrid = grid;
     gameEngine.addEntity(new Lineage(grid));
 

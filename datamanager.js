@@ -16,6 +16,7 @@ class DataManager {
         this.pipeFlowLoss = [];
         this.pipeChainLengthsAverage = [];
         this.pipeChainLengthsLongest = [];
+        this.boardState = [];
 
         this.createGraphs();
     }
@@ -259,6 +260,10 @@ class DataManager {
                 this.base15EnergyAverage[index].push(averageEnergy);
             }
         }
+
+        {
+            this.boardState.push(this.hexGrid.organisms.map((o) => o.organismID()));
+        }
     }
 
     // TODO(Elijah): Log and load histogram data!
@@ -284,7 +289,8 @@ class DataManager {
                 livingSpecies: this.livingSpecies,
                 pipeFlowLoss: this.pipeFlowLoss,
                 pipeChainLengthsAverage: this.pipeChainLengthsAverage,
-                pipeChainLengthsLongest: this.pipeChainLengthsLongest
+                pipeChainLengthsLongest: this.pipeChainLengthsLongest,
+                boardState: this.boardState,
             }
         };
 
