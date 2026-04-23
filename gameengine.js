@@ -52,6 +52,7 @@ class GameEngine {
         this.surfaceHeight = null;
         this.click = null;
     }
+
     init(ctx) {
         this.ctx = ctx;
         this.surfaceWidth = this.ctx.canvas.width;
@@ -59,6 +60,7 @@ class GameEngine {
         this.timer = new Timer();
         this.startInput();
     }
+
     start() {
         console.log("starting game", PARAMETERS.name);
         let that = this;
@@ -75,6 +77,7 @@ class GameEngine {
             }
         })();
     }
+
     startInput() {
         this.ctx.canvas.addEventListener('click', (event) => {
             if (event.target === document.getElementById('gameWorld') && event.button === 0) {
@@ -85,13 +88,19 @@ class GameEngine {
             }
         });
     }
+
     addEntity(entity) {
         this.entities.push(entity);
     }
+
     addGraph(graph) {
         this.graphs.push(graph);
     }
+
     draw() {
+        if (!document.getElementById("draw-each-tick").checked
+            && this.hexGrid.tick % PARAMETERS.ticksPerDraw != 1) return;
+
         // Clear the entire canvas
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
 
@@ -101,12 +110,8 @@ class GameEngine {
         for (let i = 0; i < this.entities.length; i++) {
             this.entities[i].draw(this.ctx);
         }
-
-        // // Draw all graphs
-        // for (let i = 0; i < this.graphs.length; i++) {
-        //     this.graphs[i].draw(this.ctx);
-        // }
     }
+
     update() {
         this.hexGrid.update();
         let entitiesCount = this.entities.length;
@@ -125,11 +130,13 @@ class GameEngine {
             }
         }
     }
+
     loop() {
         this.clockTick = this.timer.tick();
         document.getElementById('frameRate').textContent = `Frame Rate: ${this.timer.ticks.length} Tick: ${this.clockTick.toFixed(3)}`;
-        let loops = PARAMETERS.updatesPerDraw;
+        let loops = PARAMETERS.updatesPerTick;
         while (loops-- > 0) this.update();
+
         this.draw();
         this.click = null;
     }

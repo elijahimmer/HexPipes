@@ -631,14 +631,14 @@ class HexGrid {
      * Draw the entire grid
      */
     draw(ctx) {
-        // Draw all cells
-        for (const [key, cell] of this.cells) {
-            this.drawHex(ctx, cell);
-        }
-
         // Draw organisms on top
         for (const organism of this.organisms) {
             organism.draw(ctx);
+        }
+
+        // Draw all cells
+        for (const [key, cell] of this.cells) {
+            this.drawHex(ctx, cell);
         }
     }
 
@@ -649,21 +649,18 @@ class HexGrid {
         const center = this.hexToPixel(cell.q, cell.r);
         const size = this.cellSize;
 
-        // Calculate vertices for flat-top hexagon
-        const vertices = [];
-        for (let i = 0; i < 6; i++) {
-            const angle = Math.PI / 3 * i;
-            vertices.push({
-                x: center.x + size * Math.cos(angle),
-                y: center.y + size * Math.sin(angle)
-            });
-        }
-
         // Draw filled hexagon
         ctx.beginPath();
-        ctx.moveTo(vertices[0].x, vertices[0].y);
+
+        ctx.moveTo(
+            center.x + size * Math.cos(0),
+            center.y + size * Math.sin(0)
+        );
+
         for (let i = 1; i < 6; i++) {
-            ctx.lineTo(vertices[i].x, vertices[i].y);
+            const angle = Math.PI / 3 * i
+            ctx.lineTo(center.x + size * Math.cos(angle),
+                       center.y + size * Math.sin(angle))
         }
         ctx.closePath();
 

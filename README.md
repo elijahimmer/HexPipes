@@ -127,7 +127,7 @@ If even one side mismatches → placement rejected. This ensures clean multi-org
 ### Performance
 - **Default Setup** (radius 25, 30 organisms): ~60 FPS, 1981 grid cells
 - **Large Setup** (radius 40, 100 organisms): ~30 FPS, 5041 grid cells
-- Scales well to 500+ organisms if you reduce `updatesPerDraw` or increase `reportingPeriod`
+- Scales well to 500+ organisms if you reduce `updatesPerTick` or increase `reportingPeriod`
 
 ## 🚀 Quick Start
 

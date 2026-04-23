@@ -2,7 +2,9 @@ const DEFAULT_PARAMETERS = {
     maxTicks: 200_000,
 
     // Framework parameters
-    updatesPerDraw: 1,
+    updatesPerTick: 1,
+    ticksPerDraw: 1000,
+
     reportingPeriod: 100,
     db: "HexPipes",
     collection: "normal-data-start-2026-04-22",
