@@ -5,13 +5,16 @@ class AssetManager {
         this.cache = [];
         this.downloadQueue = [];
     }
+
     queueDownload(path) {
         console.log("Queueing " + path);
         this.downloadQueue.push(path);
     }
+
     isDone() {
         return this.downloadQueue.length === this.successCount + this.errorCount;
     }
+
     downloadAll(callback) {
         if (this.downloadQueue.length === 0) setTimeout(callback, 10);
         for (var i = 0; i < this.downloadQueue.length; i++) {
@@ -37,11 +40,8 @@ class AssetManager {
             this.cache[path] = img;
         }
     }
+
     getAsset(path) {
         return this.cache[path];
     }
 }
-
-
-
-

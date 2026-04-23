@@ -263,6 +263,7 @@ class DataManager {
 
     // TODO(Elijah): Log and load histogram data!
     logData() {
+        console.log("Data logged!");
         const data = {
             db: PARAMETERS.db,
             collection: PARAMETERS.collection,
@@ -303,34 +304,16 @@ class DataManager {
             "base15EnergyTotal",
             "pipeFlowLoss",
             "pipeChainLengthsAverage",
-            "pipeChainLengthsLongest"
+            "pipeChainLengthsLongest",
+            "totalSpecies",
+            "livingSpecies",
         ]) {
             this[field].length = 0;
             this[field].push(...data[field]);
         }
 
-        for (let field_name of [
-            "livingSpecies",
-        ]) {
-            const field = this[field_name];
-            field?.forEach(function (entry, idx) {
-                if (data[field_name]) {
-                    field[idx].length = 0;
-                    field[idx].push(...data[field_name]);
-                }
-            })
-        }
-
-        for (let field_name of [
-            "livingSpecies",
-        ]) {
-            const field = this[field_name];
-            field?.forEach(function (entry, idx) {
-                if (data[field_name]) {
-                    field[idx].length = 0;
-                    field[idx].push(...data[field_name]);
-                }
-            })
+        for (let i = 0; i < total_living_counts; i ++) {
+            this.histogramsLivingSpecies[i].data = this.livingSpecies[i];
         }
     }
 

@@ -69,7 +69,6 @@ class GameEngine {
                                         && that.hexGrid.organisms.length == 0;
 
             if (everything_dead || that.hexGrid.tick >= PARAMETERS.maxTicks) {
-                that.hexGrid.dataManager.logData();
                 reset();
             } else {
                 requestAnimFrame(gameLoop, that.ctx.canvas);
