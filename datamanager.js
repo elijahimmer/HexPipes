@@ -186,6 +186,11 @@ class DataManager {
         this.graphBase15Species.selectedTick = tick;
         this.graphBase15EnergyAverage.selectedTick = tick;
         this.graphBase15EnergyTotal.selectedTick = tick;
+
+        this.histogramTotalSpecies.selectedTick = tick
+        for (let i = 0; i < total_living_counts; i ++) {
+            this.histogramsLivingSpecies[i].selectedTick = tick;
+        }
     }
 
     updateData() {

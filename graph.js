@@ -30,16 +30,15 @@ class Graph {
         ctx.rect(this.x, this.y, this.xSize, this.ySize);
         ctx.clip();
 
-        let firstTick = this.data[0].length > this.xSize ? this.data[0].length - this.xSize : 0
+        let firstTick = Math.max(this.data[0].length - this.xSize, 0)
 
         if (this.selectedTick && this.selectedTick < firstTick + this.xSize / 2) {
-            firstTick = this.selectedTick - this.xSize / 2;
-            if (firstTick < 0) firstTick = 0;
+            firstTick = Math.max(this.selectedTick - this.xSize / 2, 0)
         }
 
-        const lastTick = firstTick + (this.data[0].length - firstTick > this.xSize ? this.xSize : this.data[0].length - firstTick)
+        const lastTick = firstTick + Math.min(this.data[0].length - firstTick, this.xSize)
 
-        if (this.selectedTick && this.selectedTick >= firstTick && this.selectedTick <= lastTick) {
+        if (this.selectedTick) {
             ctx.fillStyle = ctx.strokeStyle = TEXT_COLOR
             ctx.fillRect(
                 this.x + this.selectedTick - firstTick,

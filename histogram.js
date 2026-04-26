@@ -21,17 +21,19 @@ class Histogram {
     }
 
     draw(ctx) {
-        var length = this.data.length > (this.width) ?
-            Math.floor(this.width) : this.data.length;
-        var start = this.data.length > (this.width) ?
-            this.data.length - this.width : 0;
+        var length = Math.min(this.data.length, this.width);
+        var start = Math.max(0, this.data.length - this.width);
+
+        if (this.selectedTick && this.selectedTick < start + length / 2) {
+            start = Math.max(0, this.selectedTick - length / 2);
+        }
 
         const maxEntries = this.data.slice(start).reduce(function (acc, x) {
             return Math.max(acc, x.length);
         }, 0);
         this.maxEntries = maxEntries;
 
-        for (const [index, entry] of this.data.slice(start).entries()) {
+        for (const [index, entry] of this.data.slice(start, start + length).entries()) {
             var maxVal = entry.reduce(function (acc, x) {
                 return acc + x;
             }, 0);
@@ -39,6 +41,16 @@ class Histogram {
                 this.fill(ctx, entry[j] / maxVal, index, j);
             }
         }
+
+        if (this.selectedTick) {
+            ctx.fillStyle = ctx.strokeStyle = TEXT_COLOR
+            ctx.fillRect(
+                this.x + this.selectedTick - start,
+                this.y,
+                1,
+                this.height);
+        }
+
         ctx.fillStyle = TEXT_COLOR;
         ctx.textAlign = "center";
         ctx.fillText(this.label, this.x + this.width / 2, this.y + this.height + 10);
