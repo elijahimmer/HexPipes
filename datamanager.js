@@ -176,6 +176,18 @@ class DataManager {
         this.organismGraphXPos = PARAMETERS.canvasWidth - (graphWidth - offset) - PARAMETERS.graphHoriPadding * 2
     }
 
+    setSelectedTick(tick) {
+        this.graphPopulation.selectedTick = tick;
+        this.graphDeathCause.selectedTick = tick;
+        this.graphEnergyLoss.selectedTick = tick;
+
+        this.graphPipeChains.selectedTick = tick;
+        this.graphBase5Species.selectedTick = tick;
+        this.graphBase15Species.selectedTick = tick;
+        this.graphBase15EnergyAverage.selectedTick = tick;
+        this.graphBase15EnergyTotal.selectedTick = tick;
+    }
+
     updateData() {
         const organismGraph = this.hexGrid.organismGraph
         // Update population data

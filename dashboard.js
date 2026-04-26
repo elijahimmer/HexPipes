@@ -122,7 +122,7 @@ socket.on("count", function (length) {
         collection: collectionName(),
         query: {
             name: query,
-            // last_tick: last_tick
+            last_tick: last_tick
          },
         filter: filter,
         page_limit: page_limit,
@@ -131,6 +131,7 @@ socket.on("count", function (length) {
 
 socket.on("find", async function (array) {
     for (let obj of array) {
+        console.log(`Data size ${obj.compressed.length / 1024 / 1024}MiB`)
         const data = JSON.parse(await decompress(Uint8Array.fromBase64(obj.compressed)));
         delete obj.compressed;
         Object.assign(obj, data);
@@ -240,26 +241,77 @@ function newDataset() {
 
     const end_tick = local.last_tick;
 
-    if (local.boardState) {
-        for (let org_data of local.boardState[local.boardState.length - 1] ?? []) {
-            if (org_data.q == null || org_data.r == null || org_data.id == null) continue
-            const org = new Organism(hex_grid, org_data.id)
-            org.placeInGrid(org_data.q, org_data.r);
+    {
+        const timeframe = document.getElementById("timeframe");
 
-            hex_grid.organisms.push(org);
-            hex_grid.organismGraph.addOrganism(org);
-        }
+        timeframe.min = timeframe.step = local.params.reportingPeriod ?? PARAMETERS.reportingPeriod;
+        timeframe.value = timeframe.max = local.last_tick;
     }
+
+    timeframeUpdated()
 
     console.log("dataset", local)
 }
 
+function timeframeUpdated() {
+    const timeframe = document.getElementById("timeframe");
+
+    {
+        const timeframe_value = document.getElementById("timeframe-value");
+        timeframe_value.innerHTML = `tick: ${timeframe.value}`;
+    }
+
+    const selected_tick = timeframe.value / timeframe.step - 1;
+    window.data_manager.setSelectedTick(selected_tick);
+
+    let local = data[data_idx];
+    window.hex_grid = new HexGrid();
+
+    if (!local?.boardState) return;
+
+    for (let org_data of local.boardState[selected_tick] ?? []) {
+        if (org_data.q == null || org_data.r == null || org_data.id == null) continue
+        const org = new Organism(hex_grid, org_data.id)
+        org.placeInGrid(org_data.q, org_data.r);
+
+        hex_grid.organisms.push(org);
+        hex_grid.organismGraph.addOrganism(org);
+    }
+}
+
+function timeframeFpsUpdated() {
+    const fps = document.getElementById("timeframe-fps");
+
+    {
+        const fps_value = document.getElementById("timeframe-fps-value");
+        fps_value.innerHTML = `fps: ${fps.value}`;
+    }
+}
+
+function timeframeAnimationLoop() {
+    const fps = document.getElementById("timeframe-fps");
+    window.setTimeout(timeframeAnimationLoop, 1000 / fps.value)
+
+    if (!document.getElementById("timeframe-play").checked || !data[data_idx]?.boardState) return;
+
+    const timeframe = document.getElementById("timeframe");
+
+    let new_value = Number(timeframe.value) + Number(timeframe.step);
+    if (new_value < timeframe.min) new_value = timeframe.min;
+    if (new_value > timeframe.max) new_value = timeframe.min;
+
+    timeframe.value = new_value;
+
+    timeframeUpdated();
+}
+
+window.setTimeout(timeframeAnimationLoop, 0);
+
+
 // NOTES:
-// Replace board
 // Hierarchy of categorization -- finish base 5 categorization
 //     Create buckets
 // Other category for anything that isn't dominant
-// Move state every tick
 //
 // pause/play for viewer
 //

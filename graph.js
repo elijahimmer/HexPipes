@@ -11,6 +11,8 @@ class Graph {
         this.colors = colors;
         this.minVal = min;
         this.maxVal = max;
+
+        this.selectedTick = undefined;
     }
 
     update() {
@@ -28,6 +30,24 @@ class Graph {
         ctx.rect(this.x, this.y, this.xSize, this.ySize);
         ctx.clip();
 
+        let firstTick = this.data[0].length > this.xSize ? this.data[0].length - this.xSize : 0
+
+        if (this.selectedTick && this.selectedTick < firstTick + this.xSize / 2) {
+            firstTick = this.selectedTick - this.xSize / 2;
+            if (firstTick < 0) firstTick = 0;
+        }
+
+        const lastTick = firstTick + (this.data[0].length - firstTick > this.xSize ? this.xSize : this.data[0].length - firstTick)
+
+        if (this.selectedTick && this.selectedTick >= firstTick && this.selectedTick <= lastTick) {
+            ctx.fillStyle = ctx.strokeStyle = TEXT_COLOR
+            ctx.fillRect(
+                this.x + this.selectedTick - firstTick,
+                this.y,
+                1,
+                this.ySize);
+        }
+
         if (this.data[0].length > 1) {
             for (var j = 0; j < this.data.length; j++) {
                 var data = this.data[j];
@@ -41,11 +61,8 @@ class Graph {
                     this.y + this.ySize - Math.floor((data[data.length - this.xSize] - this.minVal) / (this.maxVal - this.minVal) * this.ySize) :
                     this.y + this.ySize - Math.floor((data[0] - this.minVal) / (this.maxVal - this.minVal) * this.ySize);
                 ctx.moveTo(xPos, yPos);
-                var length = data.length > this.xSize ?
-                    this.xSize : data.length;
-                for (var i = 1; i < length; i++) {
-                    var index = data.length > this.xSize ?
-                        data.length - this.xSize - 1 + i : i;
+
+                for (var index = firstTick; index < lastTick; index++) {
                     xPos++;
                     yPos = this.y + this.ySize - Math.floor((data[index] - this.minVal) / (this.maxVal - this.minVal) * this.ySize);
 
@@ -63,13 +80,14 @@ class Graph {
 
         ctx.restore();
 
-        var firstTick = 0;
-        firstTick = this.data[0].length > this.xSize ? this.data[0].length - this.xSize : 0;
         ctx.fillStyle = TEXT_COLOR;
         ctx.textAlign = "left";
         ctx.fillText(firstTick * PARAMETERS.reportingPeriod, this.x + 5, this.y + this.ySize + 10);
         ctx.textAlign = "right";
-        ctx.fillText((this.data[0].length - 1)* PARAMETERS.reportingPeriod, this.x + this.xSize - 5, this.y + this.ySize + 10);
+        ctx.fillText(
+            (this.data[0].length - 1) * PARAMETERS.reportingPeriod,
+            this.x + this.xSize - 5,
+            this.y + this.ySize + 10);
         ctx.textAlign = "center";
         ctx.fillText(this.label, this.x + this.xSize / 2, this.y + this.ySize + 12);
 
