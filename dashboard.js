@@ -276,6 +276,9 @@ function timeframeFpsUpdated() {
         const fps_value = document.getElementById("timeframe-fps-value");
         fps_value.innerHTML = `fps: ${fps.value}`;
     }
+
+    window.clearInterval(timeframeAnimationLoop);
+    window.setInterval(timeframeAnimationLoop, 1000/fps.value);
 }
 
 function timeframeAnimationLoop() {
@@ -296,11 +299,9 @@ function timeframeAnimationLoop() {
     const dashboard = document.getElementById("dashboard")
 
     if (window.recording?.active) {
-        recording.captures += 1
         recording.stream.getVideoTracks()[0].requestFrame();
 
-        if (recording.captures >= recording.totalFrames) {
-            recording.recorder.stop();
+        if (new_value >= timeframe.max) {
             recording.active = false
         }
     }
@@ -323,9 +324,8 @@ async function recordData() {
     })
 
     window.recording = {
-        totalFrames: (timeframe.max - timeframe.min) / timeframe.step,
-        captures: 0,
         active: true,
+        stopped: false,
         stream: stream,
         recorder: recorder
     }
@@ -336,6 +336,11 @@ async function recordData() {
 
     recorder.ondataavailable = (e) => {
         chunks.push(e.data);
+
+        if (!recording.active && !recording.stopped) {
+            recording.stopped = true;
+            recorder.stop()
+        }
     };
 
     recorder.onstop = (e) => {
