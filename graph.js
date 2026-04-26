@@ -85,7 +85,7 @@ class Graph {
         ctx.fillText(firstTick * PARAMETERS.reportingPeriod, this.x + 5, this.y + this.ySize + 10);
         ctx.textAlign = "right";
         ctx.fillText(
-            (this.data[0].length - 1) * PARAMETERS.reportingPeriod,
+            lastTick * PARAMETERS.reportingPeriod,
             this.x + this.xSize - 5,
             this.y + this.ySize + 10);
         ctx.textAlign = "center";

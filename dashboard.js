@@ -159,7 +159,7 @@ socket.on("find", async function (array) {
 
         window.data_manager.loadData(data[data_idx])
         getStats()
-
+        newDataset()
     }
 })
 
@@ -267,7 +267,7 @@ function timeframeUpdated() {
     let local = data[data_idx];
     window.hex_grid = new HexGrid();
 
-    if (!local?.boardState) return;
+    if (!local || !local.boardState) return;
 
     for (let org_data of local.boardState[selected_tick] ?? []) {
         if (org_data.q == null || org_data.r == null || org_data.id == null) continue
