@@ -42,6 +42,9 @@ class HexGrid {
         this.initializeGrid();
 
         this.organismGraph = new OrganismGraph(this);
+
+        this.dataManager = new DataManager(this);
+        window.gameEngine?.addEntity(this.dataManager);
     }
 
     /**
@@ -358,14 +361,14 @@ class HexGrid {
         // TODO(Elijah): Fix lineages to re-enable this function.
         return;
         // if (!gameEngine.click) return;
-        const pos = this.pixelToHex(gameEngine.click.x, gameEngine.click.y);
-        if (!pos) return;
-        const wanted_key = this.key(pos.q, pos.r);
+        // const pos = this.pixelToHex(gameEngine.click.x, gameEngine.click.y);
+        // if (!pos) return;
+        // const wanted_key = this.key(pos.q, pos.r);
 
-        const cell = this.cells.get(wanted_key);
-        if (!cell || !cell.organism) return;
-        console.log(cell);
-        this.lineage = cell;
+        // const cell = this.cells.get(wanted_key);
+        // if (!cell || !cell.organism) return;
+        // console.log(cell);
+        // this.lineage = cell;
     }
 
     /**

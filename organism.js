@@ -4,9 +4,21 @@ class Organism {
     constructor(grid, organism) {
         this.grid = grid;
 
-        // Initialize pipes - either copy from parent or generate new random configuration
-        this.pipes = organism ? this.copyPipes(organism) : this.generateRandomPipes(); // Array of 3 pipes: {inputSide, inputColor, outputSide, outputColor}
-        this.mutate(); // Initial mutation on creation
+        if (typeof organism === 'string' || organism instanceof String) {
+            const pipeStrings = organism.split('-');
+            this.pipes = pipeStrings.map(str => {
+                return {
+                    inputSide: parseInt(str[0]),
+                    inputColor: str[1],
+                    outputSide: parseInt(str[2]),
+                    outputColor: str[3]
+                };
+            });
+        } else {
+            // Initialize pipes - either copy from parent or generate new random configuration
+            this.pipes = organism ? this.copyPipes(organism) : this.generateRandomPipes(); // Array of 3 pipes: {inputSide, inputColor, outputSide, outputColor}
+            this.mutate(); // Initial mutation on creation
+        }
         this.sideToPipe = {}; // Map: side → pipe for O(1) lookup
         this.rebuildPipeIndex();
 
@@ -616,3 +628,4 @@ class Organism {
         };
     }
 }
+

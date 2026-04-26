@@ -19,6 +19,7 @@ class Timer {
         this.wallLastTimestamp = 0;
         this.ticks = [];
     }
+
     tick() {
         let wallCurrent = performance.now();
         let wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
@@ -141,3 +142,4 @@ class GameEngine {
         this.click = null;
     }
 };
+

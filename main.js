@@ -54,12 +54,14 @@ function reset() {
     gameEngine = new GameEngine();
     gameEngine.init(ctx);
 
-    const grid = new HexGrid();
-    window.hexGrid = grid;
+    window.hexGrid = new HexGrid();
+    gameEngine.hexGrid = hexGrid;
 
-    gameEngine.hexGrid = grid;
-    gameEngine.addEntity(new DataManager(grid));
-    gameEngine.addEntity(new Lineage(grid));
+    window.dataManager = new DataManager(hexGrid);
+    gameEngine.addEntity(dataManager);
+
+    window.lineage = new Lineage(hexGrid);
+    gameEngine.addEntity(lineage);
 
     gameEngine.start();
 }
