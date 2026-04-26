@@ -294,7 +294,11 @@ class DataManager {
         const data_str = JSON.stringify(data);
 
         compress(data_str).then((comp_data) => {
-            console.log("compressed!!", data_str.length, comp_data.length, "RATIO!", comp_data.length / data_str.length)
+            console.log("compressed!!",
+                 data_str.length,
+                 comp_data.length,
+                 "RATIO!",
+                 comp_data.toBase64().length / data_str.length)
 
             if (socket) socket.emit("insert", {
                 db: PARAMETERS.db,
@@ -303,7 +307,7 @@ class DataManager {
                     name: PARAMETERS.name,
                     params: PARAMETERS,
                     last_tick: this.hexGrid.tick,
-                    compressed: comp_data,
+                    compressed: comp_data.toBase64(),
                 }
             })
         })
