@@ -129,7 +129,13 @@ socket.on("count", function (length) {
     })
 })
 
-socket.on("find", function (array) {
+socket.on("find", async function (array) {
+    for (let obj of array) {
+        const data = JSON.parse(await decompress(Uint8Array.fromBase64(obj.compressed)));
+        delete obj.compressed;
+        Object.assign(obj, data);
+    }
+
     window.data.push(...array)
     window.page += 1
 
