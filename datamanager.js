@@ -311,6 +311,7 @@ class DataManager {
                     compressed: base64,
                 }
             })
+            else console.error("No socket!!!!");
         })
     }
 
