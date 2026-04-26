@@ -58,6 +58,7 @@ function reset() {
     window.hexGrid = grid;
 
     gameEngine.hexGrid = grid;
+    gameEngine.addEntity(new DataManager(grid));
     gameEngine.addEntity(new Lineage(grid));
 
     gameEngine.start();

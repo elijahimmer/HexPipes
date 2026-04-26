@@ -10,15 +10,15 @@
     <script type="text/javascript" src="./params.js"></script>
     <script type="text/javascript" src="./histogram.js"></script>
     <script type="text/javascript" src="./graph.js"></script>
+    <script type="text/javascript" src="./hexgrid.js"></script>
+    <script type="text/javascript" src="./organism.js"></script>
+    <script type="text/javascript" src="./organismgraph.js"></script>
     <script type="text/javascript" src="./datamanager.js"></script>
     <script type="text/javascript" src="./dashboard.js"></script>
-    <script>
-
-    </script>
 </head>
 <body>
 
-    <canvas id="dashboard" tabindex="1" width="1250" height="1600"></canvas><br />
+    <canvas id="dashboard" tabindex="1" width="1600" height="1600"></canvas><br />
     <div id="options">
         <div id="db" class="db-status">Database</div><br />
 
@@ -47,7 +47,70 @@
         <label for="sort-top-orgs">Sort top organisms (only applicable to base 5 and 15)</label><br />
         <br />
 
+        <h3>Grid Settings</h3>
+
+        <input type="checkbox" id="cell-draw-red" />
+        <label for="cell-draw-red">Draw Red</label><br />
+
+        <input type="checkbox" id="cell-draw-green" />
+        <label for="cell-draw-green">Draw Green</label><br />
+
+        <input type="checkbox" id="cell-draw-blue" />
+        <label for="cell-draw-blue">Draw Blue</label><br />
+
+        <label for="organism-display">Display Organism:</label>
+        <select id="organism-display">
+            <option value="grey">Grey</option>
+            <option value="base5">Base 5 Type</option>
+            <option value="base15" selected>Base 15 Type</option>
+            <option value="black">Black</option>
+            <option value="energy">Energy</option>
+        </select> <br />
+
+        <label for="organism-pipes">Display Organism Pipes:</label>
+        <select id="organism-pipes">
+            <option value="none" selected>None</option>
+            <option value="color">Color</option>
+            <option value="flow">Flow</option>
+        </select> <br />
+
+        <input type="checkbox" id="endpoints" />
+        <label for="endpoints">Show Endpoints</label><br />
+
+        <h3>Graph Settings</h3>
+
+        <input type="checkbox" id="ignore-color" checked/>
+        <label for="ignore-color">Ignore colors</label><br />
+
+        <input type="checkbox" id="ignore-directionality" checked />
+        <label for="ignore-directionality">Ignore Directionality (which way the pipes point)</label><br />
+
+        <input type="checkbox" id="ignore-rotation" />
+        <label for="ignore-rotation">Ignore Rotation</label><br />
+
+        <input type="checkbox" id="sort-top-orgs" />
+        <label for="sort-top-orgs">Sort top organisms (only applicable to base 5 and 15)</label><br />
+
+        <br />
+
+        <h3>Time</h3>
+
+        <label for="timeframe">The tick to show the state of</label><br />
+        <input
+            type="range"
+            id="timeframe"
+            name="timeframe"
+            min="0"
+            max="0"
+            value="0"
+            step="0"
+            list="timeframe-markers"/>
+
+        <datalist id="timeframe-markers"></datalist>
+
+        <h3>Statistics</h3>
         <div id="stats"></div>
     </div>
+
 </body>
 </html>

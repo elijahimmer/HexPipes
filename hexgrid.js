@@ -42,8 +42,6 @@ class HexGrid {
         this.initializeGrid();
 
         this.organismGraph = new OrganismGraph(this);
-        this.dataManager = new DataManager(this);
-        gameEngine.addEntity(this.dataManager);
     }
 
     /**

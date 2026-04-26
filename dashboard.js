@@ -14,11 +14,10 @@ window.data = []
 window.data_idx = 0
 
 const page_limit = 100
-const last_tick = 200_000
+const last_tick = PARAMETERS.lastTick
 window.page = 0
 
-PARAMETERS.graphWidth = 1200
-PARAMETERS.canvasWidth = PARAMETERS.graphWidth + PARAMETERS.graphHoriPadding * 4
+window.hex_grid = new HexGrid();
 window.data_manager = new DataManager(null)
 
 console.log("Database connected!")
@@ -47,6 +46,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
     (function drawLoop() {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
         window.data_manager.draw(ctx)
+        window.hex_grid.draw(ctx)
         requestAnimFrame(drawLoop, canvas)
     })()
 
@@ -82,19 +82,18 @@ document.addEventListener("DOMContentLoaded", function (event) {
     document.getElementById("Prev Query").addEventListener("click", function (e) {
         if (data_idx > 0) {
             data_idx -= 1
-            window.data_manager.loadData(data[data_idx])
-            document.getElementById("query-info").innerHTML = `${data_idx}/${data.length}`
+            document.getElementById("query-info").innerHTML = `${data_idx + 1}/${data.length}`
+            newDataset();
         }
 
     }, false)
 
     document.getElementById("Next Query").addEventListener("click", function (e) {
-        if (data_idx < data.length) {
+        if (data_idx < data.length - 1) {
             data_idx += 1
-            window.data_manager.loadData(data[data_idx])
-            document.getElementById("query-info").innerHTML = `${data_idx}/${data.length}`
+            document.getElementById("query-info").innerHTML = `${data_idx + 1}/${data.length}`
+            newDataset();
         }
-
     }, false)
 
     document.getElementById("download").addEventListener("click", function (e) {
@@ -114,7 +113,8 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
 socket.on("count", function (length) {
     document.getElementById("entry-count").innerText = `total entries: ${length}`
-    numRecords = length
+    num_records = length
+    data_idx = 0;
 
     window.data = []
     socket.emit("find", {
@@ -122,7 +122,7 @@ socket.on("count", function (length) {
         collection: collectionName(),
         query: {
             name: query,
-            last_tick: last_tick
+            // last_tick: last_tick
          },
         filter: filter,
         page_limit: page_limit,
@@ -140,7 +140,7 @@ socket.on("find", async function (array) {
     window.page += 1
 
     if (array.length > 0) {
-        if (data.length < numRecords) {
+        if (data.length < num_records) {
             socket.emit("find", {
                 db: PARAMETERS.db,
                 collection: collectionName(),
@@ -154,7 +154,7 @@ socket.on("find", async function (array) {
             })
         }
 
-        document.getElementById("query-info").innerHTML = `${data_idx}/${data.length}`
+        document.getElementById("query-info").innerHTML = `${data_idx + 1}/${data.length}`
 
         window.data_manager.loadData(data[data_idx])
         getStats()
@@ -163,29 +163,32 @@ socket.on("find", async function (array) {
 })
 
 socket.on("distinct", function (array) {
-    document.getElementById("query-info").innerHTML = "Ready to Query"
+    const query_info = document.getElementById("query-info");
     console.log(`query-info: ${array} for ${PARAMETERS.db}@${collectionName()}`)
 
     if (array.length > 0) {
         populateDropDown(array)
-        document.getElementById("query-info").innerHTML = "Ready to Query"
+        query_info.innerHTML = "Ready to Query"
     } else {
-        document.getElementById("query-info").innerHTML = "No runs found!"
+        query_info.innerHTML = "No runs found!"
     }
 })
 
 function populateDropDown(labels) {
     console.log(`${labels.length} labels found`)
 
-    const runSelect = document.getElementById("run_selection")
+    const run_select = document.getElementById("run_selection")
 
-    runSelect.children.length = 0;
+    while (run_select.firstChild) {
+        run_select.removeChild(run_select.firstChild);
+    }
+
     // Populate the dropdown with names
     labels.forEach((label) => {
         const option = document.createElement("option")
         option.value = label
         option.textContent = label
-        runSelect.appendChild(option)
+        run_select.appendChild(option)
     })
 }
 
@@ -225,14 +228,38 @@ function getStats() {
 
     const stats = document.getElementById("stats")
     stats.innerHTML = `
-        successes base 5: ${success_counts_base_5}<br />
-        average success ratio base 5: ${success_ratio_base_5 / data.length}<br />
+        <strong>successes base 5:</strong> ${success_counts_base_5}<br />
+        <strong>average success ratio base 5:</strong> ${success_ratio_base_5 / data.length}<br />
     `
 }
 
+function newDataset() {
+    let local = data[data_idx];
+    window.data_manager.loadData(local)
+    window.hex_grid = new HexGrid();
+
+    const end_tick = local.last_tick;
+
+    if (local.boardState) {
+        for (let org_data of local.boardState[local.boardState.length - 1] ?? []) {
+            if (org_data.q == null || org_data.r == null || org_data.id == null) continue
+            const org = new Organism(hex_grid, org_data.id)
+            org.placeInGrid(org_data.q, org_data.r);
+
+            hex_grid.organisms.push(org);
+            hex_grid.organismGraph.addOrganism(org);
+        }
+    }
+
+    console.log("dataset", local)
+}
+
 // NOTES:
-// Snapshot board on collection
 // Replace board
-// Double logging
 // Hierarchy of categorization -- finish base 5 categorization
 //     Create buckets
+// Other category for anything that isn't dominant
+// Move state every tick
+//
+// pause/play for viewer
+//
