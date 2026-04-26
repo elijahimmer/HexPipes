@@ -270,7 +270,6 @@ class DataManager {
         }
     }
 
-    // TODO(Elijah): Log and load histogram data!
     logData() {
         console.log("Data logged!")
         var data = {
