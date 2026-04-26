@@ -294,7 +294,7 @@ class DataManager {
                 pipeFlowLoss: this.pipeFlowLoss,
                 pipeChainLengthsAverage: this.pipeChainLengthsAverage,
                 pipeChainLengthsLongest: this.pipeChainLengthsLongest,
-                boardState: this.boardState,
+                // boardState: this.boardState,
             }
         }
 
