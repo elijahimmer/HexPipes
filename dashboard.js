@@ -14,7 +14,7 @@ window.data = []
 window.data_idx = 0
 
 const page_limit = 100
-const last_tick = PARAMETERS.lastTick
+const last_tick = PARAMETERS.maxTicks
 window.page = 0
 
 window.hex_grid = new HexGrid();
