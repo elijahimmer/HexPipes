@@ -4,7 +4,7 @@ const DEFAULT_PARAMETERS = {
     // Framework parameters
     updatesPerTick: 1,
     ticksPerDraw: 1000,
-    reportingPeriod: 100,
+    reportingPeriod: 200,
     db: "HexPipes",
     collection: "normal-data-start-2026-04-22",
     ip: "https://73.19.38.112:8888", // Canvas parameters
