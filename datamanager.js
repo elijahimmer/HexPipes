@@ -262,7 +262,11 @@ class DataManager {
         }
 
         {
-            this.boardState.push(this.hexGrid.organisms.map((o) => o.organismID()))
+            this.boardState.push(this.hexGrid.organisms.map((o) => {return {
+                q: o.q,
+                r: o.r,
+                id: o.organismID()
+            }}))
         }
     }
 
