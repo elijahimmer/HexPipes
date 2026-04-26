@@ -72,8 +72,8 @@ document.addEventListener("DOMContentLoaded", function (event) {
             db: PARAMETERS.db,
             collection: collectionName(),
             query: {
-                "name": query,
-                "last_tick": last_tick
+                name: query,
+                last_tick: last_tick
             },
         })
 
@@ -139,8 +139,8 @@ socket.on("find", function (array) {
                 db: PARAMETERS.db,
                 collection: collectionName(),
                 query: {
-                    "name": query,
-                    "last_tick": last_tick
+                    name: query,
+                    last_tick: last_tick
                  },
                 filter: window.filter,
                 limit: window.page_limit,
@@ -152,6 +152,7 @@ socket.on("find", function (array) {
 
         window.data_manager.loadData(data[data_idx])
         getStats()
+
     }
 })
 

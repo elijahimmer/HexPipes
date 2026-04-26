@@ -16,7 +16,7 @@ if (window.io !== undefined) {
     databaseDisconnected();
   });
 
-
+  socket.addEventListener("error", console.error)
   socket.addEventListener("log", console.log);
 }
 

@@ -273,32 +273,40 @@ class DataManager {
     // TODO(Elijah): Log and load histogram data!
     logData() {
         console.log("Data logged!")
-        const data = {
-            db: PARAMETERS.db,
-            collection: PARAMETERS.collection,
-            data: {
-                name: PARAMETERS.name,
-                params: PARAMETERS,
-                last_tick: this.hexGrid.tick,
-                population: this.population,
-                uniqueOrganisms: this.uniqueOrganisms,
-                deathsStarvation: this.deathsStarvation,
-                deathsRandom: this.deathsRandom,
-                energyLostFromDeath: this.energyLostFromDeath,
-                base5Pops: this.base5Pops,
-                base15Pops: this.base15Pops,
-                base15EnergyAverage: this.base15EnergyAverage,
-                base15EnergyTotal: this.base15EnergyTotal,
-                totalSpecies: this.totalSpecies,
-                livingSpecies: this.livingSpecies,
-                pipeFlowLoss: this.pipeFlowLoss,
-                pipeChainLengthsAverage: this.pipeChainLengthsAverage,
-                pipeChainLengthsLongest: this.pipeChainLengthsLongest,
-                // boardState: this.boardState,
-            }
+        var data = {
+            population: this.population,
+            uniqueOrganisms: this.uniqueOrganisms,
+            deathsStarvation: this.deathsStarvation,
+            deathsRandom: this.deathsRandom,
+            energyLostFromDeath: this.energyLostFromDeath,
+            base5Pops: this.base5Pops,
+            base15Pops: this.base15Pops,
+            base15EnergyAverage: this.base15EnergyAverage,
+            base15EnergyTotal: this.base15EnergyTotal,
+            totalSpecies: this.totalSpecies,
+            livingSpecies: this.livingSpecies,
+            pipeFlowLoss: this.pipeFlowLoss,
+            pipeChainLengthsAverage: this.pipeChainLengthsAverage,
+            pipeChainLengthsLongest: this.pipeChainLengthsLongest,
+            boardState: this.boardState,
         }
 
-        if (socket) socket.emit("insert", data)
+        const data_str = JSON.stringify(data);
+
+        compress(data_str).then((comp_data) => {
+            console.log("compressed!!", data_str.length, comp_data.length, "RATIO!", comp_data.length / data_str.length)
+
+            if (socket) socket.emit("insert", {
+                db: PARAMETERS.db,
+                collection: PARAMETERS.collection,
+                data: {
+                    name: PARAMETERS.name,
+                    params: PARAMETERS,
+                    last_tick: this.hexGrid.tick,
+                    compressed: comp_data,
+                }
+            })
+        })
     }
 
     loadData(data) {

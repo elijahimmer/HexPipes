@@ -6,7 +6,7 @@ const DEFAULT_PARAMETERS = {
     ticksPerDraw: 1000,
     reportingPeriod: 200,
     db: "HexPipes",
-    collection: "normal-data-start-2026-04-25",
+    collection: "normal-data-start-2026-04-26",
     ip: "https://73.19.38.112:8888", // Canvas parameters
     canvasWidth: 1600,
     canvasHeight: 1200,
