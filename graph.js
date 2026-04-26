@@ -20,7 +20,6 @@ class Graph {
 
     draw(ctx) {
         if(this.resize) this.updateMinAndMax();
-        // if (!document.getElementById("graphs").checked) return;
 
         // Save the current context state
         ctx.save();
@@ -37,6 +36,7 @@ class Graph {
         }
 
         const lastTick = firstTick + Math.min(this.data[0].length - firstTick, this.xSize)
+        const lastData = Math.min(lastTick, this.data[0].length - 1);
 
         if (this.selectedTick) {
             ctx.fillStyle = ctx.strokeStyle = TEXT_COLOR
@@ -71,7 +71,7 @@ class Graph {
                 ctx.closePath();
 
                 ctx.textAlign = "right";
-                let value = data[data.length - 1];
+                let value = data[lastData];
                 if(!Number.isInteger(value)) value = value.toFixed(2);
                 ctx.fillText(value, this.x + this.xSize - 5, yPos + 10);
             }

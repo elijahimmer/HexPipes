@@ -82,26 +82,9 @@ function loadParameters() {
     console.log("Parameters loaded:", PARAMETERS);
 }
 
-const BACKGROUND_COLOR_LIGHT = "#FFFFFF";
-const BACKGROUND_COLOR_DARK = "#000000";
-const TEXT_COLOR_DARK_BACKGROUND = "#000000";
-const TEXT_COLOR_LIGHT_BACKGROUND = "#E0DEF4";
-
-var BACKGROUND_COLOR = BACKGROUND_COLOR_LIGHT;
-var TEXT_COLOR = TEXT_COLOR_LIGHT_BACKGROUND;
+const BACKGROUND_COLOR = "#000000";
+const TEXT_COLOR = "#E0DEF4";
 
 const GREY = "#908CAA";
 const GREY_RGB  = parseHexColor(GREY);
 const BLACK_RGB = parseHexColor("#000000");
-
-// Set initial text color.
-if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    // dark mode
-    BACKGROUND_COLOR = BACKGROUND_COLOR_DARK;
-    TEXT_COLOR = TEXT_COLOR_DARK_BACKGROUND;
-}
-// update text color on color scheme change.
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-    BACKGROUND_COLOR = event.matches ? BACKGROUND_COLOR_DARK : BACKGROUND_COLOR_LIGHT;
-    TEXT_COLOR = event.matches ? TEXT_COLOR_DARK_BACKGROUND : TEXT_COLOR_LIGHT_BACKGROUND;
-});

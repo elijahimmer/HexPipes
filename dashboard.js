@@ -1,19 +1,8 @@
-window.requestAnimFrame = (function () {
-    return window.requestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame ||
-            window.oRequestAnimationFrame ||
-            window.msRequestAnimationFrame ||
-            function (/* function */ callback, /* DOMElement */ element) {
-                window.setTimeout(callback, 0)
-            }
-})()
-
 window.canvas = null
 window.data = []
 window.data_idx = 0
 
-const page_limit = 100
+const page_limit = 1
 const last_tick = PARAMETERS.maxTicks
 window.page = 0
 
@@ -39,16 +28,16 @@ socket.on("disconnect", function () {
 
 socket.addEventListener("log", console.log)
 
+function draw() {
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#181A1B";
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+    window.data_manager.draw(ctx)
+    window.hex_grid.draw(ctx)
+}
+
 document.addEventListener("DOMContentLoaded", function (event) {
     window.canvas = document.getElementById("dashboard")
-    const ctx = canvas.getContext("2d");
-
-    (function drawLoop() {
-        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-        window.data_manager.draw(ctx)
-        window.hex_grid.draw(ctx)
-        requestAnimFrame(drawLoop, canvas)
-    })()
 
     console.log(`DOM loaded, connecting to database ${PARAMETERS.db}@${collectionName()}`)
     const entry = document.getElementById("collection-name").value = collectionName()
@@ -141,19 +130,19 @@ socket.on("find", async function (array) {
     window.page += 1
 
     if (array.length > 0) {
-        if (data.length < num_records) {
-            socket.emit("find", {
-                db: PARAMETERS.db,
-                collection: collectionName(),
-                query: {
-                    name: query,
-                    last_tick: last_tick
-                 },
-                filter: window.filter,
-                limit: window.page_limit,
-                page: window.page,
-            })
-        }
+        // if (data.length < num_records) {
+        //     socket.emit("find", {
+        //         db: PARAMETERS.db,
+        //         collection: collectionName(),
+        //         query: {
+        //             name: query,
+        //             last_tick: last_tick
+        //          },
+        //         filter: window.filter,
+        //         limit: window.page_limit,
+        //         page: window.page,
+        //     })
+        // }
 
         document.getElementById("query-info").innerHTML = `${data_idx + 1}/${data.length}`
 
@@ -237,7 +226,6 @@ function getStats() {
 function newDataset() {
     let local = data[data_idx];
     window.data_manager.loadData(local)
-    window.hex_grid = new HexGrid();
 
     const end_tick = local.last_tick;
 
@@ -265,7 +253,7 @@ function timeframeUpdated() {
     window.data_manager.setSelectedTick(selected_tick);
 
     let local = data[data_idx];
-    window.hex_grid = new HexGrid();
+    window.hex_grid.resetCells();
 
     if (!local || !local.boardState) return;
 
@@ -277,6 +265,8 @@ function timeframeUpdated() {
         hex_grid.organisms.push(org);
         hex_grid.organismGraph.addOrganism(org);
     }
+
+    draw()
 }
 
 function timeframeFpsUpdated() {
@@ -290,28 +280,81 @@ function timeframeFpsUpdated() {
 
 function timeframeAnimationLoop() {
     const fps = document.getElementById("timeframe-fps");
-    window.setTimeout(timeframeAnimationLoop, 1000 / fps.value)
 
-    if (!document.getElementById("timeframe-play").checked || !data[data_idx]?.boardState) return;
+    if (!document.getElementById("timeframe-play").checked ||
+        !data[data_idx]?.boardState) return;
 
     const timeframe = document.getElementById("timeframe");
 
     let new_value = Number(timeframe.value) + Number(timeframe.step);
-    if (new_value < timeframe.min) new_value = timeframe.min;
-    if (new_value > timeframe.max) new_value = timeframe.min;
+    new_value = Math.min(Math.max(timeframe.min, new_value), timeframe.max);
 
     timeframe.value = new_value;
 
-    timeframeUpdated();
+    timeframeUpdated()
+
+    const dashboard = document.getElementById("dashboard")
+
+    if (window.recording?.active) {
+        recording.captures += 1
+        recording.stream.getVideoTracks()[0].requestFrame();
+
+        if (recording.captures >= recording.totalFrames) {
+            recording.recorder.stop();
+            recording.active = false
+        }
+    }
 }
 
-window.setTimeout(timeframeAnimationLoop, 0);
+window.setInterval(timeframeAnimationLoop, 1000 / 60);
 
+async function recordData() {
+    document.getElementById("timeframe-play").checked = true;
+    const fps = document.getElementById("timeframe-fps");
+    const timeframe = document.getElementById("timeframe");
+    fps.readOnly = true;
+    timeframe.readOnly = true;
+    timeframe.value = timeframe.min;
+
+    const dashboard = document.getElementById("dashboard")
+    const stream = dashboard.captureStream(0)
+    const recorder = new MediaRecorder(stream, {
+        mimeType: "video/mp4"
+    })
+
+    window.recording = {
+        totalFrames: (timeframe.max - timeframe.min) / timeframe.step,
+        captures: 0,
+        active: true,
+        stream: stream,
+        recorder: recorder
+    }
+
+    recorder.start();
+
+    let chunks = [];
+
+    recorder.ondataavailable = (e) => {
+        chunks.push(e.data);
+    };
+
+    recorder.onstop = (e) => {
+        const blob = new Blob(chunks, { type: "video/mp4" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        let local = data[data_idx];
+        link.download = `animation-${local._id}`;
+        link.click();
+        URL.revokeObjectURL(url); // Clean up
+
+        fps.readOnly = false;
+        timeframe.readOnly = false;
+        document.getElementById("timeframe-play").checked = false;
+    };
+}
 
 // NOTES:
 // Hierarchy of categorization -- finish base 5 categorization
 //     Create buckets
 // Other category for anything that isn't dominant
-//
-// pause/play for viewer
-//

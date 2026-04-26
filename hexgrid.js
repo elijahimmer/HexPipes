@@ -47,6 +47,17 @@ class HexGrid {
         window.gameEngine?.addEntity(this.dataManager);
     }
 
+    resetCells() {
+        this.organisms.length = 0
+        this.organismGraph = new OrganismGraph()
+        for (let [pos, gridCell] of this.cells) {
+            gridCell.organism = null;
+            gridCell.R = 0;
+            gridCell.G = 0;
+            gridCell.B = 0;
+        }
+    }
+
     /**
      * Determine which edge (0-5) a cell belongs to, or -1 if not on edge
      * Edges correspond to the 6 sides of the hex

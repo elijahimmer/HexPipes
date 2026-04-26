@@ -5,7 +5,9 @@
     <meta charset="utf-8">
     <title>Hex Pipes Dashboard</title>
     <link rel="stylesheet" type="text/css" href="./style.css"></link>
+    <!-- Vender -->
     <script type="text/javascript" src="./socket.io.js"></script>
+
     <script type="text/javascript" src="./util.js"></script>
     <script type="text/javascript" src="./params.js"></script>
     <script type="text/javascript" src="./histogram.js"></script>
@@ -18,7 +20,7 @@
 </head>
 <body>
 
-    <canvas id="dashboard" tabindex="1" width="1600" height="1600"></canvas><br />
+    <canvas id="dashboard" tabindex="1" width="1600" height="1200" style="background: #181A1B"></canvas><br />
     <div id="options">
         <div id="db" class="db-status">Database</div><br />
 
@@ -118,11 +120,17 @@
             name="timeframe-fps"
             min="1"
             max="60"
-            value="20"
+            value="60"
             step="0"
             oninput="timeframeFpsUpdated()" />
-        <label for="timeframe" id="timeframe-fps-value">fps: 20</label>
+        <label for="timeframe" id="timeframe-fps-value">fps: 60</label>
         <br />
+
+        <input
+            type="button"
+            id="record"
+            name="record"
+            onclick="recordData()">Record</input>
 
         <h3>Statistics</h3>
         <div id="stats"></div>
