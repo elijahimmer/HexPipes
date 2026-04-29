@@ -1,6 +1,8 @@
-var gameEngine = new GameEngine();
+"use strict";
 
-var ASSET_MANAGER = new AssetManager();
+window.gameEngine = new GameEngine();
+
+const ASSET_MANAGER = new AssetManager();
 
 var socket = null;
 if (window.io !== undefined) {
@@ -38,38 +40,41 @@ const runs = [
 // Start at a random index so it is evenly tested
 var run_index = Math.floor(Math.random() * runs.length) % runs.length;
 
-// TODO(Elijah): Fix this to support manual runs
 function reset() {
-    if (gameEngine.hexGrid) gameEngine.hexGrid.dataManager.logData();
+    if (window.gameEngine.hexGrid) gameEngine.hexGrid.dataManager.logData();
+    if (window.gameEngine) {
+      window.gameEngine.stop();
+    }
 
     PARAMETERS = structuredClone(DEFAULT_PARAMETERS);
     Object.assign(PARAMETERS, runs[run_index]);
     PARAMETERS.randomSeed = Math.floor(Math.random() * 0xFFFF_FFFF);
 
     const ctx = window.canvas.getContext("2d");
+
     run_index = (run_index + 1) % runs.length;
     // structure run id based on parameters
 
-    arng = new alea(PARAMETERS.randomSeed);
-    gameEngine = new GameEngine();
-    gameEngine.init(ctx);
+    window.arng = new alea(PARAMETERS.randomSeed);
+    window.gameEngine = new GameEngine();
+    window.gameEngine.init(ctx);
 
     window.hexGrid = new HexGrid();
-    gameEngine.hexGrid = hexGrid;
+    window.gameEngine.hexGrid = hexGrid;
 
     window.dataManager = new DataManager(hexGrid);
-    gameEngine.addEntity(dataManager);
+    window.gameEngine.addEntity(dataManager);
 
     window.lineage = new Lineage(hexGrid);
-    gameEngine.addEntity(lineage);
+    window.gameEngine.addEntity(lineage);
 
-    gameEngine.start();
+    window.gameEngine.start();
 }
 
 ASSET_MANAGER.downloadAll(function () {
   console.log("starting up da sheild");
   window.canvas = document.getElementById("gameWorld");
-  const ctx = canvas.getContext("2d");
+  window.canvas.addEventListener('click', (e) => window.gameEngine.input(e));
 
-  reset(ctx);
+  reset();
 });

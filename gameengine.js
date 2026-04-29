@@ -1,16 +1,5 @@
 // This game shell was happily copied from Googler Seth Ladd's "Bad Aliens" game and his Google IO talk in 2011
-
-window.requestAnimFrame = (function () {
-    return window.requestAnimationFrame ||
-            window.webkitRequestAnimationFrame ||
-            window.mozRequestAnimationFrame ||
-            window.oRequestAnimationFrame ||
-            window.msRequestAnimationFrame ||
-            function (/* function */ callback, /* DOMElement */ element) {
-                window.setTimeout(callback, 0);
-            };
-})();
-
+"use strict";
 
 class Timer {
     constructor() {
@@ -43,7 +32,6 @@ class Timer {
     }
 };
 
-
 class GameEngine {
     constructor() {
         this.entities = [];
@@ -59,13 +47,16 @@ class GameEngine {
         this.surfaceWidth = this.ctx.canvas.width;
         this.surfaceHeight = this.ctx.canvas.height;
         this.timer = new Timer();
-        this.startInput();
+    }
+
+    stop() {
+        if (this.timeout) clearInterval(this.timeout);
     }
 
     start() {
         console.log("starting game", PARAMETERS.name);
         let that = this;
-        (function gameLoop() {
+        const timeout_func = function gameLoop() {
             that.loop();
 
             const everything_dead = that.hexGrid.tick > PARAMETERS.addOrganismsOnTick * 2
@@ -73,21 +64,19 @@ class GameEngine {
 
             if (everything_dead || that.hexGrid.tick >= PARAMETERS.maxTicks) {
                 reset();
-            } else {
-                requestAnimFrame(gameLoop, that.ctx.canvas);
             }
-        })();
+        };
+
+        this.timeout = setInterval(timeout_func);
     }
 
-    startInput() {
-        this.ctx.canvas.addEventListener('click', (event) => {
-            if (event.target === document.getElementById('gameWorld') && event.button === 0) {
-                this.click = {
-                    x: event.layerX,
-                    y: event.layerY
-                };
-            }
-        });
+    input(event) {
+        if (event.target === document.getElementById('gameWorld') && event.button === 0) {
+            this.click = {
+                x: event.layerX,
+                y: event.layerY
+            };
+        }
     }
 
     addEntity(entity) {
