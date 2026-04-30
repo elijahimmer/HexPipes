@@ -52,17 +52,17 @@ socket.on("find", async function (array) {
 
     if (array.length > 0) {
         if (data.length < num_records) {
-            // socket.emit("find", {
-            //     db: PARAMETERS.db,
-            //     collection: collectionName(),
-            //     query: {
-            //         name: query,
-            //         last_tick: last_tick
-            //      },
-            //     filter: window.filter,
-            //     limit: window.page_limit,
-            //     page: window.page,
-            // })
+            socket.emit("find", {
+                db: PARAMETERS.db,
+                collection: collectionName(),
+                query: {
+                    name: query,
+                    last_tick: last_tick
+                 },
+                filter: window.filter,
+                limit: window.page_limit,
+                page: window.page,
+            })
         }
 
         document.getElementById("query-info").innerHTML = `${data_idx + 1}/${data.length}`
@@ -178,41 +178,59 @@ function populateDropDown(labels) {
 function getStats() {
     console.log("Stats!")
 
-    const entry_count = 200
-    const success_ratios = [.99, .95, .90, .75, 0]
+    const entry_count = 1
+    const success_ratios = [
+        [.99, .95, .90, .75, 0], // all turns
+        [.99, .95, .90, .75, 0], // 2 long
+        [.99, .95, .90, .75, 0], // 1 long
+        [.99, .95, .90, .75, 0], // 1 straight
+        [.99, .95, .90, .75, 0], // all straight
+    ]
 
-    let success_counts_base_5 = [0, 0, 0, 0, 0]
+    let success_counts_base_5 = Array(5).fill(0).map(() => [0,0,0,0,0])
     let success_ratio_base_5 = 0.0
 
-    let success_counts_base_15 = [0, 0, 0, 0, 0]
+    let success_counts_base_15 = Array(15).fill(0).map(() => [0,0,0,0,0])
 
     data.forEach((entry) => {
         const radius = entry.params.gridRadius - 1
         const cell_count = 3 * (radius * radius - radius) - 1
 
         { // base 5 successes
-            const dominant_species_count = entry.base5Pops.reduce((acc, cur) => {
-                const cur_count = cur.slice(-entry_count).reduce((sum, val) => sum + val, 0)
+            // I wish this was Haskell or something....
+            const species_counts = entry.base5Pops.map(cur => {
+                return cur.slice(-entry_count).reduce((sum, val) => sum + val, 0)
+            })
+            const total_orgs = species_counts.reduce((sum, val) => sum + val, 0)
 
-                if (cur_count > acc) return cur_count
-                return acc
-            }, 0)
+            const {dominant_species, dominant_species_count} =
+                species_counts.reduce(({dominant_species_count, dominant_species}, val, idx) => {
+                    if (val > dominant_species_count) return {dominant_species_count: val, dominant_species: idx}
+                    return {dominant_species_count, dominant_species}
+                }, {dominant_species_count: -1, dominant_species: -1})
 
             const success_ratio = dominant_species_count / (cell_count * entry_count)
-            success_ratio_base_5 += success_ratio
 
-            let counts = success_ratios.map((ratio) => success_ratio >= ratio)
-
-            for (const [idx, element] of success_counts_base_5.entries()) {
-                success_counts_base_5[idx] += counts[idx]
-            }
+            success_ratios[dominant_species].forEach((rat, idx) => {
+                if (success_ratio >= rat) {
+                    success_counts_base_5[dominant_species][idx] += 1;
+                }
+            })
         }
     })
 
+    let successes_base_5 = success_counts_base_5.map((type_array) => {
+        return `
+            <li>
+                <strong>success count:</strong> ${type_array}
+            </li>
+        `
+    }).join('')
+
     const stats = document.getElementById("stats")
     stats.innerHTML = `
-        <strong>successes base 5:</strong> ${success_counts_base_5}<br />
         <strong>average success ratio base 5:</strong> ${success_ratio_base_5 / data.length}<br />
+        <ol>${successes_base_5}</ol>
     `
 }
 
