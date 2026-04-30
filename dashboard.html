@@ -114,23 +114,21 @@
         <label for="timeframe-play">Play Animation</label><br />
 
         <label for="timeframe-fps">Board framerate</label><br />
-        <input
-            type="range"
-            id="timeframe-fps"
-            name="timeframe-fps"
-            min="1"
-            max="60"
-            value="60"
-            step="0"
-            oninput="timeframeFpsUpdated()" />
+        <input type="range"
+               id="timeframe-fps"
+               name="timeframe-fps"
+               min="1"
+               max="60"
+               value="60"
+               step="0"
+               oninput="timeframeFpsUpdated()" />
         <label for="timeframe" id="timeframe-fps-value">fps: 60</label>
         <br />
 
-        <input
-            type="button"
-            id="record"
-            name="record"
-            onclick="recordData()">Record</input>
+        <input type="button"
+               id="record"
+               name="record"
+               onclick="recordData()">Record</input>
 
         <h3>Statistics</h3>
         <div id="stats"></div>

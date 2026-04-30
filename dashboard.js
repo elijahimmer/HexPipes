@@ -2,7 +2,7 @@ window.canvas = null
 window.data = []
 window.data_idx = 0
 
-const page_limit = 1
+const page_limit = 20
 const last_tick = PARAMETERS.maxTicks
 window.page = 0
 
@@ -18,23 +18,72 @@ function collectionName() {
 
 var socket = io.connect(PARAMETERS.ip)
 
-socket.on("connect", function () {
-  databaseConnected()
-})
-
-socket.on("disconnect", function () {
-  databaseDisconnected()
-})
-
+socket.on("connect",  databaseConnected)
+socket.on("disconnect", databaseDisconnected)
 socket.addEventListener("log", console.log)
+socket.on("count", function (length) {
+    document.getElementById("entry-count").innerText = `total entries: ${length}`
+    num_records = length
+    data_idx = 0;
 
-function draw() {
-    const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#181A1B";
-    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-    window.data_manager.draw(ctx)
-    window.hex_grid.draw(ctx)
-}
+    window.data = []
+    socket.emit("find", {
+        db: PARAMETERS.db,
+        collection: collectionName(),
+        query: {
+            name: query,
+            last_tick: last_tick
+         },
+        filter: filter,
+        limit: page_limit,
+    })
+})
+
+socket.on("find", async function (array) {
+    for (let obj of array) {
+        console.log(`Data size ${obj.compressed.length / 1024 / 1024}MiB`)
+        const data = JSON.parse(await decompress(Uint8Array.fromBase64(obj.compressed)));
+        delete obj.compressed;
+        Object.assign(obj, data);
+    }
+
+    window.data.push(...array)
+    window.page += 1
+
+    if (array.length > 0) {
+        if (data.length < num_records) {
+            // socket.emit("find", {
+            //     db: PARAMETERS.db,
+            //     collection: collectionName(),
+            //     query: {
+            //         name: query,
+            //         last_tick: last_tick
+            //      },
+            //     filter: window.filter,
+            //     limit: window.page_limit,
+            //     page: window.page,
+            // })
+        }
+
+        document.getElementById("query-info").innerHTML = `${data_idx + 1}/${data.length}`
+
+        window.data_manager.loadData(data[data_idx])
+        getStats()
+        newDataset()
+    }
+})
+
+socket.on("distinct", function (array) {
+    const query_info = document.getElementById("query-info");
+    console.log(`query-info: ${array} for ${PARAMETERS.db}@${collectionName()}`)
+
+    if (array.length > 0) {
+        populateDropDown(array)
+        query_info.innerHTML = "Ready to Query"
+    } else {
+        query_info.innerHTML = "No runs found!"
+    }
+})
 
 document.addEventListener("DOMContentLoaded", function (event) {
     window.canvas = document.getElementById("dashboard")
@@ -100,69 +149,13 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
 })
 
-socket.on("count", function (length) {
-    document.getElementById("entry-count").innerText = `total entries: ${length}`
-    num_records = length
-    data_idx = 0;
-
-    window.data = []
-    socket.emit("find", {
-        db: PARAMETERS.db,
-        collection: collectionName(),
-        query: {
-            name: query,
-            last_tick: last_tick
-         },
-        filter: filter,
-        page_limit: page_limit,
-    })
-})
-
-socket.on("find", async function (array) {
-    for (let obj of array) {
-        console.log(`Data size ${obj.compressed.length / 1024 / 1024}MiB`)
-        const data = JSON.parse(await decompress(Uint8Array.fromBase64(obj.compressed)));
-        delete obj.compressed;
-        Object.assign(obj, data);
-    }
-
-    window.data.push(...array)
-    window.page += 1
-
-    if (array.length > 0) {
-        // if (data.length < num_records) {
-        //     socket.emit("find", {
-        //         db: PARAMETERS.db,
-        //         collection: collectionName(),
-        //         query: {
-        //             name: query,
-        //             last_tick: last_tick
-        //          },
-        //         filter: window.filter,
-        //         limit: window.page_limit,
-        //         page: window.page,
-        //     })
-        // }
-
-        document.getElementById("query-info").innerHTML = `${data_idx + 1}/${data.length}`
-
-        window.data_manager.loadData(data[data_idx])
-        getStats()
-        newDataset()
-    }
-})
-
-socket.on("distinct", function (array) {
-    const query_info = document.getElementById("query-info");
-    console.log(`query-info: ${array} for ${PARAMETERS.db}@${collectionName()}`)
-
-    if (array.length > 0) {
-        populateDropDown(array)
-        query_info.innerHTML = "Ready to Query"
-    } else {
-        query_info.innerHTML = "No runs found!"
-    }
-})
+function draw() {
+    const ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#181A1B";
+    ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+    window.data_manager.draw(ctx)
+    window.hex_grid.draw(ctx)
+}
 
 function populateDropDown(labels) {
     console.log(`${labels.length} labels found`)
