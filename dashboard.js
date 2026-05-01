@@ -374,3 +374,11 @@ async function recordData() {
 // Hierarchy of categorization -- finish base 5 categorization
 //     Create buckets
 // Other category for anything that isn't dominant
+// Projecting to only get specific data
+// Check co-dominance/tiling
+// Non attachers -- or differ mutation rate `inputConnect`, `outputConnect`, `isLegalAdjacentPlacement`
+// Start on paper?
+// Look for different runs
+// Skip ahead-- Identify runs
+// Classify runs after they are run and store that
+// Chase stories -- make tools as you think they will be helpful
