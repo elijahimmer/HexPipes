@@ -9,6 +9,7 @@ const last_tick = PARAMETERS.maxTicks
 const page_limit = 20
 const max_runs_in_memory = page_limit * 3
 window.page = 0
+window.request_all_the_data_please_this_isnt_a_bad_idea = false
 
 window.hex_grid = new HexGrid();
 window.data_manager = new DataManager(null)
@@ -27,16 +28,16 @@ socket.on("disconnect", databaseDisconnected)
 socket.addEventListener("log", console.log)
 socket.on("count", (length) => {
     document.getElementById("entry-count").innerText = `total entries: ${length}`
+    document.getElementById("query-info").innerHTML = ""
+
     num_records = length
     data_idx = 0;
 
     window.data = []
-    ensureMoreData()
 })
 
 socket.on("find", async (array) => {
-    const start_request = page_limit * window.page;
-    document.getElementById("requesting-info").innerHTML = `Processing Data ${start_request}-${start_request + page_limit}`;
+    updateRequestingInfo("Processesing")
     for (let obj of array) {
         console.log(`Data size ${obj.compressed.length / 1024 / 1024}MiB`)
         const data = JSON.parse(await decompress(Uint8Array.fromBase64(obj.compressed)))
@@ -45,7 +46,6 @@ socket.on("find", async (array) => {
 
         processData(obj)
     }
-
 
     window.data.push(...array)
     window.page += 1
@@ -70,6 +70,9 @@ socket.on("find", async (array) => {
     updateStatsBlock()
 
     document.getElementById("requesting-info").innerHTML = ``;
+
+    if (window.request_all_the_data_please_this_isnt_a_bad_idea)
+        ensureMoreData()
 })
 
 socket.on("distinct", (array) => {
@@ -82,6 +85,24 @@ socket.on("distinct", (array) => {
     } else {
         query_info.innerHTML = "No runs found!"
     }
+
+    query = document.getElementById("run_selection").value
+    document.getElementById("query-info").innerHTML = "Query Sent. Awaiting Reply."
+
+    filter = null
+    page = 0
+
+    console.log(`query: ${query} filter: ${filter} for ${PARAMETERS.db}@${collectionName()}`)
+
+    socket.emit("count", {
+        db: PARAMETERS.db,
+        collection: collectionName(),
+        query: {
+            name: query,
+            last_tick: last_tick
+        },
+    })
+
 })
 
 document.addEventListener("DOMContentLoaded", (event) => {
@@ -96,56 +117,17 @@ document.addEventListener("DOMContentLoaded", (event) => {
         key: "name"
     })
 
-    document.getElementById("query").addEventListener("click",  (e) => {
-        query = document.getElementById("run_selection").value
-        document.getElementById("query-info").innerHTML = "Query Sent. Awaiting Reply."
-
-        filter = null
-        page = 0
-
-        console.log(`query: ${query} filter: ${filter} for ${PARAMETERS.db}@${collectionName()}`)
-
-        socket.emit("count", {
-            db: PARAMETERS.db,
-            collection: collectionName(),
-            query: {
-                name: query,
-                last_tick: last_tick
-            },
-        })
-
-    }, false)
-
-    // document.getElementById("collect-stats").addEventListener("click",  (e) => {
-    //     query = document.getElementById("run_selection").value
-    //     document.getElementById("query-info").innerHTML = "Query Sent. Awaiting Reply."
-
-    //     filter = null
-    //     page = 0
-
-    //     console.log(`query: ${query} filter: ${filter} for ${PARAMETERS.db}@${collectionName()}`)
-
-    //     socket.emit("count", {
-    //         db: PARAMETERS.db,
-    //         collection: collectionName(),
-    //         query: {
-    //             name: query,
-    //             last_tick: last_tick
-    //         },
-    //     })
-
-    // }, false)
-
-    document.getElementById("Prev Query").addEventListener("click", (e) => {
+    document.getElementById("prev-run").addEventListener("click", (e) => {
         if (data_idx > 0) {
             data_idx -= 1
             updateDataIdx()
             newDataset()
         }
 
+        ensureMoreData()
     }, false)
 
-    document.getElementById("Next Query").addEventListener("click", (e) => {
+    document.getElementById("next-run").addEventListener("click", (e) => {
         if (data_idx < data.length - 1) {
             data_idx += 1
             updateDataIdx()
@@ -155,10 +137,30 @@ document.addEventListener("DOMContentLoaded", (event) => {
         ensureMoreData()
     }, false)
 
-    document.getElementById("Jump Page").addEventListener("click", (e) => {
+    document.getElementById("jump-page").addEventListener("click", (e) => {
         data_idx = data.length - 1
         updateDataIdx()
         newDataset()
+        ensureMoreData()
+    }, false)
+
+    document.getElementById("request-all-the-data-please").addEventListener("click", (e) => {
+        window.request_all_the_data_please_this_isnt_a_bad_idea = !window.request_all_the_data_please_this_isnt_a_bad_idea;
+
+        if (window.request_all_the_data_please_this_isnt_a_bad_idea) {
+            ensureMoreData()
+        }
+    })
+
+    document.getElementById("jump-to").addEventListener("click", (e) => {
+        const new_idx = Math.min(Math.max(new Number(document.getElementById("Jump To Amount").value).valueOf() - 1, 0), num_records - 1);
+
+        window.page = Math.floor(new_idx / page_limit);
+        window.data_start = window.page * page_limit;
+
+        window.data_idx = new_idx - window.data_start
+        window.data = []
+
         ensureMoreData()
     }, false)
 
@@ -170,7 +172,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
             key: "name"
         })
     }, false)
-
 })
 
 function draw() {
@@ -284,11 +285,16 @@ function newDataset() {
 
 function ensureMoreData() {
     if (window.requesting_data) return
-    if (window.data_idx < data.length - number_of_entries_until_end_to_call_for_more) return
+    if (!request_all_the_data_please_this_isnt_a_bad_idea
+        && window.data_idx < data.length - number_of_entries_until_end_to_call_for_more) return
+    if ((window.page - 1) * page_limit > num_records) {
+        window.request_all_the_data_please_this_isnt_a_bad_idea = false
+        return
+    }
+
     window.requesting_data = true
 
-    const start_request = page_limit * window.page;
-    document.getElementById("requesting-info").innerHTML = `Requesting Data ${start_request}-${start_request + page_limit}`;
+    updateRequestingInfo("Requesting")
 
     socket.emit("find", {
         db: PARAMETERS.db,
@@ -304,7 +310,19 @@ function ensureMoreData() {
 }
 
 function updateDataIdx() {
-    document.getElementById("query-info").innerHTML = `entry: ${data_start + data_idx + 1} loaded: ${data_start}-${data_start + data.length}`
+    document.getElementById("query-info").innerHTML = `entry: ${data_start + data_idx + 1} loaded: ${data_start + 1}-${data_start + data.length}`
+}
+
+function updateRequestingInfo(str) {
+    const request_start = page_limit * window.page;
+    const request_end = Math.min(request_start + page_limit, num_records);
+    let context = `${str} Data ${request_start + 1}-${request_end}`;
+
+    if (window.request_all_the_data_please_this_isnt_a_bad_idea)
+        context = `ALL THE DATA!!!!<br/>${context}`
+
+    document.getElementById("requesting-info").innerHTML = context;
+    console.log(context.replace("<br/>", "\n"));
 }
 
 function timeframeUpdated() {
