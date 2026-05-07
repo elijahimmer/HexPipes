@@ -12,7 +12,7 @@ const max_runs_in_memory = page_limit * 3
 window.page = 0
 window.request_all_the_data_please_this_isnt_a_bad_idea = false
 
-window.hex_grid = new HexGrid();
+window.hex_grid = new HexGrid()
 window.data_manager = new DataManager(null)
 
 console.log("Database connected!")
@@ -32,7 +32,7 @@ socket.on("count", (length) => {
     document.getElementById("query-info").innerHTML = ""
 
     num_records = length
-    data_idx = 0;
+    data_idx = 0
 
     window.data = []
 })
@@ -70,14 +70,14 @@ socket.on("find", async (array) => {
         newDataset()
     }
 
-    document.getElementById("requesting-info").innerHTML = ``;
+    document.getElementById("requesting-info").innerHTML = ``
 
     if (window.request_all_the_data_please_this_isnt_a_bad_idea)
         ensureMoreData()
 })
 
 socket.on("distinct", (array) => {
-    const query_info = document.getElementById("query-info");
+    const query_info = document.getElementById("query-info")
     console.log(`query-info: ${array} for ${PARAMETERS.db}@${collectionName()}`)
 
     if (array.length > 0) {
@@ -146,7 +146,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     }, false)
 
     document.getElementById("request-all-the-data-please").addEventListener("click", (e) => {
-        window.request_all_the_data_please_this_isnt_a_bad_idea = !window.request_all_the_data_please_this_isnt_a_bad_idea;
+        window.request_all_the_data_please_this_isnt_a_bad_idea = !window.request_all_the_data_please_this_isnt_a_bad_idea
 
         if (window.request_all_the_data_please_this_isnt_a_bad_idea) {
             ensureMoreData()
@@ -156,10 +156,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
     })
 
     document.getElementById("jump-to").addEventListener("click", (e) => {
-        const new_idx = Math.min(Math.max(new Number(document.getElementById("Jump To Amount").value).valueOf() - 1, 0), num_records - 1);
+        const new_idx = Math.min(Math.max(new Number(document.getElementById("Jump To Amount").value).valueOf() - 1, 0), num_records - 1)
 
-        window.page = Math.floor(new_idx / page_limit);
-        window.data_start = window.page * page_limit;
+        window.page = Math.floor(new_idx / page_limit)
+        window.data_start = window.page * page_limit
 
         window.data_idx = new_idx - window.data_start
         window.data = []
@@ -178,8 +178,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
 })
 
 function draw() {
-    const ctx = canvas.getContext("2d");
-    ctx.fillStyle = "#181A1B";
+    const ctx = canvas.getContext("2d")
+    ctx.fillStyle = "#181A1B"
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
     window.data_manager.draw(ctx)
     window.hex_grid.draw(ctx)
@@ -191,7 +191,7 @@ function populateDropDown(labels) {
     const run_select = document.getElementById("run_selection")
 
     while (run_select.firstChild) {
-        run_select.removeChild(run_select.firstChild);
+        run_select.removeChild(run_select.firstChild)
     }
 
     // Populate the dropdown with names
@@ -203,7 +203,7 @@ function populateDropDown(labels) {
     })
 }
 
-window.which_stats_have_we_done = new Set();
+window.which_stats_have_we_done = new Set()
 window.global_stats = {
     tallied: 0,
     success_counts_base_5: Array(5).fill(0).map(() => [0,0,0,0,0]),
@@ -211,7 +211,7 @@ window.global_stats = {
 }
 
 function processData(run_data) {
-    if (window.which_stats_have_we_done.has(run_data._id)) return;
+    if (window.which_stats_have_we_done.has(run_data._id)) return
     window.which_stats_have_we_done.add(run_data._id)
     window.global_stats.tallied += 1
 
@@ -245,7 +245,7 @@ function processData(run_data) {
 
         success_ratios[dominant_species].forEach((rat, idx) => {
             if (success_ratio >= rat) {
-                window.global_stats.success_counts_base_5[dominant_species][idx] += 1;
+                window.global_stats.success_counts_base_5[dominant_species][idx] += 1
             }
         })
     }
@@ -278,16 +278,16 @@ function updateStatsBlock() {
 }
 
 function newDataset() {
-    let local = data[data_idx];
+    let local = data[data_idx]
     window.data_manager.loadData(local)
 
-    const end_tick = local.last_tick;
+    const end_tick = local.last_tick
 
     {
-        const timeframe = document.getElementById("timeframe");
+        const timeframe = document.getElementById("timeframe")
 
-        timeframe.min = timeframe.step = local.params.reportingPeriod ?? PARAMETERS.reportingPeriod;
-        timeframe.value = timeframe.max = local.last_tick;
+        timeframe.min = timeframe.step = local.params.reportingPeriod ?? PARAMETERS.reportingPeriod
+        timeframe.value = timeframe.max = local.last_tick
     }
 
     timeframeUpdated()
@@ -328,76 +328,76 @@ function updateDataIdx() {
 window.window.requesting_info_tag = "THIS IS A BUG"
 function updateRequestingInfo(str = window.requesting_info_tag) {
     window.requesting_info_tag = str
-    const request_start = page_limit * window.page;
-    const request_end = Math.min(request_start + page_limit, num_records);
-    let context = `${str} Data ${request_start + 1}-${request_end}`;
+    const request_start = page_limit * window.page
+    const request_end = Math.min(request_start + page_limit, num_records)
+    let context = `${str} Data ${request_start + 1}-${request_end}`
 
     if (window.request_all_the_data_please_this_isnt_a_bad_idea)
         context = `ALL THE DATA!!!!<br/>${context}`
 
-    document.getElementById("requesting-info").innerHTML = context;
-    console.log(context.replace("<br/>", "\n"));
+    document.getElementById("requesting-info").innerHTML = context
+    console.log(context.replace("<br/>", "\n"))
 }
 
 function timeframeUpdated() {
-    const timeframe = document.getElementById("timeframe");
+    const timeframe = document.getElementById("timeframe")
 
     {
-        const timeframe_value = document.getElementById("timeframe-value");
-        timeframe_value.innerHTML = `tick: ${timeframe.value}`;
+        const timeframe_value = document.getElementById("timeframe-value")
+        timeframe_value.innerHTML = `tick: ${timeframe.value}`
     }
 
-    const selected_tick = timeframe.value / timeframe.step - 1;
-    window.data_manager.setSelectedTick(selected_tick);
+    const selected_tick = timeframe.value / timeframe.step - 1
+    window.data_manager.setSelectedTick(selected_tick)
 
-    let local = data[data_idx];
-    window.hex_grid.resetCells();
+    let local = data[data_idx]
+    window.hex_grid.resetCells()
 
-    if (!local || !local.boardState) return;
+    if (!local || !local.boardState) return
 
     for (let org_data of local.boardState[selected_tick] ?? []) {
         if (org_data.q == null || org_data.r == null || org_data.id == null) continue
         const org = new Organism(hex_grid, org_data.id)
-        org.placeInGrid(org_data.q, org_data.r);
+        org.placeInGrid(org_data.q, org_data.r)
 
-        hex_grid.organisms.push(org);
-        hex_grid.organismGraph.addOrganism(org);
+        hex_grid.organisms.push(org)
+        hex_grid.organismGraph.addOrganism(org)
     }
 
     draw()
 }
 
 function timeframeFpsUpdated() {
-    const fps = document.getElementById("timeframe-fps");
+    const fps = document.getElementById("timeframe-fps")
 
     {
-        const fps_value = document.getElementById("timeframe-fps-value");
-        fps_value.innerHTML = `fps: ${fps.value}`;
+        const fps_value = document.getElementById("timeframe-fps-value")
+        fps_value.innerHTML = `fps: ${fps.value}`
     }
 
-    window.clearInterval(timeframeAnimationLoop);
-    window.setInterval(timeframeAnimationLoop, 1000/fps.value);
+    window.clearInterval(timeframeAnimationLoop)
+    window.setInterval(timeframeAnimationLoop, 1000/fps.value)
 }
 
 function timeframeAnimationLoop() {
-    const fps = document.getElementById("timeframe-fps");
+    const fps = document.getElementById("timeframe-fps")
 
     if (!document.getElementById("timeframe-play").checked ||
-        !data[data_idx]?.boardState) return;
+        !data[data_idx]?.boardState) return
 
-    const timeframe = document.getElementById("timeframe");
+    const timeframe = document.getElementById("timeframe")
 
-    let new_value = Number(timeframe.value) + Number(timeframe.step);
-    new_value = Math.min(Math.max(timeframe.min, new_value), timeframe.max);
+    let new_value = Number(timeframe.value) + Number(timeframe.step)
+    new_value = Math.min(Math.max(timeframe.min, new_value), timeframe.max)
 
-    timeframe.value = new_value;
+    timeframe.value = new_value
 
     timeframeUpdated()
 
     const dashboard = document.getElementById("dashboard")
 
     if (window.recording?.active) {
-        recording.stream.getVideoTracks()[0].requestFrame();
+        recording.stream.getVideoTracks()[0].requestFrame()
 
         if (new_value >= timeframe.max) {
             recording.active = false
@@ -405,15 +405,15 @@ function timeframeAnimationLoop() {
     }
 }
 
-window.setInterval(timeframeAnimationLoop, 1000 / 60);
+window.setInterval(timeframeAnimationLoop, 1000 / 60)
 
 async function recordData() {
-    document.getElementById("timeframe-play").checked = true;
-    const fps = document.getElementById("timeframe-fps");
-    const timeframe = document.getElementById("timeframe");
-    fps.readOnly = true;
-    timeframe.readOnly = true;
-    timeframe.value = timeframe.min;
+    document.getElementById("timeframe-play").checked = true
+    const fps = document.getElementById("timeframe-fps")
+    const timeframe = document.getElementById("timeframe")
+    fps.readOnly = true
+    timeframe.readOnly = true
+    timeframe.value = timeframe.min
 
     const dashboard = document.getElementById("dashboard")
     const stream = dashboard.captureStream(0)
@@ -428,33 +428,33 @@ async function recordData() {
         recorder: recorder
     }
 
-    recorder.start();
+    recorder.start()
 
-    let chunks = [];
+    let chunks = []
 
     recorder.ondataavailable = (e) => {
-        chunks.push(e.data);
+        chunks.push(e.data)
 
         if (!recording.active && !recording.stopped) {
-            recording.stopped = true;
+            recording.stopped = true
             recorder.stop()
         }
-    };
+    }
 
     recorder.onstop = (e) => {
-        const blob = new Blob(chunks, { type: "video/mp4" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        let local = data[data_idx];
-        link.download = `animation-${local._id}`;
-        link.click();
-        URL.revokeObjectURL(url); // Clean up
+        const blob = new Blob(chunks, { type: "video/mp4" })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        let local = data[data_idx]
+        link.download = `animation-${local._id}`
+        link.click()
+        URL.revokeObjectURL(url) // Clean up
 
-        fps.readOnly = false;
-        timeframe.readOnly = false;
-        document.getElementById("timeframe-play").checked = false;
-    };
+        fps.readOnly = false
+        timeframe.readOnly = false
+        document.getElementById("timeframe-play").checked = false
+    }
 }
 
 // NOTES:
