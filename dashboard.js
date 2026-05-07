@@ -21,7 +21,7 @@ var socket = io.connect(PARAMETERS.ip)
 socket.on("connect",  databaseConnected)
 socket.on("disconnect", databaseDisconnected)
 socket.addEventListener("log", console.log)
-socket.on("count", function (length) {
+socket.on("count", (length) => {
     document.getElementById("entry-count").innerText = `total entries: ${length}`
     num_records = length
     data_idx = 0;
@@ -39,7 +39,7 @@ socket.on("count", function (length) {
     })
 })
 
-socket.on("find", async function (array) {
+socket.on("find", async (array) => {
     for (let obj of array) {
         console.log(`Data size ${obj.compressed.length / 1024 / 1024}MiB`)
         const data = JSON.parse(await decompress(Uint8Array.fromBase64(obj.compressed)));
@@ -73,7 +73,7 @@ socket.on("find", async function (array) {
     }
 })
 
-socket.on("distinct", function (array) {
+socket.on("distinct", (array) => {
     const query_info = document.getElementById("query-info");
     console.log(`query-info: ${array} for ${PARAMETERS.db}@${collectionName()}`)
 
@@ -85,7 +85,7 @@ socket.on("distinct", function (array) {
     }
 })
 
-document.addEventListener("DOMContentLoaded", function (event) {
+document.addEventListener("DOMContentLoaded", (event) => {
     window.canvas = document.getElementById("dashboard")
 
     console.log(`DOM loaded, connecting to database ${PARAMETERS.db}@${collectionName()}`)
@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
         key: "name"
     })
 
-    document.getElementById("query").addEventListener("click", function (e) {
+    document.getElementById("query").addEventListener("click",  (e) => {
         query = document.getElementById("run_selection").value
         document.getElementById("query-info").innerHTML = "Query Sent. Awaiting Reply."
 
@@ -117,7 +117,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     }, false)
 
-    document.getElementById("Prev Query").addEventListener("click", function (e) {
+    document.getElementById("Prev Query").addEventListener("click", (e) => {
         if (data_idx > 0) {
             data_idx -= 1
             document.getElementById("query-info").innerHTML = `${data_idx + 1}/${data.length}`
@@ -126,19 +126,25 @@ document.addEventListener("DOMContentLoaded", function (event) {
 
     }, false)
 
-    document.getElementById("Next Query").addEventListener("click", function (e) {
+    document.getElementById("Next Query").addEventListener("click", (e) => {
         if (data_idx < data.length - 1) {
             data_idx += 1
             document.getElementById("query-info").innerHTML = `${data_idx + 1}/${data.length}`
             newDataset();
         }
+
+        if (data_idx > data.length - 5) {
+
+        }
+
+
     }, false)
 
-    document.getElementById("download").addEventListener("click", function (e) {
+    document.getElementById("download").addEventListener("click", (e) => {
         console.log("Download clicked.")
     }, false)
 
-    document.getElementById("collection-name-search").addEventListener("click", function (e) {
+    document.getElementById("collection-name-search").addEventListener("click", (e) => {
         console.log("Collection name updated!")
         socket.emit("distinct", {
             db: PARAMETERS.db,
@@ -250,6 +256,11 @@ function newDataset() {
     timeframeUpdated()
 
     console.log("dataset", local)
+}
+
+function requestData() {
+    if (window.requesting_data) return;
+    if (window.data_idx <)
 }
 
 function timeframeUpdated() {
