@@ -145,16 +145,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
         ensureMoreData()
     }, false)
 
-    document.getElementById("request-all-the-data-please").addEventListener("click", (e) => {
-        window.request_all_the_data_please_this_isnt_a_bad_idea = !window.request_all_the_data_please_this_isnt_a_bad_idea
-
-        if (window.request_all_the_data_please_this_isnt_a_bad_idea) {
-            ensureMoreData()
-        }
-
-        updateRequestingInfo()
-    })
-
     document.getElementById("jump-to").addEventListener("click", (e) => {
         const new_idx = Math.min(Math.max(new Number(document.getElementById("jump-to-amount").value).valueOf() - 1, 0), num_records - 1)
 
@@ -166,6 +156,16 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
         ensureMoreData()
     }, false)
+
+    document.getElementById("request-all-the-data-please").addEventListener("click", (e) => {
+        window.request_all_the_data_please_this_isnt_a_bad_idea = !window.request_all_the_data_please_this_isnt_a_bad_idea
+
+        if (window.request_all_the_data_please_this_isnt_a_bad_idea) {
+            ensureMoreData()
+        }
+
+        updateRequestingInfo()
+    })
 
     document.getElementById("collection-name-search").addEventListener("click", (e) => {
         console.log("Collection name updated!")
@@ -288,6 +288,10 @@ function newDataset() {
 
         timeframe.min = timeframe.step = local.params.reportingPeriod ?? PARAMETERS.reportingPeriod
         timeframe.value = timeframe.max = local.last_tick
+
+        if (document.getElementById("play-them-all-one-by-one")) {
+            timeframe.value = timeframe.min
+        }
     }
 
     timeframeUpdated()
@@ -403,6 +407,11 @@ function timeframeAnimationLoop() {
             recording.active = false
         }
     }
+
+    if (document.getElementById("play-them-all-one-by-one").checked
+        && new_value >= timeframe.max) {
+        document.getElementById("next-run").click()
+    }
 }
 
 window.setInterval(timeframeAnimationLoop, 1000 / 60)
@@ -454,7 +463,7 @@ async function recordData() {
         fps.readOnly = false
         timeframe.readOnly = false
         document.getElementById("timeframe-play").checked = false
-    }
+   }
 }
 
 // NOTES:
