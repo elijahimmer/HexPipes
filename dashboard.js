@@ -87,19 +87,19 @@ socket.on("distinct", (array) => {
         query_info.innerHTML = "No runs found!"
     }
 
-    query = document.getElementById("run_selection").value
+    window.query = document.getElementById("run_selection").value
     document.getElementById("query-info").innerHTML = "Query Sent. Awaiting Reply."
 
-    filter = null
-    page = 0
+    window.filter = null
+    window.page = 0
 
     console.log(`query: ${query} filter: ${filter} for ${PARAMETERS.db}@${collectionName()}`)
 
-    socket.emit("count", {
+    window.socket.emit("count", {
         db: PARAMETERS.db,
         collection: collectionName(),
         query: {
-            name: query,
+            name: window.query,
             last_tick: last_tick
         },
     })
