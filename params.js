@@ -47,6 +47,7 @@ const DEFAULT_PARAMETERS = {
 
     enforceMaxEnergy: false,
     taxPipeFlow: false,
+    allowAttachments: true,
 };
 
 var PARAMETERS = structuredClone(DEFAULT_PARAMETERS);

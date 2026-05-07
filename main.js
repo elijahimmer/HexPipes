@@ -29,7 +29,7 @@ const runs = [
   },
   {
     name: "Connectivity",
-
+    allowAttachments: false,
   },
   // {
   //   name: "Enforce Max Energy",

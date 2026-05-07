@@ -1,9 +1,13 @@
 window.canvas = null
 window.data = []
 window.data_idx = 0
+window.data_start = 0
+
+const number_of_entries_until_end_to_call_for_more = 10
+const last_tick = PARAMETERS.maxTicks
 
 const page_limit = 20
-const last_tick = PARAMETERS.maxTicks
+const max_runs_in_memory = page_limit * 3
 window.page = 0
 
 window.hex_grid = new HexGrid();
@@ -27,50 +31,45 @@ socket.on("count", (length) => {
     data_idx = 0;
 
     window.data = []
-    socket.emit("find", {
-        db: PARAMETERS.db,
-        collection: collectionName(),
-        query: {
-            name: query,
-            last_tick: last_tick
-         },
-        filter: filter,
-        limit: page_limit,
-    })
+    ensureMoreData()
 })
 
 socket.on("find", async (array) => {
+    const start_request = page_limit * window.page;
+    document.getElementById("requesting-info").innerHTML = `Processing Data ${start_request}-${start_request + page_limit}`;
     for (let obj of array) {
         console.log(`Data size ${obj.compressed.length / 1024 / 1024}MiB`)
-        const data = JSON.parse(await decompress(Uint8Array.fromBase64(obj.compressed)));
-        delete obj.compressed;
-        Object.assign(obj, data);
+        const data = JSON.parse(await decompress(Uint8Array.fromBase64(obj.compressed)))
+        delete obj.compressed
+        Object.assign(obj, data)
+
+        processData(obj)
     }
+
 
     window.data.push(...array)
     window.page += 1
 
-    if (array.length > 0) {
-        if (data.length < num_records) {
-            socket.emit("find", {
-                db: PARAMETERS.db,
-                collection: collectionName(),
-                query: {
-                    name: query,
-                    last_tick: last_tick
-                 },
-                filter: window.filter,
-                limit: window.page_limit,
-                page: window.page,
-            })
-        }
+    if (window.data.length > max_runs_in_memory) {
+        const amount_dropped = data.length - max_runs_in_memory
+        window.data_start += amount_dropped
+        window.data_idx = Math.max(0, window.data_idx - amount_dropped)
 
-        document.getElementById("query-info").innerHTML = `${data_idx + 1}/${data.length}`
+        window.data = window.data.slice(data.length - max_runs_in_memory)
+    }
+
+    window.requesting_data = false
+
+    if (array.length > 0) {
+        updateDataIdx()
 
         window.data_manager.loadData(data[data_idx])
-        getStats()
         newDataset()
     }
+
+    updateStatsBlock()
+
+    document.getElementById("requesting-info").innerHTML = ``;
 })
 
 socket.on("distinct", (array) => {
@@ -117,11 +116,31 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
     }, false)
 
+    // document.getElementById("collect-stats").addEventListener("click",  (e) => {
+    //     query = document.getElementById("run_selection").value
+    //     document.getElementById("query-info").innerHTML = "Query Sent. Awaiting Reply."
+
+    //     filter = null
+    //     page = 0
+
+    //     console.log(`query: ${query} filter: ${filter} for ${PARAMETERS.db}@${collectionName()}`)
+
+    //     socket.emit("count", {
+    //         db: PARAMETERS.db,
+    //         collection: collectionName(),
+    //         query: {
+    //             name: query,
+    //             last_tick: last_tick
+    //         },
+    //     })
+
+    // }, false)
+
     document.getElementById("Prev Query").addEventListener("click", (e) => {
         if (data_idx > 0) {
             data_idx -= 1
-            document.getElementById("query-info").innerHTML = `${data_idx + 1}/${data.length}`
-            newDataset();
+            updateDataIdx()
+            newDataset()
         }
 
     }, false)
@@ -129,19 +148,18 @@ document.addEventListener("DOMContentLoaded", (event) => {
     document.getElementById("Next Query").addEventListener("click", (e) => {
         if (data_idx < data.length - 1) {
             data_idx += 1
-            document.getElementById("query-info").innerHTML = `${data_idx + 1}/${data.length}`
-            newDataset();
+            updateDataIdx()
+            newDataset()
         }
 
-        if (data_idx > data.length - 5) {
-
-        }
-
-
+        ensureMoreData()
     }, false)
 
-    document.getElementById("download").addEventListener("click", (e) => {
-        console.log("Download clicked.")
+    document.getElementById("Jump Page").addEventListener("click", (e) => {
+        data_idx = data.length - 1
+        updateDataIdx()
+        newDataset()
+        ensureMoreData()
     }, false)
 
     document.getElementById("collection-name-search").addEventListener("click", (e) => {
@@ -181,10 +199,19 @@ function populateDropDown(labels) {
     })
 }
 
-function getStats() {
-    console.log("Stats!")
+window.which_stats_have_we_done = new Set();
+window.global_stats = {
+    tallied: 0,
+    success_counts_base_5: Array(5).fill(0).map(() => [0,0,0,0,0]),
+    summed_success_ratio_base_5: 0.0,
+}
 
-    const entry_count = 1
+function processData(run_data) {
+    if (window.which_stats_have_we_done.has(run_data._id)) return;
+    window.which_stats_have_we_done.add(run_data._id)
+    window.global_stats.tallied += 1
+
+    const number_of_last_entries_in_run_to_count = 1
     const success_ratios = [
         [.99, .95, .90, .75, 0], // all turns
         [.99, .95, .90, .75, 0], // 2 long
@@ -193,39 +220,35 @@ function getStats() {
         [.99, .95, .90, .75, 0], // all straight
     ]
 
-    let success_counts_base_5 = Array(5).fill(0).map(() => [0,0,0,0,0])
-    let success_ratio_base_5 = 0.0
+    const radius = run_data.params.gridRadius - 1
+    const cell_count = 3 * (radius * radius - radius) - 1
 
-    let success_counts_base_15 = Array(15).fill(0).map(() => [0,0,0,0,0])
+    { // base 5 successes
+        // I wish this was Haskell or something....
+        const species_counts = run_data.base5Pops.map(cur => {
+            return cur.slice(-number_of_last_entries_in_run_to_count).reduce((sum, val) => sum + val, 0)
+        })
+        const total_orgs = species_counts.reduce((sum, val) => sum + val, 0)
 
-    data.forEach((entry) => {
-        const radius = entry.params.gridRadius - 1
-        const cell_count = 3 * (radius * radius - radius) - 1
+        const {dominant_species, dominant_species_count} =
+            species_counts.reduce(({dominant_species_count, dominant_species}, val, idx) => {
+                if (val > dominant_species_count) return {dominant_species_count: val, dominant_species: idx}
+                return {dominant_species_count, dominant_species}
+            }, {dominant_species_count: -1, dominant_species: -1})
 
-        { // base 5 successes
-            // I wish this was Haskell or something....
-            const species_counts = entry.base5Pops.map(cur => {
-                return cur.slice(-entry_count).reduce((sum, val) => sum + val, 0)
-            })
-            const total_orgs = species_counts.reduce((sum, val) => sum + val, 0)
+        const success_ratio = dominant_species_count / (cell_count * number_of_last_entries_in_run_to_count)
+        window.global_stats.summed_success_ratio_base_5 += success_ratio
 
-            const {dominant_species, dominant_species_count} =
-                species_counts.reduce(({dominant_species_count, dominant_species}, val, idx) => {
-                    if (val > dominant_species_count) return {dominant_species_count: val, dominant_species: idx}
-                    return {dominant_species_count, dominant_species}
-                }, {dominant_species_count: -1, dominant_species: -1})
+        success_ratios[dominant_species].forEach((rat, idx) => {
+            if (success_ratio >= rat) {
+                window.global_stats.success_counts_base_5[dominant_species][idx] += 1;
+            }
+        })
+    }
+}
 
-            const success_ratio = dominant_species_count / (cell_count * entry_count)
-
-            success_ratios[dominant_species].forEach((rat, idx) => {
-                if (success_ratio >= rat) {
-                    success_counts_base_5[dominant_species][idx] += 1;
-                }
-            })
-        }
-    })
-
-    let successes_base_5 = success_counts_base_5.map((type_array) => {
+function updateStatsBlock() {
+    let successes_base_5 = window.global_stats.success_counts_base_5.map((type_array) => {
         return `
             <li>
                 <strong>success count:</strong> ${type_array}
@@ -233,9 +256,10 @@ function getStats() {
         `
     }).join('')
 
-    const stats = document.getElementById("stats")
-    stats.innerHTML = `
-        <strong>average success ratio base 5:</strong> ${success_ratio_base_5 / data.length}<br />
+    const stats_elem = document.getElementById("stats")
+    stats_elem.innerHTML = `
+        <h2>Runs Tallied: ${window.global_stats.tallied}</h2><br />
+        <strong>average success ratio base 5:</strong> ${window.global_stats.summed_success_ratio_base_5 / data.length}<br />
         <ol>${successes_base_5}</ol>
     `
 }
@@ -258,9 +282,29 @@ function newDataset() {
     console.log("dataset", local)
 }
 
-function requestData() {
-    if (window.requesting_data) return;
-    if (window.data_idx <)
+function ensureMoreData() {
+    if (window.requesting_data) return
+    if (window.data_idx < data.length - number_of_entries_until_end_to_call_for_more) return
+    window.requesting_data = true
+
+    const start_request = page_limit * window.page;
+    document.getElementById("requesting-info").innerHTML = `Requesting Data ${start_request}-${start_request + page_limit}`;
+
+    socket.emit("find", {
+        db: PARAMETERS.db,
+        collection: collectionName(),
+        query: {
+            name: query,
+            last_tick: last_tick
+         },
+        filter: window.filter,
+        limit: page_limit,
+        page: window.page,
+    })
+}
+
+function updateDataIdx() {
+    document.getElementById("query-info").innerHTML = `entry: ${data_start + data_idx + 1} loaded: ${data_start}-${data_start + data.length}`
 }
 
 function timeframeUpdated() {

@@ -96,8 +96,8 @@ class Organism {
                 inputColor: inputColor,
                 outputSide: side2,
                 outputColor: outputColor,
-                inputConnect: true,
-                outputConnect: true,
+                inputConnect: PARAMETERS.allowAttachments,
+                outputConnect: PARAMETERS.allowAttachments,
                 flow: 0
             });
         }
@@ -215,12 +215,14 @@ class Organism {
                 pipe.outputColor = colors[randomInt(colors.length)];
             }
 
-            if (arng.double() < PARAMETERS.mutationRate) {
-                pipe.inputConnect = !pipe.inputConnect;
-            }
+            if (PARAMETERS.allowAttachments) {
+                if (arng.double() < PARAMETERS.mutationRate) {
+                    pipe.inputConnect = !pipe.inputConnect;
+                }
 
-            if (arng.double() < PARAMETERS.mutationRate) {
-                pipe.outputConnect = !pipe.outputConnect;
+                if (arng.double() < PARAMETERS.mutationRate) {
+                    pipe.outputConnect = !pipe.outputConnect;
+                }
             }
         }
 
