@@ -47,6 +47,7 @@ socket.on("find", async (array) => {
         Object.assign(obj, data)
 
         processData(obj)
+        updateStatsBlock()
     }
 
     window.data.push(...array)
@@ -68,8 +69,6 @@ socket.on("find", async (array) => {
         window.data_manager.loadData(data[data_idx])
         newDataset()
     }
-
-    updateStatsBlock()
 
     document.getElementById("requesting-info").innerHTML = ``;
 
@@ -265,12 +264,12 @@ function updateStatsBlock() {
         style: "unit",
         unit: "gigabyte",
         maximumSignificantDigits: 3,
-    }).format(window.total_bytes_in_dataset /1024/1024/1024)
+    }).format(window.total_bytes_in_dataset /1000/1000/1000)
 
     const stats_elem = document.getElementById("stats")
     stats_elem.innerHTML = `
         <h2>Runs Tallied: ${window.global_stats.tallied}</h2><br />
-        <strong>average success ratio base 5:</strong> ${window.global_stats.summed_success_ratio_base_5 / data.length}<br />
+        <strong>average success ratio base 5:</strong> ${window.global_stats.summed_success_ratio_base_5 / window.global_stats.tallied}<br />
         <ol>${successes_base_5}</ol> <br />
 
 
