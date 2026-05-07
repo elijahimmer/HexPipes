@@ -2,6 +2,7 @@ window.canvas = null
 window.data = []
 window.data_idx = 0
 window.data_start = 0
+window.total_bytes_in_dataset = 0
 
 const number_of_entries_until_end_to_call_for_more = 10
 const last_tick = PARAMETERS.maxTicks
@@ -39,6 +40,7 @@ socket.on("count", (length) => {
 socket.on("find", async (array) => {
     updateRequestingInfo("Processesing")
     for (let obj of array) {
+        window.total_bytes_in_dataset += obj.compressed.length
         console.log(`Data size ${obj.compressed.length / 1024 / 1024}MiB`)
         const data = JSON.parse(await decompress(Uint8Array.fromBase64(obj.compressed)))
         delete obj.compressed
@@ -150,6 +152,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
         if (window.request_all_the_data_please_this_isnt_a_bad_idea) {
             ensureMoreData()
         }
+
+        updateRequestingInfo()
     })
 
     document.getElementById("jump-to").addEventListener("click", (e) => {
@@ -257,11 +261,20 @@ function updateStatsBlock() {
         `
     }).join('')
 
+    const dataset_gigabytes = new Intl.NumberFormat("en-IN", {
+        style: "unit",
+        unit: "gigabyte",
+        maximumSignificantDigits: 3,
+    }).format(window.total_bytes_in_dataset /1024/1024/1024)
+
     const stats_elem = document.getElementById("stats")
     stats_elem.innerHTML = `
         <h2>Runs Tallied: ${window.global_stats.tallied}</h2><br />
         <strong>average success ratio base 5:</strong> ${window.global_stats.summed_success_ratio_base_5 / data.length}<br />
-        <ol>${successes_base_5}</ol>
+        <ol>${successes_base_5}</ol> <br />
+
+
+        <br /><br /><strong>Dataset Size:<strong/> ~${dataset_gigabytes}<br />
     `
 }
 
@@ -313,7 +326,9 @@ function updateDataIdx() {
     document.getElementById("query-info").innerHTML = `entry: ${data_start + data_idx + 1} loaded: ${data_start + 1}-${data_start + data.length}`
 }
 
-function updateRequestingInfo(str) {
+window.window.requesting_info_tag = "THIS IS A BUG"
+function updateRequestingInfo(str = window.requesting_info_tag) {
+    window.requesting_info_tag = str
     const request_start = page_limit * window.page;
     const request_end = Math.min(request_start + page_limit, num_records);
     let context = `${str} Data ${request_start + 1}-${request_end}`;
