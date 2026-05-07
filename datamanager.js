@@ -290,20 +290,6 @@ class DataManager {
     logData() {
         console.log("Data logged!")
         var data = {
-            population: this.population,
-            uniqueOrganisms: this.uniqueOrganisms,
-            deathsStarvation: this.deathsStarvation,
-            deathsRandom: this.deathsRandom,
-            energyLostFromDeath: this.energyLostFromDeath,
-            base5Pops: this.base5Pops,
-            base15Pops: this.base15Pops,
-            base15EnergyAverage: this.base15EnergyAverage,
-            base15EnergyTotal: this.base15EnergyTotal,
-            totalSpecies: this.totalSpecies,
-            livingSpecies: this.livingSpecies,
-            pipeFlowLoss: this.pipeFlowLoss,
-            pipeChainLengthsAverage: this.pipeChainLengthsAverage,
-            pipeChainLengthsLongest: this.pipeChainLengthsLongest,
             boardState: this.boardState,
         }
 
@@ -325,6 +311,20 @@ class DataManager {
                     params: PARAMETERS,
                     last_tick: this.hexGrid.tick,
                     compressed: base64,
+                    population: this.population,
+                    uniqueOrganisms: this.uniqueOrganisms,
+                    deathsStarvation: this.deathsStarvation,
+                    deathsRandom: this.deathsRandom,
+                    energyLostFromDeath: this.energyLostFromDeath,
+                    base5Pops: this.base5Pops,
+                    base15Pops: this.base15Pops,
+                    base15EnergyAverage: this.base15EnergyAverage,
+                    base15EnergyTotal: this.base15EnergyTotal,
+                    totalSpecies: this.totalSpecies,
+                    livingSpecies: this.livingSpecies,
+                    pipeFlowLoss: this.pipeFlowLoss,
+                    pipeChainLengthsAverage: this.pipeChainLengthsAverage,
+                    pipeChainLengthsLongest: this.pipeChainLengthsLongest,
                 }
             })
             else console.error("No socket!!!!");
