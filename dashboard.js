@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     })
 
     document.getElementById("jump-to").addEventListener("click", (e) => {
-        const new_idx = Math.min(Math.max(new Number(document.getElementById("Jump To Amount").value).valueOf() - 1, 0), num_records - 1)
+        const new_idx = Math.min(Math.max(new Number(document.getElementById("jump-to-amount").value).valueOf() - 1, 0), num_records - 1)
 
         window.page = Math.floor(new_idx / page_limit)
         window.data_start = window.page * page_limit
