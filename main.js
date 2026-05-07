@@ -27,6 +27,10 @@ const runs = [
   {
     name: "Default",
   },
+  {
+    name: "Connectivity",
+
+  },
   // {
   //   name: "Enforce Max Energy",
   //   enforceMaxEnergy: true,
