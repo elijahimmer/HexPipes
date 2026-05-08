@@ -583,3 +583,26 @@ resetData()
 // Skip ahead-- Identify runs
 // Classify runs after they are run and store that
 // Chase stories -- make tools as you think they will be helpful
+//
+// TODO:
+//
+// Filter bad runs -- connectivity in
+// Fix Pipe view
+// Add top orgs to dashboard
+// Live organisms vs available space for additional success ratio maybe
+// Classify each run
+// Dominant last tick
+//     only 1 base 5?
+//     only 1 base 15?
+//     et cet.
+// Taxonomy of runs
+// Make buckets, then look at to refine further
+//
+//
+// Tissue formation, Directed Mutation
+//
+//
+// POSTER:
+//
+// Videos -- Grab interesting runs
+//
