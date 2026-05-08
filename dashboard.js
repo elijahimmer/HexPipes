@@ -1,3 +1,4 @@
+"use strict";
 let s = {} // global state
 s.canvas = null
 s.record_count = 0
@@ -199,7 +200,10 @@ function resetStats() {
     s.global_stats = {
         tallied: 0,
         success_counts_base_5: Array(5).fill(0).map(() => [0,0,0,0,0]),
+        success_counts_base_15: Array(15).fill(0).map(() => [0,0,0,0,0]),
+
         summed_success_ratio_base_5: 0.0,
+        summed_success_ratio_base_15: 0.0,
     }
 }
 resetStats()
@@ -211,7 +215,7 @@ function processData(run_data) {
     s.global_stats.tallied += 1
 
     const number_of_last_entries_in_run_to_count = 1
-    const success_ratios = [
+    const success_ratios_base_5 = [
         [.99, .95, .90, .75, 0], // all turns
         [.99, .95, .90, .75, 0], // 2 long
         [.99, .95, .90, .75, 0], // 1 long
@@ -238,9 +242,60 @@ function processData(run_data) {
         const success_ratio = dominant_species_count / (cell_count * number_of_last_entries_in_run_to_count)
         s.global_stats.summed_success_ratio_base_5 += success_ratio
 
-        success_ratios[dominant_species].forEach((rat, idx) => {
+        success_ratios_base_5[dominant_species].forEach((rat, idx) => {
             if (success_ratio >= rat) {
                 s.global_stats.success_counts_base_5[dominant_species][idx] += 1
+            }
+        })
+    }
+
+    const success_ratios_base_15 = [
+        // all turns
+        [.99, .95, .90, .75, 0],
+        [.99, .95, .90, .75, 0],
+
+        // 2 long
+        [.99, .95, .90, .75, 0],
+        [.99, .95, .90, .75, 0],
+        [.99, .95, .90, .75, 0],
+
+        [.99, .95, .90, .75, 0],
+        [.99, .95, .90, .75, 0],
+        [.99, .95, .90, .75, 0],
+
+        // 1 long
+        [.99, .95, .90, .75, 0],
+        [.99, .95, .90, .75, 0],
+        [.99, .95, .90, .75, 0],
+
+        // 1 straight
+        [.99, .95, .90, .75, 0],
+        [.99, .95, .90, .75, 0],
+        [.99, .95, .90, .75, 0],
+
+        // all straight
+        [.99, .95, .90, .75, 0],
+    ]
+
+    { // base 15 successes
+        // I wish this was Haskell or something....
+        const species_counts = run_data.base15Pops.map(cur => {
+            return cur.slice(-number_of_last_entries_in_run_to_count).reduce((sum, val) => sum + val, 0)
+        })
+        const total_orgs = species_counts.reduce((sum, val) => sum + val, 0)
+
+        const {dominant_species, dominant_species_count} =
+            species_counts.reduce(({dominant_species_count, dominant_species}, val, idx) => {
+                if (val > dominant_species_count) return {dominant_species_count: val, dominant_species: idx}
+                return {dominant_species_count, dominant_species}
+            }, {dominant_species_count: -1, dominant_species: -1})
+
+        const success_ratio = dominant_species_count / (cell_count * number_of_last_entries_in_run_to_count)
+        s.global_stats.summed_success_ratio_base_15 += success_ratio
+
+        success_ratios_base_15[dominant_species].forEach((rat, idx) => {
+            if (success_ratio >= rat) {
+                s.global_stats.success_counts_base_15[dominant_species][idx] += 1
             }
         })
     }
@@ -248,6 +303,14 @@ function processData(run_data) {
 
 function updateStatsBlock() {
     let successes_base_5 = s.global_stats.success_counts_base_5.map((type_array) => {
+        return `
+            <li>
+                <strong>success count:</strong> ${type_array}
+            </li>
+        `
+    }).join('')
+
+    let successes_base_15 = s.global_stats.success_counts_base_15.map((type_array) => {
         return `
             <li>
                 <strong>success count:</strong> ${type_array}
@@ -265,11 +328,18 @@ function updateStatsBlock() {
         maximumSignificantDigits: 3,
     }).format(s.global_stats.summed_success_ratio_base_5 / s.global_stats.tallied * 100);
 
+    const average_success_ratio_base_15 = new Intl.NumberFormat(navigator.languages, {
+        maximumSignificantDigits: 3,
+    }).format(s.global_stats.summed_success_ratio_base_15 / s.global_stats.tallied * 100);
+
     const stats_elem = document.getElementById("stats")
     stats_elem.innerHTML = `
         <h2>Runs Tallied: ${s.global_stats.tallied}</h2><br />
         <strong>average success ratio base 5:</strong> ${average_success_ratio_base_5}%<br />
         <ol>${successes_base_5}</ol> <br />
+
+        <strong>average success ratio base 15:</strong> ${average_success_ratio_base_15}%<br />
+        <ol>${successes_base_15}</ol> <br />
 
 
         <br /><br /><strong>Dataset Size (compressed):<strong/> ~${dataset_gigabytes}<br />
