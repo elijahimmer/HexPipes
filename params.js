@@ -83,6 +83,25 @@ function loadParameters() {
     console.log("Parameters loaded:", PARAMETERS);
 }
 
+function storeParameters() {
+    // store parameters to UI
+    document.getElementById("runName").value = PARAMETERS.name
+    document.getElementById("numOrganisms").value = PARAMETERS.numOrganisms
+    document.getElementById("mutationRate").value = PARAMETERS.mutationRate
+    document.getElementById("reproductionThreshold").value = PARAMETERS.reproductionThreshold
+    document.getElementById("deathRate").value = PARAMETERS.deathRate
+    document.getElementById("starvationRate").value = PARAMETERS.starvationRate
+    document.getElementById("starvationThreshold").value = PARAMETERS.starvationThreshold
+    document.getElementById("k_diffusion").value = PARAMETERS.k_diffusion
+    document.getElementById("k_pipeFlow").value = PARAMETERS.k_pipe
+    document.getElementById("lossRate").value = PARAMETERS.loss_rate
+    document.getElementById("gridRadius").value = PARAMETERS.gridRadius
+    document.getElementById("cellSize").value = PARAMETERS.cellSize
+    document.getElementById("enforceMaxEnergy").checked = PARAMETERS.enforceMaxEnergy
+    document.getElementById("taxPipeFlow").checked = PARAMETERS.taxPipeFlow
+    document.getElementById("randomSeed").checked = PARAMETERS.randomSeed
+}
+
 const BACKGROUND_COLOR = "#000000";
 const TEXT_COLOR = "#E0DEF4";
 

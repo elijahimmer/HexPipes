@@ -54,6 +54,8 @@ function reset() {
     Object.assign(PARAMETERS, runs[run_index]);
     PARAMETERS.randomSeed = Math.floor(Math.random() * 0xFFFF_FFFF);
 
+    storeParameters()
+
     const ctx = window.canvas.getContext("2d");
 
     run_index = (run_index + 1) % runs.length;
