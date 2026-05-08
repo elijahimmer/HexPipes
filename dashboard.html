@@ -27,12 +27,12 @@
         <label for="collection-name">Database collection name</label>
         <input type="text" id="collection-name"/><button id="collection-name-search">Search</button><br /><br />
 
-        <label for="run_selection">Run Name:</label>
-        <select id="run_selection"></select><br /><br />
+        <label for="run-selection">Run Name:</label>
+        <select id="run-selection" name="run-selection"></select><br /><br />
         <button id="prev-run">Prev Run</button> <button id="next-run">Next Run</button> <button id="jump-page">Jump Page</button> <br />
         <input type="number" id="jump-to-amount" value="0" /> <button id="jump-to">Jump To</button> <br />
         <button id="request-all-the-data-please">Request All The Data Please</button> <br />
-        <input type="checkbox" id="play-them-all-one-by-one" />
+        <input type="checkbox" id="play-them-all-one-by-one" name="play-them-all-one-by-one" />
         <label for="play-them-all-one-by-one">Play Them All One By One</label><br />
 
         <div id="requesting-info"></div><br />
@@ -134,7 +134,7 @@
         <input type="button"
                id="record"
                name="record"
-               onclick="recordData()"></input>
+               onclick="recordData()" />
         <label for="record">Record</label>
 
         <h3>Statistics</h3>

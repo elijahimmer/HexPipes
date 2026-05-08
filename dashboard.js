@@ -1,19 +1,18 @@
-window.canvas = null
-window.data = []
-window.data_idx = 0
-window.data_start = 0
-window.total_bytes_in_dataset = 0
+let s = {} // global state
+s.canvas = null
+s.record_count = 0
 
-const number_of_entries_until_end_to_call_for_more = 10
-const last_tick = PARAMETERS.maxTicks
+s.number_of_entries_until_end_to_call_for_more = 10
+s.expected_last_tick_of_run = PARAMETERS.maxTicks
 
-const page_limit = 20
-const max_runs_in_memory = page_limit * 3
-window.page = 0
-window.request_all_the_data_please_this_isnt_a_bad_idea = false
+s.page_limit = 20
+s.max_runs_in_memory = s.page_limit * 3
 
-window.hex_grid = new HexGrid()
-window.data_manager = new DataManager(null)
+s.page = 0
+s.request_all_the_data_please_this_isnt_a_bad_idea = false
+
+s.hex_grid = new HexGrid()
+s.data_manager = new DataManager(null)
 
 console.log("Database connected!")
 
@@ -31,17 +30,16 @@ socket.on("count", (length) => {
     document.getElementById("entry-count").innerText = `total entries: ${length}`
     document.getElementById("query-info").innerHTML = ""
 
-    num_records = length
-    data_idx = 0
-
-    window.data = []
+    s.record_count = length
+    resetData()
 })
 
 socket.on("find", async (array) => {
     updateRequestingInfo("Processesing")
     for (let obj of array) {
-        window.total_bytes_in_dataset += obj.compressed.length
-        console.log(`Data size ${obj.compressed.length / 1024 / 1024}MiB`)
+        const obj_length = JSON.stringify(obj).length
+        s.total_bytes_in_dataset += obj_length
+        console.log(`Data size ${obj_length /1024/1024}MiB`)
         const data = JSON.parse(await decompress(Uint8Array.fromBase64(obj.compressed)))
         delete obj.compressed
         Object.assign(obj, data)
@@ -50,29 +48,29 @@ socket.on("find", async (array) => {
         updateStatsBlock()
     }
 
-    window.data.push(...array)
-    window.page += 1
+    s.data.array.push(...array)
+    s.page += 1
 
-    if (window.data.length > max_runs_in_memory) {
-        const amount_dropped = data.length - max_runs_in_memory
-        window.data_start += amount_dropped
-        window.data_idx = Math.max(0, window.data_idx - amount_dropped)
+    if (s.data.array.length > s.max_runs_in_memory) {
+        const amount_dropped = s.data.array.length - s.max_runs_in_memory
+        s.data.start += amount_dropped
+        s.data.index = Math.max(0, s.data.index - amount_dropped)
 
-        window.data = window.data.slice(data.length - max_runs_in_memory)
+        s.data.array = s.data.array.slice(s.data.array.length - s.max_runs_in_memory)
     }
 
-    window.requesting_data = false
+    s.requesting_data = false
 
     if (array.length > 0) {
         updateDataIdx()
 
-        window.data_manager.loadData(data[data_idx])
+        s.data_manager.loadData(s.data.array[s.data.index])
         newDataset()
     }
 
     document.getElementById("requesting-info").innerHTML = ``
 
-    if (window.request_all_the_data_please_this_isnt_a_bad_idea)
+    if (s.request_all_the_data_please_this_isnt_a_bad_idea)
         ensureMoreData()
 })
 
@@ -87,27 +85,11 @@ socket.on("distinct", (array) => {
         query_info.innerHTML = "No runs found!"
     }
 
-    window.query = document.getElementById("run_selection").value
-    document.getElementById("query-info").innerHTML = "Query Sent. Awaiting Reply."
-
-    window.filter = null
-    window.page = 0
-
-    console.log(`query: ${query} filter: ${filter} for ${PARAMETERS.db}@${collectionName()}`)
-
-    window.socket.emit("count", {
-        db: PARAMETERS.db,
-        collection: collectionName(),
-        query: {
-            name: window.query,
-            last_tick: last_tick
-        },
-    })
-
+    changeRunName()
 })
 
 document.addEventListener("DOMContentLoaded", (event) => {
-    window.canvas = document.getElementById("dashboard")
+    s.canvas = document.getElementById("dashboard")
 
     console.log(`DOM loaded, connecting to database ${PARAMETERS.db}@${collectionName()}`)
     const entry = document.getElementById("collection-name").value = collectionName()
@@ -118,9 +100,17 @@ document.addEventListener("DOMContentLoaded", (event) => {
         key: "name"
     })
 
+    document.getElementById("run-selection").addEventListener("input", (e) => {
+        const run_selection = document.getElementById("run-selection")
+        if (s.run_name != run_selection.value) {
+            console.log("Changed run name from", s.run_name, "to", run_selection.value)
+            changeRunName()
+        }
+    }, false)
+
     document.getElementById("prev-run").addEventListener("click", (e) => {
-        if (data_idx > 0) {
-            data_idx -= 1
+        if (s.data.index > 0) {
+            s.data.index -= 1
             updateDataIdx()
             newDataset()
         }
@@ -129,8 +119,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     }, false)
 
     document.getElementById("next-run").addEventListener("click", (e) => {
-        if (data_idx < data.length - 1) {
-            data_idx += 1
+        if (s.data.index < s.data.array.length - 1) {
+            s.data.index += 1
             updateDataIdx()
             newDataset()
         }
@@ -139,28 +129,28 @@ document.addEventListener("DOMContentLoaded", (event) => {
     }, false)
 
     document.getElementById("jump-page").addEventListener("click", (e) => {
-        data_idx = data.length - 1
+        s.data.index = s.data.array.length - 1
         updateDataIdx()
         newDataset()
         ensureMoreData()
     }, false)
 
     document.getElementById("jump-to").addEventListener("click", (e) => {
-        const new_idx = Math.min(Math.max(new Number(document.getElementById("jump-to-amount").value).valueOf() - 1, 0), num_records - 1)
+        const new_idx = Math.min(Math.max(new Number(document.getElementById("jump-to-amount").value).valueOf() - 1, 0), s.record_count - 1)
 
-        window.page = Math.floor(new_idx / page_limit)
-        window.data_start = window.page * page_limit
+        s.page = Math.floor(new_idx / s.page_limit)
+        s.data.start = s.page * s.page_limit
 
-        window.data_idx = new_idx - window.data_start
-        window.data = []
+        s.data.index = new_idx - s.data.start
+        s.data.array = []
 
         ensureMoreData()
     }, false)
 
     document.getElementById("request-all-the-data-please").addEventListener("click", (e) => {
-        window.request_all_the_data_please_this_isnt_a_bad_idea = !window.request_all_the_data_please_this_isnt_a_bad_idea
+        s.request_all_the_data_please_this_isnt_a_bad_idea = !s.request_all_the_data_please_this_isnt_a_bad_idea
 
-        if (window.request_all_the_data_please_this_isnt_a_bad_idea) {
+        if (s.request_all_the_data_please_this_isnt_a_bad_idea) {
             ensureMoreData()
         }
 
@@ -178,17 +168,17 @@ document.addEventListener("DOMContentLoaded", (event) => {
 })
 
 function draw() {
-    const ctx = canvas.getContext("2d")
+    const ctx = s.canvas.getContext("2d")
     ctx.fillStyle = "#181A1B"
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
-    window.data_manager.draw(ctx)
-    window.hex_grid.draw(ctx)
+    s.data_manager.draw(ctx)
+    s.hex_grid.draw(ctx)
 }
 
 function populateDropDown(labels) {
     console.log(`${labels.length} labels found`)
 
-    const run_select = document.getElementById("run_selection")
+    const run_select = document.getElementById("run-selection")
 
     while (run_select.firstChild) {
         run_select.removeChild(run_select.firstChild)
@@ -203,17 +193,22 @@ function populateDropDown(labels) {
     })
 }
 
-window.which_stats_have_we_done = new Set()
-window.global_stats = {
-    tallied: 0,
-    success_counts_base_5: Array(5).fill(0).map(() => [0,0,0,0,0]),
-    summed_success_ratio_base_5: 0.0,
+function resetStats() {
+    s.which_stats_have_we_done = new Set()
+    s.total_bytes_in_dataset = 0
+    s.global_stats = {
+        tallied: 0,
+        success_counts_base_5: Array(5).fill(0).map(() => [0,0,0,0,0]),
+        summed_success_ratio_base_5: 0.0,
+    }
 }
+resetStats()
+
 
 function processData(run_data) {
-    if (window.which_stats_have_we_done.has(run_data._id)) return
-    window.which_stats_have_we_done.add(run_data._id)
-    window.global_stats.tallied += 1
+    if (s.which_stats_have_we_done.has(run_data._id)) return
+    s.which_stats_have_we_done.add(run_data._id)
+    s.global_stats.tallied += 1
 
     const number_of_last_entries_in_run_to_count = 1
     const success_ratios = [
@@ -241,18 +236,18 @@ function processData(run_data) {
             }, {dominant_species_count: -1, dominant_species: -1})
 
         const success_ratio = dominant_species_count / (cell_count * number_of_last_entries_in_run_to_count)
-        window.global_stats.summed_success_ratio_base_5 += success_ratio
+        s.global_stats.summed_success_ratio_base_5 += success_ratio
 
         success_ratios[dominant_species].forEach((rat, idx) => {
             if (success_ratio >= rat) {
-                window.global_stats.success_counts_base_5[dominant_species][idx] += 1
+                s.global_stats.success_counts_base_5[dominant_species][idx] += 1
             }
         })
     }
 }
 
 function updateStatsBlock() {
-    let successes_base_5 = window.global_stats.success_counts_base_5.map((type_array) => {
+    let successes_base_5 = s.global_stats.success_counts_base_5.map((type_array) => {
         return `
             <li>
                 <strong>success count:</strong> ${type_array}
@@ -260,26 +255,30 @@ function updateStatsBlock() {
         `
     }).join('')
 
-    const dataset_gigabytes = new Intl.NumberFormat("en-IN", {
+    const dataset_gigabytes = new Intl.NumberFormat(navigator.languages, {
         style: "unit",
         unit: "gigabyte",
         maximumSignificantDigits: 3,
-    }).format(window.total_bytes_in_dataset /1000/1000/1000)
+    }).format(s.total_bytes_in_dataset /1000/1000/1000)
+
+    const average_success_ratio_base_5 = new Intl.NumberFormat(navigator.languages, {
+        maximumSignificantDigits: 3,
+    }).format(s.global_stats.summed_success_ratio_base_5 / s.global_stats.tallied * 100);
 
     const stats_elem = document.getElementById("stats")
     stats_elem.innerHTML = `
-        <h2>Runs Tallied: ${window.global_stats.tallied}</h2><br />
-        <strong>average success ratio base 5:</strong> ${window.global_stats.summed_success_ratio_base_5 / window.global_stats.tallied}<br />
+        <h2>Runs Tallied: ${s.global_stats.tallied}</h2><br />
+        <strong>average success ratio base 5:</strong> ${average_success_ratio_base_5}%<br />
         <ol>${successes_base_5}</ol> <br />
 
 
-        <br /><br /><strong>Dataset Size:<strong/> ~${dataset_gigabytes}<br />
+        <br /><br /><strong>Dataset Size (compressed):<strong/> ~${dataset_gigabytes}<br />
     `
 }
 
 function newDataset() {
-    let local = data[data_idx]
-    window.data_manager.loadData(local)
+    let local = s.data.array[s.data.index]
+    s.data_manager.loadData(local)
 
     const end_tick = local.last_tick
 
@@ -300,15 +299,20 @@ function newDataset() {
 }
 
 function ensureMoreData() {
-    if (window.requesting_data) return
-    if (!request_all_the_data_please_this_isnt_a_bad_idea
-        && window.data_idx < data.length - number_of_entries_until_end_to_call_for_more) return
-    if ((window.page - 1) * page_limit > num_records) {
-        window.request_all_the_data_please_this_isnt_a_bad_idea = false
+    // Don't send another request while one is live
+    if (s.requesting_data) return
+
+    // Close to next page, prefetch
+    if (!s.request_all_the_data_please_this_isnt_a_bad_idea
+        && s.data.index < s.data.array.length - s.number_of_entries_until_end_to_call_for_more) return
+
+    // We are at the end
+    if ((s.page - 1) * s.page_limit > s.record_count) {
+        s.request_all_the_data_please_this_isnt_a_bad_idea = false
         return
     }
 
-    window.requesting_data = true
+    s.requesting_data = true
 
     updateRequestingInfo("Requesting")
 
@@ -316,27 +320,27 @@ function ensureMoreData() {
         db: PARAMETERS.db,
         collection: collectionName(),
         query: {
-            name: query,
-            last_tick: last_tick
+            name: s.run_name,
+            last_tick: s.expected_last_tick_of_run
          },
-        filter: window.filter,
-        limit: page_limit,
-        page: window.page,
+        filter: s.filter,
+        limit: s.page_limit,
+        page: s.page,
     })
 }
 
 function updateDataIdx() {
-    document.getElementById("query-info").innerHTML = `entry: ${data_start + data_idx + 1} loaded: ${data_start + 1}-${data_start + data.length}`
+    document.getElementById("query-info").innerHTML = `entry: ${s.data.start + s.data.index + 1} loaded: ${s.data.start + 1}-${s.data.start + s.data.array.length}`
 }
 
-window.window.requesting_info_tag = "THIS IS A BUG"
-function updateRequestingInfo(str = window.requesting_info_tag) {
-    window.requesting_info_tag = str
-    const request_start = page_limit * window.page
-    const request_end = Math.min(request_start + page_limit, num_records)
+s.requesting_info_tag = "THIS IS A BUG"
+function updateRequestingInfo(str = s.requesting_info_tag) {
+    s.requesting_info_tag = str
+    const request_start = s.page_limit * s.page
+    const request_end = Math.min(request_start + s.page_limit, s.record_count)
     let context = `${str} Data ${request_start + 1}-${request_end}`
 
-    if (window.request_all_the_data_please_this_isnt_a_bad_idea)
+    if (s.request_all_the_data_please_this_isnt_a_bad_idea)
         context = `ALL THE DATA!!!!<br/>${context}`
 
     document.getElementById("requesting-info").innerHTML = context
@@ -352,20 +356,20 @@ function timeframeUpdated() {
     }
 
     const selected_tick = timeframe.value / timeframe.step - 1
-    window.data_manager.setSelectedTick(selected_tick)
+    s.data_manager.setSelectedTick(selected_tick)
 
-    let local = data[data_idx]
-    window.hex_grid.resetCells()
+    let local = s.data.array[s.data.index]
+    s.hex_grid.resetCells()
 
     if (!local || !local.boardState) return
 
     for (let org_data of local.boardState[selected_tick] ?? []) {
         if (org_data.q == null || org_data.r == null || org_data.id == null) continue
-        const org = new Organism(hex_grid, org_data.id)
+        const org = new Organism(s.hex_grid, org_data.id)
         org.placeInGrid(org_data.q, org_data.r)
 
-        hex_grid.organisms.push(org)
-        hex_grid.organismGraph.addOrganism(org)
+        s.hex_grid.organisms.push(org)
+        s.hex_grid.organismGraph.addOrganism(org)
     }
 
     draw()
@@ -387,7 +391,7 @@ function timeframeAnimationLoop() {
     const fps = document.getElementById("timeframe-fps")
 
     if (!document.getElementById("timeframe-play").checked ||
-        !data[data_idx]?.boardState) return
+        !s.data.array[s.data.index]?.boardState) return
 
     const timeframe = document.getElementById("timeframe")
 
@@ -400,7 +404,7 @@ function timeframeAnimationLoop() {
 
     const dashboard = document.getElementById("dashboard")
 
-    if (window.recording?.active) {
+    if (s.recording?.active) {
         recording.stream.getVideoTracks()[0].requestFrame()
 
         if (new_value >= timeframe.max) {
@@ -430,7 +434,7 @@ async function recordData() {
         mimeType: "video/mp4"
     })
 
-    window.recording = {
+    s.recording = {
         active: true,
         stopped: false,
         stream: stream,
@@ -455,7 +459,7 @@ async function recordData() {
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.href = url
-        let local = data[data_idx]
+        let local = s.data.array[s.data.index]
         link.download = `animation-${local._id}`
         link.click()
         URL.revokeObjectURL(url) // Clean up
@@ -465,6 +469,37 @@ async function recordData() {
         document.getElementById("timeframe-play").checked = false
    }
 }
+
+function changeRunName(run_selection = document.getElementById("run-selection")) {
+    s.run_name = run_selection.value
+    document.getElementById("query-info").innerHTML = "Query Sent. Awaiting Reply."
+
+    s.filter = null
+    s.page = 0
+    resetData()
+    resetStats()
+
+    console.log(`query: ${s.run_name} filter: ${s.filter} for ${PARAMETERS.db}@${collectionName()}`)
+
+    socket.emit("count", {
+        db: PARAMETERS.db,
+        collection: collectionName(),
+        query: {
+            name: s.run_name,
+            last_tick: s.expected_last_tick_of_run
+        },
+    })
+}
+
+function resetData() {
+    s.data = {
+        array: [],
+        index: 0,
+        start: 0,
+    }
+}
+resetData()
+
 
 // NOTES:
 // Hierarchy of categorization -- finish base 5 categorization
