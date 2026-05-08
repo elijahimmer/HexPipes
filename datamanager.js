@@ -303,7 +303,7 @@ class DataManager {
                  "RATIO!",
                  JSON.stringify(base64).length / data_str.length)
 
-            if (socket) socket.emit("insert", {
+            if (socket) socket.emit("insert", structuredClone({
                 db: PARAMETERS.db,
                 collection: PARAMETERS.collection,
                 data: {
@@ -326,7 +326,7 @@ class DataManager {
                     pipeChainLengthsAverage: this.pipeChainLengthsAverage,
                     pipeChainLengthsLongest: this.pipeChainLengthsLongest,
                 }
-            })
+            }))
             else console.error("No socket!!!!");
         })
     }

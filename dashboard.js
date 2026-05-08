@@ -104,7 +104,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     document.getElementById("run-selection").addEventListener("input", (e) => {
         const run_selection = document.getElementById("run-selection")
         if (s.run_name != run_selection.value) {
-            console.log("Changed run name from", s.run_name, "to", run_selection.value)
+            console.log(`Changed run name from ${s.run_name} to ${run_selection.value}`)
             changeRunName()
         }
     }, false)
@@ -133,6 +133,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
         s.data.index = s.data.array.length - 1
         updateDataIdx()
         newDataset()
+
         ensureMoreData()
     }, false)
 
@@ -156,6 +157,16 @@ document.addEventListener("DOMContentLoaded", (event) => {
         }
 
         updateRequestingInfo()
+    })
+
+    document.getElementById("play-them-all-one-by-one").addEventListener("input", (e) => {
+        const elem = document.getElementById("play-them-all-one-by-one")
+
+        if (elem) {
+            document.getElementById("timeframe-play").checked = true
+        }
+
+        ensureMoreData()
     })
 
     document.getElementById("collection-name-search").addEventListener("click", (e) => {
@@ -358,7 +369,7 @@ function newDataset() {
         timeframe.min = timeframe.step = local.params.reportingPeriod ?? PARAMETERS.reportingPeriod
         timeframe.value = timeframe.max = local.last_tick
 
-        if (document.getElementById("play-them-all-one-by-one")) {
+        if (document.getElementById("play-them-all-one-by-one").checked) {
             timeframe.value = timeframe.min
         }
     }
