@@ -645,12 +645,17 @@ class HexGrid {
     draw(ctx) {
         // Draw organisms on top
         for (const organism of this.organisms) {
-            organism.draw(ctx);
+            organism.draw(ctx, true);
         }
 
         // Draw all cells
         for (const [key, cell] of this.cells) {
             this.drawHex(ctx, cell);
+        }
+
+        // don't ask... I need this to make it actually draw the pipes... (without having to rewrite stuff)
+        for (const organism of this.organisms) {
+            organism.draw(ctx);
         }
     }
 

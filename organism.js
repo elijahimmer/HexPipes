@@ -307,7 +307,7 @@ class Organism {
     /**
      * Draw the organism and its pipes
      */
-    draw(ctx) {
+    draw(ctx, firstPass = false) {
         const center = this.grid.hexToPixel(this.q, this.r);
         const size = this.grid.cellSize;
         const display = document.getElementById('organism-display').value;
@@ -353,7 +353,9 @@ class Organism {
             pipe_mid_color = BLACK_RGB;
         } else console.error(`Unknown 'organism-display' value ${display}`);
 
-         if (pipe_show === "none") {
+        if (firstPass) return
+
+        if (pipe_show === "none") {
             // do nothing
         } else if (pipe_show === "color" || pipe_show === "flow") {
             this.drawPipesAtPoint(ctx, center, size, this.pipes, pipe_show === "flow");

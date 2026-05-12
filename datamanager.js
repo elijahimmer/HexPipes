@@ -22,7 +22,6 @@ class DataManager {
         this.pipeChainLengthsAverage = []
         this.pipeChainLengthsLongest = []
         this.boardState = []
-
     }
 
     createGraphs() {

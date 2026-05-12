@@ -14,6 +14,7 @@ s.request_all_the_data_please_this_isnt_a_bad_idea = false
 
 s.hex_grid = new HexGrid()
 s.data_manager = new DataManager(null)
+s.organism_graph = new OrganismGraph(null);
 
 console.log("Database connected!")
 
@@ -65,7 +66,18 @@ socket.on("find", async (array) => {
     if (array.length > 0) {
         updateDataIdx()
 
+        s.data_manager = new DataManager(null)
         s.data_manager.loadData(s.data.array[s.data.index])
+
+        s.organism_graph = new OrganismGraph(null)
+
+        for (let org in s.data.array[s.data.index].boardState[s.data.array[s.data.index].boardState.length - 1]) {
+            s.organism_graph.addOrganism({
+                organismID: () => org,
+                org: org,
+            })
+        }
+
         newDataset()
     }
 
@@ -185,6 +197,7 @@ function draw() {
     ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
     s.data_manager.draw(ctx)
     s.hex_grid.draw(ctx)
+    s.organism_graph.drawTopOrganisms(ctx, 10, 1000)
 }
 
 function populateDropDown(labels) {

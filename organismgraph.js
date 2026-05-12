@@ -213,7 +213,7 @@ class OrganismGraph {
     }
 
     drawTopOrganisms(ctx, x, y, n) {
-        const tempOrg = new Organism(this.hexGrid);
+        const tempOrg = new Organism(this.hexGrid, "");
 
         ctx.save();
 

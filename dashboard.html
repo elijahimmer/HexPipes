@@ -42,32 +42,32 @@
 
         <h3>Graph Settings</h3>
 
-        <input type="checkbox" id="ignore-color" checked/>
+        <input type="checkbox" id="ignore-color" oninput="draw()" checked/>
         <label for="ignore-color">Ignore colors</label><br />
 
-        <input type="checkbox" id="ignore-directionality" checked />
+        <input type="checkbox" id="ignore-directionality" oninput="draw()" checked />
         <label for="ignore-directionality">Ignore Directionality (which way the pipes point)</label><br />
 
-        <input type="checkbox" id="ignore-rotation" />
+        <input type="checkbox" id="ignore-rotation" oninput="draw()" />
         <label for="ignore-rotation">Ignore Rotation</label><br />
 
-        <input type="checkbox" id="sort-top-orgs" />
+        <input type="checkbox" id="sort-top-orgs" oninput="draw()" />
         <label for="sort-top-orgs">Sort top organisms (only applicable to base 5 and 15)</label><br />
         <br />
 
         <h3>Grid Settings</h3>
 
-        <input type="checkbox" id="cell-draw-red" />
+        <input type="checkbox" id="cell-draw-red" oninput="draw()" />
         <label for="cell-draw-red">Draw Red</label><br />
 
-        <input type="checkbox" id="cell-draw-green" />
+        <input type="checkbox" id="cell-draw-green" oninput="draw()" />
         <label for="cell-draw-green">Draw Green</label><br />
 
-        <input type="checkbox" id="cell-draw-blue" />
+        <input type="checkbox" id="cell-draw-blue" oninput="draw()" />
         <label for="cell-draw-blue">Draw Blue</label><br />
 
         <label for="organism-display">Display Organism:</label>
-        <select id="organism-display">
+        <select id="organism-display" onclick="draw()">
             <option value="grey">Grey</option>
             <option value="base5">Base 5 Type</option>
             <option value="base15" selected>Base 15 Type</option>
@@ -76,28 +76,14 @@
         </select> <br />
 
         <label for="organism-pipes">Display Organism Pipes:</label>
-        <select id="organism-pipes">
+        <select id="organism-pipes" onclick="draw()">
             <option value="none" selected>None</option>
             <option value="color">Color</option>
             <option value="flow">Flow</option>
         </select> <br />
 
-        <input type="checkbox" id="endpoints" />
+        <input type="checkbox" id="endpoints" onclick="draw()" />
         <label for="endpoints">Show Endpoints</label><br />
-
-        <h3>Graph Settings</h3>
-
-        <input type="checkbox" id="ignore-color" checked/>
-        <label for="ignore-color">Ignore colors</label><br />
-
-        <input type="checkbox" id="ignore-directionality" checked />
-        <label for="ignore-directionality">Ignore Directionality (which way the pipes point)</label><br />
-
-        <input type="checkbox" id="ignore-rotation" />
-        <label for="ignore-rotation">Ignore Rotation</label><br />
-
-        <input type="checkbox" id="sort-top-orgs" />
-        <label for="sort-top-orgs">Sort top organisms (only applicable to base 5 and 15)</label><br />
 
         <br />
 
@@ -112,7 +98,7 @@
             max="0"
             value="0"
             step="0"
-            oninput="timeframeUpdated()" />
+            ononclick="timeframeUpdated()" />
         <label for="timeframe" id="timeframe-value"></label>
         <br /><br />
 
@@ -127,7 +113,7 @@
                max="60"
                value="60"
                step="0"
-               oninput="timeframeFpsUpdated()" />
+               ononclick="timeframeFpsUpdated()" />
         <label for="timeframe" id="timeframe-fps-value">fps: 60</label>
         <br />
 
