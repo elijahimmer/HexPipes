@@ -3,10 +3,10 @@ let s = {} // global state
 s.canvas = null
 s.record_count = 0
 
-s.number_of_entries_until_end_to_call_for_more = 10
 s.expected_last_tick_of_run = PARAMETERS.maxTicks
 
-s.page_limit = 20
+s.page_limit = 5
+s.number_of_entries_until_end_to_call_for_more = Math.ceil(s.page_limit / 2)
 s.max_runs_in_memory = s.page_limit * 3
 
 s.page = 0
@@ -210,90 +210,120 @@ function resetStats() {
     s.total_bytes_in_dataset = 0
     s.global_stats = {
         tallied: 0,
-        success_counts_base_5: Array(5).fill(0).map(() => [0,0,0,0,0]),
-        success_counts_base_15: Array(15).fill(0).map(() => [0,0,0,0,0]),
 
-        summed_success_ratio_base_5: 0.0,
-        summed_success_ratio_base_15: 0.0,
+        "base-5": {
+            success_counts: Array(5).fill(0).map(() => [0,0,0,0,0]),
+            summed_success_ratio: 0.0,
+        },
+        "base-15": {
+            success_counts: Array(15).fill(0).map(() => [0,0,0,0,0]),
+            summed_success_ratio: 0.0,
+        },
     }
 }
 resetStats()
 
 
 function processData(run_data) {
+    console.log("run data", run_data)
     if (s.which_stats_have_we_done.has(run_data._id)) return
     s.which_stats_have_we_done.add(run_data._id)
     s.global_stats.tallied += 1
 
-    const number_of_last_entries_in_run_to_count = 1
-    const success_ratios_base_5 = [
-        [.99, .95, .90, .75, 0], // all turns
-        [.99, .95, .90, .75, 0], // 2 long
-        [.99, .95, .90, .75, 0], // 1 long
-        [.99, .95, .90, .75, 0], // 1 straight
-        [.99, .95, .90, .75, 0], // all straight
-    ]
+    const success_ratios = {
+        "Default": {
+            "base-5": [
+                [.99, .95, .90, .75, 0], // all turns
+                [.99, .95, .90, .75, 0], // 2 long
+                [.99, .95, .90, .75, 0], // 1 long
+                [.99, .95, .90, .75, 0], // 1 straight
+                [.99, .95, .90, .75, 0], // all straight
+            ],
+            "base-15": [
+                // all turns
+                [.99, .95, .90, .75, 0],
+                [.99, .95, .90, .75, 0],
 
-    const radius = run_data.params.gridRadius - 1
-    const cell_count = 3 * (radius * radius - radius) - 1
+                // 2 long
+                [.99, .95, .90, .75, 0],
+                [.99, .95, .90, .75, 0],
+                [.99, .95, .90, .75, 0],
 
-    { // base 5 successes
-        // I wish this was Haskell or something....
-        const species_counts = run_data.base5Pops.map(cur => {
-            return cur.slice(-number_of_last_entries_in_run_to_count).reduce((sum, val) => sum + val, 0)
-        })
-        const total_orgs = species_counts.reduce((sum, val) => sum + val, 0)
+                [.99, .95, .90, .75, 0],
+                [.99, .95, .90, .75, 0],
+                [.99, .95, .90, .75, 0],
 
-        const {dominant_species, dominant_species_count} =
-            species_counts.reduce(({dominant_species_count, dominant_species}, val, idx) => {
-                if (val > dominant_species_count) return {dominant_species_count: val, dominant_species: idx}
-                return {dominant_species_count, dominant_species}
-            }, {dominant_species_count: -1, dominant_species: -1})
+                // 1 long
+                [.99, .95, .90, .75, 0],
+                [.99, .95, .90, .75, 0],
+                [.99, .95, .90, .75, 0],
 
-        const success_ratio = dominant_species_count / (cell_count * number_of_last_entries_in_run_to_count)
-        s.global_stats.summed_success_ratio_base_5 += success_ratio
+                // 1 straight
+                [.99, .95, .90, .75, 0],
+                [.99, .95, .90, .75, 0],
+                [.99, .95, .90, .75, 0],
 
-        success_ratios_base_5[dominant_species].forEach((rat, idx) => {
-            if (success_ratio >= rat) {
-                s.global_stats.success_counts_base_5[dominant_species][idx] += 1
-            }
-        })
+                // all straight
+                [.99, .95, .90, .75, 0],
+            ],
+        },
+        "Connectivity": {
+            "base-5": [
+                [.60, .50, .10, .05, 0], // all turns
+                [.60, .50, .10, .05, 0], // 2 long
+                [.60, .50, .10, .05, 0], // 1 long
+                [.60, .50, .10, .05, 0], // 1 straight
+                [.60, .50, .10, .05, 0], // all straight
+            ],
+            "base-15": [
+                // all turns
+                [.30, .20, .10, .05, 0],
+                [.30, .20, .10, .05, 0],
+
+                // 2 long
+                [.30, .20, .10, .05, 0],
+                [.30, .20, .10, .05, 0],
+                [.30, .20, .10, .05, 0],
+
+                [.30, .20, .10, .05, 0],
+                [.30, .20, .10, .05, 0],
+                [.30, .20, .10, .05, 0],
+
+                // 1 long
+                [.30, .20, .10, .05, 0],
+                [.30, .20, .10, .05, 0],
+                [.30, .20, .10, .05, 0],
+
+                // 1 straight
+                [.30, .20, .10, .05, 0],
+                [.30, .20, .10, .05, 0],
+                [.30, .20, .10, .05, 0],
+
+                // all straight
+                [.30, .20, .10, .05, 0],
+            ]
+        }
     }
 
-    const success_ratios_base_15 = [
-        // all turns
-        [.99, .95, .90, .75, 0],
-        [.99, .95, .90, .75, 0],
+    const number_of_last_entries_in_run_to_count = 1
 
-        // 2 long
-        [.99, .95, .90, .75, 0],
-        [.99, .95, .90, .75, 0],
-        [.99, .95, .90, .75, 0],
+    const radius = run_data.params.gridRadius - 1;
+    const cell_count = 3 * (radius * radius - radius) - 1
 
-        [.99, .95, .90, .75, 0],
-        [.99, .95, .90, .75, 0],
-        [.99, .95, .90, .75, 0],
+    for (let key of Object.keys(success_ratios[run_data.name])) {
+        if (key == "base-5") {
+            var pops = run_data.base5Pops
+        } else if (key == "base-15") {
+            var pops = run_data.base15Pops
+        }
 
-        // 1 long
-        [.99, .95, .90, .75, 0],
-        [.99, .95, .90, .75, 0],
-        [.99, .95, .90, .75, 0],
-
-        // 1 straight
-        [.99, .95, .90, .75, 0],
-        [.99, .95, .90, .75, 0],
-        [.99, .95, .90, .75, 0],
-
-        // all straight
-        [.99, .95, .90, .75, 0],
-    ]
-
-    { // base 15 successes
         // I wish this was Haskell or something....
-        const species_counts = run_data.base15Pops.map(cur => {
+        const species_counts = pops.map(cur => {
             return cur.slice(-number_of_last_entries_in_run_to_count).reduce((sum, val) => sum + val, 0)
         })
         const total_orgs = species_counts.reduce((sum, val) => sum + val, 0)
+
+        console.log("total orgs", total_orgs)
 
         const {dominant_species, dominant_species_count} =
             species_counts.reduce(({dominant_species_count, dominant_species}, val, idx) => {
@@ -302,18 +332,18 @@ function processData(run_data) {
             }, {dominant_species_count: -1, dominant_species: -1})
 
         const success_ratio = dominant_species_count / (cell_count * number_of_last_entries_in_run_to_count)
-        s.global_stats.summed_success_ratio_base_15 += success_ratio
+        s.global_stats[key].summed_success_ratio += success_ratio
 
-        success_ratios_base_15[dominant_species].forEach((rat, idx) => {
+        success_ratios[run_data.name][key][dominant_species].forEach((rat, idx) => {
             if (success_ratio >= rat) {
-                s.global_stats.success_counts_base_15[dominant_species][idx] += 1
+                s.global_stats[key].success_counts[dominant_species][idx] += 1
             }
         })
     }
 }
 
 function updateStatsBlock() {
-    let successes_base_5 = s.global_stats.success_counts_base_5.map((type_array) => {
+    let successes_base_5 = s.global_stats["base-5"].success_counts.map((type_array) => {
         return `
             <li>
                 <strong>success count:</strong> ${type_array}
@@ -321,7 +351,7 @@ function updateStatsBlock() {
         `
     }).join('')
 
-    let successes_base_15 = s.global_stats.success_counts_base_15.map((type_array) => {
+    let successes_base_15 = s.global_stats["base-15"].success_counts.map((type_array) => {
         return `
             <li>
                 <strong>success count:</strong> ${type_array}
@@ -337,11 +367,11 @@ function updateStatsBlock() {
 
     const average_success_ratio_base_5 = new Intl.NumberFormat(navigator.languages, {
         maximumSignificantDigits: 3,
-    }).format(s.global_stats.summed_success_ratio_base_5 / s.global_stats.tallied * 100);
+    }).format(s.global_stats["base-5"].summed_success_ratio / s.global_stats.tallied * 100);
 
     const average_success_ratio_base_15 = new Intl.NumberFormat(navigator.languages, {
         maximumSignificantDigits: 3,
-    }).format(s.global_stats.summed_success_ratio_base_15 / s.global_stats.tallied * 100);
+    }).format(s.global_stats["base-15"].summed_success_ratio / s.global_stats.tallied * 100);
 
     const stats_elem = document.getElementById("stats")
     stats_elem.innerHTML = `
