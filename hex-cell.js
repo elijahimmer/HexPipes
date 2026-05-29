@@ -26,9 +26,11 @@ function drawHex(ctx) {
 function drawOrg(org, ctx) {
     // reset color of cell
     pipe_mid_color = BLACK_RGB
+    ctx.lineWidth = 40
 
-    org.drawPipesAtPoint(ctx, center, size, org.pipes, false)
+    org.drawPipesAtPoint(ctx, center, size, org.pipes, false, 50)
 
+    ctx.lineWidth = 1
     for (const pipe of org.pipes) {
         const inputColor = org.getColorRGB(pipe.inputColor);
         const outputColor = org.getColorRGB(pipe.outputColor);
@@ -56,15 +58,11 @@ const org = new Organism({
     ],
 
     getCell: () => true
-}, "0R2B-1B5G-3G4R")
+}, "3B0Y-5M1C-4R2G")
 
-var TEXT_COLOR = "#f6c177";
+PARAMETERS.circleRadius = 30
+PARAMETERS.arrowLength = 80
 
 drawOrg(org, ctx)
 drawHex(ctx)
-ctx.lineWidth = 40
 drawOrg(org, ctx)
-
-ctx. f
-
-

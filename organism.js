@@ -370,9 +370,9 @@ class Organism {
         }
     }
 
-    drawPipesAtPoint(ctx, center, size, pipes, flow) {
+    drawPipesAtPoint(ctx, center, size, pipes, flow, lineWidth = 3) {
         for (const pipe of pipes) {
-            this.drawPipe(ctx, center, size, pipe, flow);
+            this.drawPipe(ctx, center, size, pipe, flow, lineWidth);
         }
     }
 
@@ -393,7 +393,7 @@ class Organism {
     /**
      * Draw a single pipe with curved line
      */
-    drawPipe(ctx, center, size, pipe, flow) {
+    drawPipe(ctx, center, size, pipe, flow, lineWidth = 3) {
         const startPoint = this.getSidePoint(center, size, pipe.inputSide);
         const endPoint = this.getSidePoint(center, size, pipe.outputSide);
 
@@ -409,12 +409,13 @@ class Organism {
             (pipe.inputSide === b && pipe.outputSide === a)
         );
 
+        ctx.lineWidth = lineWidth;
         if (isStraight) {
             // Draw straight line through center
-            this.drawGradientLine(ctx, startPoint, endPoint, inputColor, outputColor, pipe.flow, flow);
+            this.drawGradientLine(ctx, startPoint, endPoint, inputColor, outputColor, pipe.flow, flow, lineWidth);
         } else {
             // Draw curved line that doesn't go through center
-            this.drawCurvedPipe(ctx, center, startPoint, endPoint, inputColor, outputColor, pipe.flow, flow);
+            this.drawCurvedPipe(ctx, center, startPoint, endPoint, inputColor, outputColor, pipe.flow, flow, lineWidth);
         }
 
         // Draw direction indicators at the pipe endpoints (input/output)
@@ -456,6 +457,7 @@ class Organism {
             ctx.arc(startPoint.x, startPoint.y, PARAMETERS.circleRadius, 0, Math.PI * 2);
             ctx.fill();
             ctx.strokeStyle = TEXT_COLOR;
+            ctx.lineWidth = 1;
             ctx.stroke();
         }
 
@@ -483,6 +485,7 @@ class Organism {
             ctx.closePath();
             ctx.fill();
             ctx.strokeStyle = TEXT_COLOR;
+            ctx.lineWidth = 1;
             ctx.stroke();
         }
     }
@@ -490,7 +493,7 @@ class Organism {
     /**
      * Draw straight line with gradient
      */
-    drawGradientLine(ctx, start, end, startColor, outputColor, flow, showFlow) {
+    drawGradientLine(ctx, start, end, startColor, outputColor, flow, showFlow, lineWidth = 3) {
         const gradient = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
         gradient.addColorStop(0, rgb(startColor.R, startColor.G, startColor.B));
         gradient.addColorStop(0.5, rgb(pipe_mid_color.R, pipe_mid_color.G, pipe_mid_color.B));
@@ -512,45 +515,30 @@ class Organism {
     /**
      * Draw curved pipe using quadratic bezier
      */
-    drawCurvedPipe(ctx, center, start, end, startColor, outputColor, flow, showFlow) {
+    drawCurvedPipe(ctx, center, start, end, startColor, outputColor, flow, showFlow, lineWidth = 3) {
+        const gradient = ctx.createLinearGradient(start.x, start.y, end.x, end.y);
+        gradient.addColorStop(0, rgb(startColor.R, startColor.G, startColor.B));
+        gradient.addColorStop(0.5, rgb(pipe_mid_color.R, pipe_mid_color.G, pipe_mid_color.B));
+        gradient.addColorStop(1, rgb(outputColor.R, outputColor.G, outputColor.B));
+
         // Control point is perpendicular to midpoint, offset toward center
-        const midX = (start.x + end.x) / 2;
-        const midY = (start.y + end.y) / 2;
+        const midX = (start.x + end.x) / 2
+        const midY = (start.y + end.y) / 2
 
         // Vector from center to midpoint
-        const toMidX = midX - center.x;
-        const toMidY = midY - center.y;
-        const dist = Math.sqrt(toMidX * toMidX + toMidY * toMidY);
+        const toMidX = midX - center.x
+        const toMidY = midY - center.y
+        const dist = Math.sqrt(toMidX * toMidX + toMidY * toMidY)
 
         // Control point pushed toward center (subtract instead of add)
-        const controlX = midX - (toMidX / dist) * this.grid.cellSize * 0.5;
-        const controlY = midY - (toMidY / dist) * this.grid.cellSize * 0.5;
+        const control1X = midX - (toMidX / dist) * this.grid.cellSize * 0.5
+        const control1Y = midY - (toMidY / dist) * this.grid.cellSize * 0.5
 
-        // Draw curve with color endpoints and gray middle
-        // We'll approximate gradient with multiple line segments
-        const segments = 500;
-        for (let i = 0; i < segments; i++) {
-            const t1 = i / segments;
-            const t2 = (i + 1) / segments;
-
-            const p1 = this.bezierPoint(start, {x: controlX, y: controlY}, end, t1);
-            const p2 = this.bezierPoint(start, {x: controlX, y: controlY}, end, t2);
-
-            // Interpolate color
-            const color = this.interpolateColor(startColor, outputColor, t1);
-
-            if(showFlow) {
-                // Modulate color brightness by flow amount (0 to 1)
-                const flowFactor = Math.floor(flow/(255*PARAMETERS.k_pipe)*255); // Scale flow for visibility
-                ctx.strokeStyle = rgb(0, flowFactor, 0); // Greenish tint for flow
-            } else {
-                ctx.strokeStyle = rgb(Math.floor(color.R), Math.floor(color.G), Math.floor(color.B));
-            }
-            ctx.beginPath();
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
-        }
+        ctx.strokeStyle = gradient;
+        ctx.beginPath()
+        ctx.moveTo(start.x, start.y)
+        ctx.quadraticCurveTo(control1X,control1Y, end.x,end.y)
+        ctx.stroke()
     }
 
     /**
