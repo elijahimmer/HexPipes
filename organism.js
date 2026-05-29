@@ -310,9 +310,9 @@ class Organism {
     draw(ctx, firstPass = false) {
         const center = this.grid.hexToPixel(this.q, this.r);
         const size = this.grid.cellSize;
-        const display = document.getElementById('organism-display').value;
-        const pipe_show = document.getElementById('organism-pipes').value;
-        const endpoints = document.getElementById('endpoints').checked;
+        const display = document.getElementById('organism-display')?.value ?? true;
+        const pipe_show = document.getElementById('organism-pipes')?.value ?? true;
+        const endpoints = document.getElementById('endpoints')?.checked ?? true;
 
         const gridCell = this.grid.getCell(this.q, this.r);
         if (display === "black") {
@@ -456,7 +456,6 @@ class Organism {
             ctx.arc(startPoint.x, startPoint.y, PARAMETERS.circleRadius, 0, Math.PI * 2);
             ctx.fill();
             ctx.strokeStyle = TEXT_COLOR;
-            ctx.lineWidth = 1;
             ctx.stroke();
         }
 
@@ -484,7 +483,6 @@ class Organism {
             ctx.closePath();
             ctx.fill();
             ctx.strokeStyle = TEXT_COLOR;
-            ctx.lineWidth = 1;
             ctx.stroke();
         }
     }
@@ -505,7 +503,6 @@ class Organism {
         } else {
             ctx.strokeStyle = gradient;
         }
-        ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(start.x, start.y);
         ctx.lineTo(end.x, end.y);
@@ -531,7 +528,7 @@ class Organism {
 
         // Draw curve with color endpoints and gray middle
         // We'll approximate gradient with multiple line segments
-        const segments = 20;
+        const segments = 500;
         for (let i = 0; i < segments; i++) {
             const t1 = i / segments;
             const t2 = (i + 1) / segments;
@@ -549,7 +546,6 @@ class Organism {
             } else {
                 ctx.strokeStyle = rgb(Math.floor(color.R), Math.floor(color.G), Math.floor(color.B));
             }
-            ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);

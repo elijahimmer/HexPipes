@@ -102,9 +102,9 @@ function storeParameters() {
     document.getElementById("randomSeed").checked = PARAMETERS.randomSeed
 }
 
-const BACKGROUND_COLOR = "#000000";
-const TEXT_COLOR = "#E0DEF4";
+var BACKGROUND_COLOR = "#000000";
+var TEXT_COLOR = "#E0DEF4";
 
-const GREY = "#908CAA";
-const GREY_RGB  = parseHexColor(GREY);
-const BLACK_RGB = parseHexColor("#000000");
+var GREY = "#908CAA";
+var GREY_RGB  = parseHexColor(GREY);
+var BLACK_RGB = parseHexColor("#000000");

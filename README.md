@@ -1,10 +1,17 @@
 # Hex Pipes: Evolutionary Artificial Life Simulation
 
-An evolutionary artificial life system where single-hex organisms extract energy from flowing colored resources through configurable pipe networks. Watch populations adapt and evolve in real-time as metabolic configurations compete for survival.
+An evolutionary artificial life system where single-hex organisms extract
+energy from flowing colored resources through configurable pipe networks. Watch
+populations adapt and evolve in real-time as metabolic configurations compete
+for survival.
 
 ## 🎯 Core Concept
 
-**Organisms** are single hexagons with **3 one-way pipes** that process colored resources (R, Y, G, C, B, M). Each pipe connects two of the hex's 6 sides, pulling resources in and pushing them out. Energy is gained from color conversions (larger color distances = more energy). When organisms reach 100 energy, they reproduce with mutations, creating evolutionary dynamics.
+**Organisms** are single hexagons with **3 one-way pipes** that process
+colored resources (R, Y, G, C, B, M). Each pipe connects two of the hex's 6
+sides, pulling resources in and pushing them out. Energy is gained from color
+conversions (larger color distances = more energy). When organisms reach 100
+energy, they reproduce with mutations, creating evolutionary dynamics.
 
 ## ✨ Key Features
 
