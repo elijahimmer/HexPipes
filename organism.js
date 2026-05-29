@@ -383,7 +383,7 @@ class Organism {
         const angle = Math.PI / 3 * side + Math.PI / 6; // Angle to side midpoint
         // For flat-top hexagon, edge midpoint is at distance size * cos(30°) = size * sqrt(3)/2
         // Reduce slightly (0.85 instead of 0.866) to start just inside the edge
-        const edgeDistance = size * 0.85;
+        const edgeDistance = size * (0.8 + 0.1 * 2/3);
         return {
             x: center.x + edgeDistance * Math.cos(angle),
             y: center.y + edgeDistance * Math.sin(angle)
@@ -456,9 +456,9 @@ class Organism {
             ctx.beginPath();
             ctx.arc(startPoint.x, startPoint.y, PARAMETERS.circleRadius, 0, Math.PI * 2);
             ctx.fill();
-            ctx.strokeStyle = TEXT_COLOR;
-            ctx.lineWidth = 1;
-            ctx.stroke();
+            // ctx.strokeStyle = TEXT_COLOR;
+            // ctx.lineWidth = 1;
+            // ctx.stroke();
         }
 
         // Only draw output indicator if outputCell is external (no organism)
@@ -484,9 +484,6 @@ class Organism {
             ctx.lineTo(baseX2, baseY2);
             ctx.closePath();
             ctx.fill();
-            ctx.strokeStyle = TEXT_COLOR;
-            ctx.lineWidth = 1;
-            ctx.stroke();
         }
     }
 
